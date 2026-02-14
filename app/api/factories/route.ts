@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
+
+export const dynamic = "force-dynamic";
+
 const DATA_FILE = path.join(process.cwd(), "data", "submissions.json");
 
 export async function GET() {
@@ -21,9 +24,13 @@ export async function GET() {
       address: entry.answers.q2,
     }));
 
-    return NextResponse.json(factories);
+    return NextResponse.json(factories, {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    });
   } catch (e) {
     console.error("factories list error", e);
-    return NextResponse.json([], { status: 200 });
+    return NextResponse.json([], { status: 200, headers: { "Cache-Control": "no-store, max-age=0" } });
   }
 }
