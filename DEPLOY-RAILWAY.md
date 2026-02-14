@@ -136,6 +136,10 @@ Then open **https://www.factorytruth.com** and test the full flow (factory login
 
 Push to your GitHub branch (e.g. `main`). Railway will rebuild and redeploy. The volume keeps submissions, uploads, and users across deploys.
 
+## If the build still fails
+
+The app skips ESLint during build and uses extra Node memory for the build. If it still fails, open the failed deployment in Railway → **View build logs**, copy the last 30–50 lines (the actual error), and use that to debug.
+
 ## Backups
 
 Data lives in the Railway volume. Use Railway’s backup/export if available, or add a cron/job that copies `data/` to external storage (e.g. S3) if you need your own backups.
