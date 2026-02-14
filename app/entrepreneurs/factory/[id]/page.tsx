@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { AUDIT_QUESTIONS } from "@/lib/audit-questions";
+import { getCompareIds, addToCompare, removeFromCompare, COMPARE_MAX } from "@/lib/compare-factories";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
 
@@ -100,6 +101,14 @@ export default function FactoryDetailPage() {
   const [customQuestions, setCustomQuestions] = useState<{ id: string; questionText: string; answer?: string; answeredAt?: string; createdAt: string }[]>([]);
   const [questionInput, setQuestionInput] = useState("");
   const [questionSubmitting, setQuestionSubmitting] = useState(false);
+  const [inCompare, setInCompare] = useState(false);
+  const [compareCount, setCompareCount] = useState(0);
+
+  useEffect(() => {
+    const ids = getCompareIds();
+    setInCompare(ids.includes(id));
+    setCompareCount(ids.length);
+  }, [id]);
 
   useEffect(() => {
     fetch("/api/entrepreneur-auth/me", { credentials: "include" })
@@ -221,6 +230,42 @@ export default function FactoryDetailPage() {
             year: "numeric",
           })}
         </p>
+        <div className={styles.compareActions}>
+          {inCompare ? (
+            <button
+              type="button"
+              className={styles.compareBtn}
+              onClick={() => {
+                removeFromCompare(factory.id);
+                setInCompare(false);
+                setCompareCount((c) => c - 1);
+              }}
+            >
+              Remove from comparison
+            </button>
+          ) : compareCount < COMPARE_MAX ? (
+            <button
+              type="button"
+              className={styles.compareBtn}
+              onClick={() => {
+                addToCompare(factory.id);
+                setInCompare(true);
+                setCompareCount((c) => c + 1);
+              }}
+            >
+              Add to comparison
+            </button>
+          ) : (
+            <span className={styles.compareFull}>
+              Comparison list full ({COMPARE_MAX} factories). Remove one from the <Link href="/entrepreneurs">browse page</Link> or <Link href="/entrepreneurs/compare">compare page</Link>.
+            </span>
+          )}
+          {compareCount >= 2 && (
+            <Link href={`/entrepreneurs/compare?ids=${getCompareIds().join(",")}`} className={styles.compareLink}>
+              Compare {compareCount} factories →
+            </Link>
+          )}
+        </div>
       </header>
 
       <section className={styles.detailSection}>

@@ -1,0 +1,155 @@
+.wrap {
+  width: 100%;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.backLink {
+  color: var(--color-text-muted);
+}
+
+.backLink:hover {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.needMore,
+.loading,
+.error {
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+.error {
+  color: var(--color-error, #c00);
+}
+
+.backWrap {
+  margin-top: 1rem;
+}
+
+.backWrap a {
+  color: var(--color-text-muted);
+}
+
+.backWrap a:hover {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.thQuestion,
+.tdQuestion {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  min-width: 220px;
+  max-width: 280px;
+}
+
+th.thQuestion {
+  z-index: 2;
+}
+
+.thFactory {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  min-width: 200px;
+  vertical-align: top;
+}
+
+.thFactoryName {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.thFactoryAddress {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.thFactoryLink {
+  font-size: 0.85rem;
+  color: var(--color-accent);
+}
+
+.thFactoryLink:hover {
+  text-decoration: underline;
+}
+
+.tdCell {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+  max-width: 320px;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.sectionRow {
+  background: var(--color-bg);
+  font-weight: 600;
+  color: var(--color-accent);
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cellFileLink {
+  color: var(--color-accent);
+}
+
+.cellFileLink:hover {
+  text-decoration: underline;
+}
+
+.privateCell {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.emptyCell {
+  color: var(--color-text-muted);
+}
+
+tbody tr:hover .tdQuestion,
+tbody tr:hover .tdCell {
+  background: rgba(126, 184, 218, 0.06);
+}
+
+tbody tr:hover .tdQuestion {
+  background: var(--color-surface);
+}
