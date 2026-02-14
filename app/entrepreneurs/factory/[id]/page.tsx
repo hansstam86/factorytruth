@@ -97,6 +97,9 @@ export default function FactoryDetailPage() {
   const [requesting, setRequesting] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
   const [entrepreneurUser, setEntrepreneurUser] = useState<{ email: string } | null>(null);
+  const [customQuestions, setCustomQuestions] = useState<{ id: string; questionText: string; answer?: string; answeredAt?: string; createdAt: string }[]>([]);
+  const [questionInput, setQuestionInput] = useState("");
+  const [questionSubmitting, setQuestionSubmitting] = useState(false);
 
   useEffect(() => {
     fetch("/api/entrepreneur-auth/me", { credentials: "include" })
@@ -113,6 +116,38 @@ export default function FactoryDetailPage() {
       .catch(() => setFactory(null))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !entrepreneurUser) {
+      setCustomQuestions([]);
+      return;
+    }
+    fetch(`/api/factory-questions?submissionId=${encodeURIComponent(id)}`, { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((list) => setCustomQuestions(Array.isArray(list) ? list : []))
+      .catch(() => setCustomQuestions([]));
+  }, [id, entrepreneurUser]);
+
+  const handleAskQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!factory || !questionInput.trim()) return;
+    setQuestionSubmitting(true);
+    try {
+      const res = await fetch("/api/factory-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ submissionId: factory.id, questionText: questionInput.trim() }),
+      });
+      if (res.ok) {
+        setQuestionInput("");
+        const list = await fetch(`/api/factory-questions?submissionId=${encodeURIComponent(factory.id)}`, { credentials: "include" }).then((r) => r.json());
+        setCustomQuestions(Array.isArray(list) ? list : []);
+      }
+    } finally {
+      setQuestionSubmitting(false);
+    }
+  };
 
   const handleRequestAccess = async () => {
     if (!factory?.privateQuestionIds?.length) return;
@@ -241,6 +276,52 @@ export default function FactoryDetailPage() {
           )}
         </div>
       )}
+
+      <section className={styles.customQuestionsSection}>
+        <h2 className={styles.detailSectionTitle}>Questions for this factory</h2>
+        {entrepreneurUser ? (
+          <>
+            <form onSubmit={handleAskQuestion} className={styles.askForm}>
+              <textarea
+                value={questionInput}
+                onChange={(e) => setQuestionInput(e.target.value)}
+                placeholder="Ask a specific question (e.g. lead time, MOQ, certifications…)"
+                rows={3}
+                className={styles.askInput}
+                required
+              />
+              <button type="submit" className={styles.askBtn} disabled={questionSubmitting}>
+                {questionSubmitting ? "Sending…" : "Send question"}
+              </button>
+            </form>
+            {customQuestions.length > 0 && (
+              <div className={styles.yourQuestions}>
+                <h3 className={styles.yourQuestionsTitle}>Your questions</h3>
+                <ul className={styles.questionList}>
+                  {customQuestions.map((q) => (
+                    <li key={q.id} className={styles.questionCard}>
+                      <p className={styles.questionText}>{q.questionText}</p>
+                      <p className={styles.questionMeta}>
+                        Asked {new Date(q.createdAt).toLocaleDateString()}
+                        {q.answeredAt && " · Answered"}
+                      </p>
+                      {q.answer != null && q.answer !== "" && (
+                        <div className={styles.answerBlock}>
+                          <strong>Factory reply:</strong> {q.answer}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className={styles.requestHint}>
+            <Link href="/entrepreneurs/login">Log in</Link> to ask this factory a question.
+          </p>
+        )}
+      </section>
 
       <div className={styles.detailActions}>
         <button

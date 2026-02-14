@@ -19,6 +19,7 @@ export default function FactoriesLayout({
             <Link href="/factories">提交审核</Link>
             <Link href="/factories/submissions">我的提交</Link>
             <Link href="/factories/access-requests">访问请求</Link>
+            <Link href="/factories/questions">创业者提问</Link>
             <Link href="/">返回首页</Link>
           </nav>
           <AuthBar />

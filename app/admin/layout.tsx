@@ -17,6 +17,8 @@ export default function AdminLayout({
         <div className={styles.navAndAuth}>
           <nav className={styles.nav}>
             <Link href="/admin">Dashboard</Link>
+            <Link href="/admin/factories">Factories</Link>
+            <Link href="/admin/entrepreneurs">Entrepreneurs</Link>
             <Link href="/admin/questions">Edit questions</Link>
             <Link href="/">Home</Link>
           </nav>

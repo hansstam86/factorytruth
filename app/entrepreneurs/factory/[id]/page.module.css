@@ -158,6 +158,104 @@
   }
 }
 
+.customQuestionsSection {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.askForm {
+  margin-bottom: 1.5rem;
+}
+
+.askInput {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+
+.askInput:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.askBtn {
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.askBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.askBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.yourQuestions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.yourQuestionsTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.questionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.questionCard {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.questionCard:last-child {
+  border-bottom: none;
+}
+
+.questionText {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.questionMeta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.answerBlock {
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+  color: var(--color-text);
+}
+
+.answerBlock strong {
+  color: var(--color-accent);
+}
+
 .detailActions {
   margin-top: 2rem;
 }
