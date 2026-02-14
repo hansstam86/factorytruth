@@ -1,0 +1,28 @@
+[
+  {
+    "id": "f_1771003583484_5360w52",
+    "userId": "hans.stam@voi.com",
+    "answers": {
+      "q1": "voi company",
+      "q2": "shenzhen",
+      "A1": "this is secret",
+      "A2": "this is also secret",
+      "A3": "even more secret"
+    },
+    "visibility": {
+      "q1": "public",
+      "A1": "private",
+      "A2": "private",
+      "A3": "private"
+    },
+    "createdAt": "2026-02-13T17:26:23.473Z",
+    "updatedAt": "2026-02-14T08:22:00.342Z",
+    "answersEn": {
+      "q1": "voi company",
+      "q2": "shenzhen",
+      "A1": "this is secret",
+      "A2": "this is also secret",
+      "A3": "even more secret"
+    }
+  }
+]

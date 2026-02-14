@@ -1,0 +1,28 @@
+[
+  {
+    "id": "ar_1771055745033_7k5e5pt",
+    "submissionId": "f_1771003583484_5360w52",
+    "entrepreneurEmail": "hans.stam@gmail.com",
+    "questionIds": [
+      "A1",
+      "A2",
+      "A3"
+    ],
+    "status": "approved",
+    "createdAt": "2026-02-14T07:55:45.033Z",
+    "respondedAt": "2026-02-14T08:00:45.104Z"
+  },
+  {
+    "id": "ar_1771056553025_u1cm889",
+    "submissionId": "f_1771003583484_5360w52",
+    "entrepreneurEmail": "hans.stam@gmail.com",
+    "questionIds": [
+      "A1",
+      "A2",
+      "A3"
+    ],
+    "status": "approved",
+    "createdAt": "2026-02-14T08:09:13.025Z",
+    "respondedAt": "2026-02-14T08:22:33.405Z"
+  }
+]

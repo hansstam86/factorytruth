@@ -1,0 +1,42 @@
+.submissionsWrap {
+  width: 100%;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.successBanner {
+  background: rgba(92, 184, 138, 0.15);
+  border: 1px solid var(--color-cta);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.pageDesc {
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btnPrimary {
+  background: var(--color-cta);
+  color: var(--color-bg);
+}
+
+.btnPrimary:hover {
+  background: var(--color-cta-hover);
+  color: var(--color-bg);
+}

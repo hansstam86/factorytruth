@@ -1,0 +1,59 @@
+/* China-safe: no Google Fonts or external APIs. System and common local fonts only. */
+:root {
+  --font-sans-en: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans-zh: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", sans-serif;
+  --color-bg: #0c0f14;
+  --color-surface: #161b24;
+  --color-border: #2a3142;
+  --color-text: #e6e9ef;
+  --color-text-muted: #8b92a4;
+  --color-accent: #7eb8da;
+  --color-accent-hover: #9ccce8;
+  --color-cta: #5cb88a;
+  --color-cta-hover: #6ec99a;
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-sans-en);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* Chinese locale uses Chinese font stack */
+[lang="zh-CN"],
+.zh {
+  font-family: var(--font-sans-zh);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}

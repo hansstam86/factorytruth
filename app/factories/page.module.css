@@ -1,0 +1,176 @@
+.formWrap {
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-accent);
+}
+
+.sectionTitle:first-of-type {
+  margin-top: 0;
+}
+
+.loading {
+  color: var(--color-text-muted);
+}
+
+.loginPrompt {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.loginPrompt p {
+  color: var(--color-text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.loginActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.loginActions a {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+}
+
+.loginActions a:hover {
+  text-decoration: none;
+}
+
+.loginActions .btnPrimary {
+  background: var(--color-cta);
+  color: var(--color-bg);
+}
+
+.loginActions .btnPrimary:hover {
+  background: var(--color-cta-hover);
+  color: var(--color-bg);
+}
+
+.loginActions .btnSecondary {
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border);
+}
+
+.loginActions .btnSecondary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.pageDesc {
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+}
+
+.auditForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.field label .required {
+  color: var(--color-accent);
+  font-weight: normal;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.fileWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fileInput {
+  padding: 0.5rem 0;
+}
+
+.fileHint,
+.fileCurrent {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.privateLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.privateLabel input {
+  width: auto;
+}
+
+.formActions {
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  border: none;
+}
+
+.btnPrimary {
+  background: var(--color-cta);
+  color: var(--color-bg);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: var(--color-cta-hover);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
