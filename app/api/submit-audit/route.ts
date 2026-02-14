@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { translateAnswers } from "@/lib/translate";
 
+export const dynamic = "force-dynamic";
+
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "submissions.json");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");

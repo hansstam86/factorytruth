@@ -4,6 +4,8 @@ import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const DATA_FILE = path.join(process.cwd(), "data", "submissions.json");
 
 export async function GET() {

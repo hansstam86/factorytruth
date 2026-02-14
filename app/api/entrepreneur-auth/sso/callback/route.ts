@@ -11,6 +11,8 @@ import {
   getSsoStateCookieOptions,
 } from "@/lib/entrepreneur-auth";
 
+export const dynamic = "force-dynamic";
+
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const JWT_SECRET = new TextEncoder().encode(
