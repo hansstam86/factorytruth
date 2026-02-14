@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
@@ -55,7 +56,7 @@ function cellSummary(value: string, submissionId: string): React.ReactNode {
   );
 }
 
-export default function ComparePage() {
+function ComparePageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [factories, setFactories] = useState<FactoryDetail[]>([]);
@@ -237,5 +238,22 @@ export default function ComparePage() {
         </table>
       </div>
     </div>
+  );
+}
+
+function CompareFallback() {
+  return (
+    <div className={styles.wrap}>
+      <h1 className={styles.title}>Compare factories</h1>
+      <p className={styles.loading}>Loading…</p>
+    </div>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense fallback={<CompareFallback />}>
+      <ComparePageContent />
+    </Suspense>
   );
 }
