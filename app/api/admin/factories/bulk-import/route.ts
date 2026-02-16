@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     } else if (Array.isArray(body.names)) {
       rows = body.names
         .map((n: unknown) => (typeof n === "string" ? n.trim() : String(n).trim()))
-        .filter((n) => n.length > 0)
+        .filter((n: string) => n.length > 0)
         .map((name) => normalizeRow({ name }));
     } else {
       return NextResponse.json(
