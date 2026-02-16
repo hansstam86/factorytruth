@@ -97,16 +97,89 @@ export default function AdminFactoriesPage() {
     }
   };
 
-  const parseNamesFromText = (text: string): string[] => {
+  /** Parse CSV with quoted fields (handles newlines and commas inside quotes). Returns array of [company, address?, expertise?]. */
+  const parseCSV = (text: string): string[][] => {
+    const rows: string[][] = [];
+    let i = 0;
+    const len = text.length;
+    while (i < len) {
+      const row: string[] = [];
+      while (i < len) {
+        if (text[i] === '"') {
+          i++;
+          let cell = "";
+          while (i < len) {
+            if (text[i] === '"') {
+              if (text[i + 1] === '"') {
+                cell += '"';
+                i += 2;
+              } else {
+                i++;
+                break;
+              }
+            } else {
+              cell += text[i];
+              i++;
+            }
+          }
+          row.push(cell.trim());
+          if (text[i] === ",") i++;
+          else if (text[i] === "\n" || text[i] === "\r") {
+            i++;
+            if (text[i] === "\n") i++;
+            break;
+          } else break;
+        } else {
+          let cell = "";
+          while (i < len && text[i] !== "," && text[i] !== "\n" && text[i] !== "\r") {
+            cell += text[i];
+            i++;
+          }
+          row.push(cell.trim());
+          if (text[i] === ",") i++;
+          else if (text[i] === "\n" || text[i] === "\r") {
+            i++;
+            if (text[i] === "\n") i++;
+            break;
+          } else break;
+        }
+      }
+      if (row.some((c) => c.length > 0)) rows.push(row);
+    }
+    return rows;
+  };
+
+  /** From parsed CSV rows (first row may be header), build { name, address, expertise }[]. */
+  const csvRowsToBulkRows = (parsed: string[][]): { name: string; address: string; expertise: string }[] => {
+    if (parsed.length === 0) return [];
+    const first = parsed[0];
+    const hasHeader =
+      first.length >= 1 &&
+      (first[0].toLowerCase() === "company" || first[0].toLowerCase() === "name") &&
+      parsed.length > 1;
+    const data = hasHeader ? parsed.slice(1) : parsed;
+    return data.map((row) => ({
+      name: (row[0] ?? "").trim(),
+      address: (row[1] ?? "").trim(),
+      expertise: (row[2] ?? "").trim(),
+    })).filter((r) => r.name.length > 0);
+  };
+
+  /** Parse paste area: "name" per line or "name, address, expertise" per line (simple split). */
+  const parsePasteToBulkRows = (text: string): { name: string; address: string; expertise: string }[] => {
     return text
       .split(/\r?\n/)
       .map((line) => {
         const trimmed = line.trim();
-        if (!trimmed) return "";
-        const firstComma = trimmed.indexOf(",");
-        return firstComma >= 0 ? trimmed.slice(0, firstComma).trim() : trimmed;
+        if (!trimmed) return null;
+        const parts = trimmed.split(",").map((p) => p.trim());
+        return {
+          name: parts[0] ?? "",
+          address: parts[1] ?? "",
+          expertise: parts[2] ?? "",
+        };
       })
-      .filter((n) => n.length > 0);
+      .filter((r): r is { name: string; address: string; expertise: string } => r !== null && r.name.length > 0);
   };
 
   const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,11 +194,22 @@ export default function AdminFactoriesPage() {
     e.target.value = "";
   };
 
+  const getBulkRows = (): { name: string; address: string; expertise: string }[] => {
+    const text = bulkNamesText.trim();
+    if (!text) return [];
+    const firstLine = text.split(/\r?\n/)[0] ?? "";
+    if (firstLine.includes('"') || (firstLine.includes(",") && firstLine.split(",").length >= 2)) {
+      const parsed = parseCSV(text);
+      return csvRowsToBulkRows(parsed);
+    }
+    return parsePasteToBulkRows(text);
+  };
+
   const handleBulkImport = async (e: React.FormEvent) => {
     e.preventDefault();
-    const names = parseNamesFromText(bulkNamesText);
-    if (names.length === 0) {
-      setError("Enter or upload at least one factory name.");
+    const rows = getBulkRows();
+    if (rows.length === 0) {
+      setError("Enter or upload at least one factory (Company, or Company, Address, Expertise).");
       return;
     }
     setError(null);
@@ -136,7 +220,7 @@ export default function AdminFactoriesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ names }),
+        body: JSON.stringify({ rows }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -195,9 +279,9 @@ export default function AdminFactoriesPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Bulk import factory names</h2>
+        <h2 className={styles.sectionTitle}>Bulk import factories</h2>
         <p className={styles.bulkHint}>
-          Add many factories at once so they appear in the entrepreneur list (name only, no login account). Export your Excel sheet as CSV, or paste one name per line. Max 2000 per import; duplicates are skipped.
+          Add many factories at once (name, address, expertise). Upload a CSV with columns <strong>Company, Address, Expertise</strong> (header row optional), or paste one row per line: <code>Company, Address, Expertise</code>. Max 5000 per import; duplicates by name are skipped.
         </p>
         <form onSubmit={handleBulkImport} className={styles.bulkForm}>
           <div className={styles.bulkRow}>
@@ -212,17 +296,17 @@ export default function AdminFactoriesPage() {
             </label>
           </div>
           <div className={styles.field}>
-            <label>Factory names (one per line, or paste CSV — first column used)</label>
+            <label>CSV or paste (Company, Address, Expertise — one row per line)</label>
             <textarea
               value={bulkNamesText}
               onChange={(e) => setBulkNamesText(e.target.value)}
-              placeholder={"Factory A\nFactory B\n..."}
+              placeholder={"Company, Address, Expertise\nAcme Inc, Shenzhen China, Electronics OEM"}
               rows={12}
               className={styles.bulkTextarea}
             />
           </div>
           <button type="submit" className={styles.primaryBtn} disabled={bulkImporting}>
-            {bulkImporting ? "Importing…" : `Import ${parseNamesFromText(bulkNamesText).length} names`}
+            {bulkImporting ? "Importing…" : `Import ${getBulkRows().length} rows`}
           </button>
         </form>
       </section>

@@ -33,3 +33,6 @@ Thumbs.db
 
 # Optional: keep data in repo or ignore (uncomment to ignore submissions in git)
 # data/submissions.json
+
+# Raw factory list (use factorylist-clean.csv or scripts/parse-factory-list.mjs)
+factorylist.csv

@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 const DATA_DIR = path.join(process.cwd(), "data");
 const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
 
-const MAX_NAMES = 2000;
+const MAX_ROWS = 5000;
+
+type BulkRow = { name: string; address?: string; expertise?: string };
 
 async function requireAdmin(): Promise<NextResponse | null> {
   const cookieStore = await cookies();
@@ -21,28 +23,55 @@ async function requireAdmin(): Promise<NextResponse | null> {
   return null;
 }
 
-/** POST — add many factory names as minimal submissions (name only, no account). */
+function normalizeRow(r: BulkRow): { name: string; address: string; expertise: string } {
+  return {
+    name: (r.name ?? "").trim(),
+    address: (r.address ?? "").trim(),
+    expertise: (r.expertise ?? "").trim(),
+  };
+}
+
+/** POST — add many factories. Body: { names: string[] } or { rows: { name, address?, expertise? }[] }. */
 export async function POST(request: Request) {
   const err = await requireAdmin();
   if (err) return err;
 
   try {
     const body = await request.json();
-    const raw = body.names;
-    if (!Array.isArray(raw)) {
-      return NextResponse.json({ error: "Body must be { names: string[] }." }, { status: 400 });
-    }
+    let rows: { name: string; address: string; expertise: string }[] = [];
 
-    const names = raw
-      .map((n: unknown) => (typeof n === "string" ? n.trim() : String(n).trim()))
-      .filter((n) => n.length > 0);
-
-    if (names.length === 0) {
-      return NextResponse.json({ error: "No valid names provided." }, { status: 400 });
-    }
-    if (names.length > MAX_NAMES) {
+    if (Array.isArray(body.rows)) {
+      rows = body.rows
+        .map((r: unknown) => {
+          if (typeof r !== "object" || r === null) return null;
+          const o = r as Record<string, unknown>;
+          const name = typeof o.name === "string" ? o.name.trim() : String(o.name ?? "").trim();
+          if (!name) return null;
+          return normalizeRow({
+            name,
+            address: typeof o.address === "string" ? o.address : String(o.address ?? ""),
+            expertise: typeof o.expertise === "string" ? o.expertise : String(o.expertise ?? ""),
+          });
+        })
+        .filter((r): r is { name: string; address: string; expertise: string } => r !== null);
+    } else if (Array.isArray(body.names)) {
+      rows = body.names
+        .map((n: unknown) => (typeof n === "string" ? n.trim() : String(n).trim()))
+        .filter((n) => n.length > 0)
+        .map((name) => normalizeRow({ name }));
+    } else {
       return NextResponse.json(
-        { error: `Maximum ${MAX_NAMES} names per request. You sent ${names.length}.` },
+        { error: "Body must be { names: string[] } or { rows: { name, address?, expertise? }[] }." },
+        { status: 400 }
+      );
+    }
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: "No valid rows provided." }, { status: 400 });
+    }
+    if (rows.length > MAX_ROWS) {
+      return NextResponse.json(
+        { error: `Maximum ${MAX_ROWS} rows per request. You sent ${rows.length}.` },
         { status: 400 }
       );
     }
@@ -58,13 +87,13 @@ export async function POST(request: Request) {
     const existingNames = new Set(
       list.map((e) => (e.answers?.q1 || "").trim().toLowerCase())
     );
-    const toAdd = names.filter((n) => !existingNames.has(n.toLowerCase()));
-    const skipped = names.length - toAdd.length;
+    const toAdd = rows.filter((r) => !existingNames.has(r.name.toLowerCase()));
+    const skipped = rows.length - toAdd.length;
 
     const now = new Date().toISOString();
-    const newEntries = toAdd.map((name) => ({
+    const newEntries = toAdd.map((r) => ({
       id: randomUUID(),
-      answers: { q1: name, q2: "" },
+      answers: { q1: r.name, q2: r.address, q3: r.expertise },
       createdAt: now,
     }));
 
