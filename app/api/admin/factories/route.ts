@@ -37,6 +37,7 @@ export async function GET() {
       userId: entry.userId,
       name: entry.answers?.q1 || "Unnamed factory",
       address: entry.answers?.q2 || "",
+      expertise: entry.answers?.q3 || "",
       createdAt: entry.createdAt,
     }));
     return NextResponse.json(factories);

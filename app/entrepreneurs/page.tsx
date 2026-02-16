@@ -17,6 +17,8 @@ export default function EntrepreneursPage() {
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
   const [compareIds, setCompareIdsState] = useState<string[]>([]);
+  const [searchName, setSearchName] = useState("");
+  const [searchExpertise, setSearchExpertise] = useState("");
 
   useEffect(() => {
     fetch("/api/factories")
@@ -55,12 +57,59 @@ export default function EntrepreneursPage() {
     ? `/entrepreneurs/compare?ids=${compareIds.join(",")}`
     : "/entrepreneurs/compare";
 
+  const nameLower = searchName.trim().toLowerCase();
+  const expertiseLower = searchExpertise.trim().toLowerCase();
+  const filteredFactories = factories.filter((f) => {
+    const matchName = !nameLower || (f.name && f.name.toLowerCase().includes(nameLower));
+    const matchExpertise =
+      !expertiseLower || (f.expertise && f.expertise.toLowerCase().includes(expertiseLower));
+    return matchName && matchExpertise;
+  });
+
   return (
     <div className={styles.listWrap}>
       <h1 className={styles.pageTitle}>Browse factories</h1>
       <p className={styles.pageDesc}>
         View audit answers submitted by factories in China. Click a factory to see full details, or select several to compare answers side by side.
       </p>
+
+      <div className={styles.searchBar}>
+        <div className={styles.searchFields}>
+          <div className={styles.searchField}>
+            <label htmlFor="search-name" className={styles.searchLabel}>
+              Search by name
+            </label>
+            <input
+              id="search-name"
+              type="text"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              placeholder="Factory name…"
+              className={styles.searchInput}
+              aria-label="Search by factory name"
+            />
+          </div>
+          <div className={styles.searchField}>
+            <label htmlFor="search-expertise" className={styles.searchLabel}>
+              Search by expertise
+            </label>
+            <input
+              id="search-expertise"
+              type="text"
+              value={searchExpertise}
+              onChange={(e) => setSearchExpertise(e.target.value)}
+              placeholder="Expertise, business, capability…"
+              className={styles.searchInput}
+              aria-label="Search by expertise"
+            />
+          </div>
+        </div>
+        {(nameLower || expertiseLower) && (
+          <p className={styles.searchSummary}>
+            Showing {filteredFactories.length} of {factories.length} factories
+          </p>
+        )}
+      </div>
 
       {compareIds.length >= 2 && (
         <div className={styles.compareBar}>
@@ -92,9 +141,16 @@ export default function EntrepreneursPage() {
             When factories submit their audit answers via the factory portal, they will appear here.
           </p>
         </div>
+      ) : filteredFactories.length === 0 ? (
+        <div className={styles.empty}>
+          <p>No factories match your search.</p>
+          <p className={styles.emptyHint}>
+            Try different or shorter terms for name or expertise.
+          </p>
+        </div>
       ) : (
         <ul className={styles.factoryList}>
-          {factories.map((f) => {
+          {filteredFactories.map((f) => {
             const selected = compareIds.includes(f.id);
             const atMax = compareIds.length >= COMPARE_MAX && !selected;
             return (

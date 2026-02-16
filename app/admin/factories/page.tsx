@@ -10,6 +10,7 @@ type Factory = {
   userId?: string;
   name: string;
   address: string;
+  expertise: string;
   createdAt: string;
 };
 
@@ -397,6 +398,7 @@ export default function AdminFactoriesPage() {
               <tr>
                 <th>Name</th>
                 <th>Address</th>
+                <th>Expertise</th>
                 <th>Login (email)</th>
                 <th>Created</th>
                 <th></th>
@@ -407,6 +409,7 @@ export default function AdminFactoriesPage() {
                 <tr key={f.id}>
                   <td>{f.name}</td>
                   <td>{f.address}</td>
+                  <td className={styles.expertiseCell}>{f.expertise || "—"}</td>
                   <td>{f.userId || "—"}</td>
                   <td>{new Date(f.createdAt).toLocaleDateString()}</td>
                   <td>

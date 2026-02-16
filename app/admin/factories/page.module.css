@@ -199,6 +199,13 @@
   border-bottom: none;
 }
 
+.expertiseCell {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .editLink {
   color: var(--color-accent);
   font-size: 0.9rem;
