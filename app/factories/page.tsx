@@ -120,6 +120,13 @@ export default function FactoriesPage() {
     return { ...q, showSection };
   });
 
+  const totalQuestions = questions.length;
+  const answeredCount = questions.filter((q) => {
+    const v = answers[q.id];
+    return v != null && String(v).trim() !== "";
+  }).length;
+  const transparencyPct = totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+
   if (authLoading) {
     return (
       <div className={styles.formWrap}>
@@ -162,6 +169,12 @@ export default function FactoriesPage() {
         <p className={styles.valueTitle}>信息越透明，客户越信任</p>
         <p className={styles.valueDesc}>
           海外创业者通过本平台寻找可信赖的工厂。您填写的审核答案越完整，越容易获得他们的信任与订单。可将部分答案设为「不公开」，仅经您批准的创业者可见。
+        </p>
+      </div>
+      <div className={styles.scoreBlock}>
+        <p className={styles.scoreTitle}>您的透明度得分：<strong>{transparencyPct}%</strong></p>
+        <p className={styles.scoreDesc}>
+          已填写 {answeredCount} / {totalQuestions} 项。答得越多，海外客户越容易信任您并选择与您合作。请继续完善下面的问题以提高得分。
         </p>
       </div>
       <p className={styles.pageDesc}>

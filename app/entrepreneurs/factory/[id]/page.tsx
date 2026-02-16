@@ -218,6 +218,13 @@ export default function FactoryDetailPage() {
 
   const hasPrivate = factory.privateQuestionIds && factory.privateQuestionIds.length > 0;
 
+  const totalQuestions = questionList.length;
+  const answeredCount = questionList.filter((q) => {
+    const v = answers[q.id];
+    return v != null && String(v).trim() !== "";
+  }).length;
+  const transparencyPct = totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+
   return (
     <div className={styles.detailWrap}>
       <Link href="/entrepreneurs" className={styles.backLink}>
@@ -281,6 +288,17 @@ export default function FactoryDetailPage() {
           )}
         </div>
       </header>
+
+      <div className={styles.whyBlock}>
+        <h2 className={styles.whyTitle}>Why this factory?</h2>
+        <p className={styles.whyDesc}>
+          This factory shared <strong>{answeredCount} of {totalQuestions}</strong> audit answers
+          {totalQuestions > 0 && (
+            <> — a <strong>transparency score of {transparencyPct}%</strong></>
+          )}.
+          The more factories share, the easier it is to compare and choose partners you can trust for your production.
+        </p>
+      </div>
 
       <section className={styles.detailSection}>
         <h2>Audit answers</h2>
