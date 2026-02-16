@@ -4,11 +4,9 @@ import {
   getSsoStateCookieName,
   getSsoStateCookieOptions,
 } from "@/lib/entrepreneur-auth";
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "change-me-in-production"
-);
 
 function getRedirectUri(request: Request): string {
   const url = new URL(request.url);
@@ -28,7 +26,7 @@ export async function GET(request: Request) {
   const stateToken = await new SignJWT({ state })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("10m")
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 
   const redirectUri = getRedirectUri(request);
   const params = new URLSearchParams({

@@ -4,6 +4,7 @@ import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { verifySession as verifyEntrepreneurSession, getSessionCookieName as getEntrepreneurSessionCookieName } from "@/lib/entrepreneur-auth";
+import { sendEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,14 @@ type FactoryQuestion = {
   answeredAt?: string;
   createdAt: string;
 };
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 async function loadQuestions(): Promise<FactoryQuestion[]> {
   try {
@@ -95,8 +104,9 @@ export async function POST(request: Request) {
     }
 
     const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string }[];
-    if (!submissions.some((s) => s.id === submissionId)) {
+    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string }[];
+    const sub = submissions.find((s) => s.id === submissionId);
+    if (!sub) {
       return NextResponse.json({ error: "Factory not found" }, { status: 404 });
     }
 
@@ -111,6 +121,19 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     });
     await writeFile(QUESTIONS_FILE, JSON.stringify(questions, null, 2), "utf-8");
+
+    const factoryEmail = sub.userId?.trim();
+    if (factoryEmail) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.factorytruth.com";
+      const link = `${appUrl.replace(/\/$/, "")}/factories`;
+      const fromLabel = session.name ? `${session.name} (${session.email})` : session.email;
+      await sendEmail({
+        to: factoryEmail,
+        subject: "Factory Truth: New question from an entrepreneur",
+        html: `<p>You have a new question on Factory Truth from ${fromLabel}:</p><blockquote>${escapeHtml(questionText)}</blockquote><p><a href="${link}">Log in to the factory portal</a> to view and reply.</p>`,
+      });
+    }
+
     return NextResponse.json({ ok: true, id });
   } catch (e) {
     console.error("factory-questions POST error", e);

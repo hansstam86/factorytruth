@@ -132,6 +132,12 @@ export default function FactoriesPage() {
     return (
       <div className={styles.formWrap}>
         <h1 className={styles.pageTitle}>提交审核答案</h1>
+        <div className={styles.valueBlock}>
+          <p className={styles.valueTitle}>找到更多优质客户</p>
+          <p className={styles.valueDesc}>
+            本平台帮助中国工厂对接海外硬件创业者。您分享的审核信息越完整、越透明，潜在客户就越信任您，越有可能将生产项目交给您。请如实填写审核答案，让更多创业者发现并选择您的工厂。
+          </p>
+        </div>
         <div className={styles.loginPrompt}>
           <p>请先登录后再提交或编辑审核答案。请使用工厂的公司邮箱注册（不能使用 Gmail、QQ 等个人邮箱）。</p>
           <div className={styles.loginActions}>
@@ -152,10 +158,16 @@ export default function FactoriesPage() {
       <h1 className={styles.pageTitle}>
         {hasExisting ? "编辑审核答案" : "提交审核答案"}
       </h1>
+      <div className={styles.valueBlock}>
+        <p className={styles.valueTitle}>信息越透明，客户越信任</p>
+        <p className={styles.valueDesc}>
+          海外创业者通过本平台寻找可信赖的工厂。您填写的审核答案越完整，越容易获得他们的信任与订单。可将部分答案设为「不公开」，仅经您批准的创业者可见。
+        </p>
+      </div>
       <p className={styles.pageDesc}>
         {hasExisting
-          ? "修改以下内容后点击「更新答案」保存。您可以将部分答案设为「不公开」，仅经您批准的创业者可见。"
-          : "请如实填写以下问题。您可将部分答案设为「不公开」，仅经您批准的创业者可见。"}
+          ? "修改以下内容后点击「更新答案」保存。"
+          : "请如实填写以下问题。"}
       </p>
 
       <form onSubmit={handleSubmit} className={styles.auditForm}>

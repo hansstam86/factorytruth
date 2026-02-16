@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
 import { getCompareIds, setCompareIds, toggleCompare, COMPARE_MAX } from "@/lib/compare-factories";
+import { getShortlistIds, toggleShortlist } from "@/lib/shortlist";
 
 const FREE_PREVIEW_COUNT = 25;
 
@@ -30,6 +31,7 @@ function EntrepreneursBrowseContent() {
   const [sort, setSort] = useState<SortOption>(() => (searchParams.get("sort") === "date" ? "date" : "name"));
   const [user, setUser] = useState<{ email: string; name?: string } | null>(null);
   const [showSearchSignInModal, setShowSearchSignInModal] = useState(false);
+  const [shortlistIds, setShortlistIdsState] = useState<string[]>([]);
 
   useEffect(() => {
     fetch("/api/entrepreneur-auth/me", { credentials: "include" })
@@ -58,7 +60,11 @@ function EntrepreneursBrowseContent() {
 
   useEffect(() => {
     setCompareIdsState(getCompareIds());
-    const onStorage = () => setCompareIdsState(getCompareIds());
+    setShortlistIdsState(getShortlistIds());
+    const onStorage = () => {
+      setCompareIdsState(getCompareIds());
+      setShortlistIdsState(getShortlistIds());
+    };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
@@ -126,7 +132,13 @@ function EntrepreneursBrowseContent() {
 
   return (
     <div className={styles.listWrap}>
-      <h1 className={styles.pageTitle}>Browse factories</h1>
+      <h1 className={styles.pageTitle}>Find trustworthy factories</h1>
+      <div className={styles.valueBlock}>
+        <p className={styles.valueTitle}>Choose manufacturing partners you can rely on</p>
+        <p className={styles.valueDesc}>
+          Factories on this platform have answered the same audit questions. Browse their answers, compare capabilities, and shortlist or contact the ones that best fit your hardware project. The more transparent a factory’s profile, the easier it is to trust them with your production.
+        </p>
+      </div>
       <p className={styles.pageDesc}>
         View audit answers submitted by factories in China. Click a factory to see full details, or select several to compare answers side by side.
       </p>
@@ -293,9 +305,25 @@ function EntrepreneursBrowseContent() {
           {visibleFactories.map((f) => {
             const selected = compareIds.includes(f.id);
             const atMax = compareIds.length >= COMPARE_MAX && !selected;
+            const inShortlist = shortlistIds.includes(f.id);
             return (
               <li key={f.id} className={styles.factoryCard}>
                 <div className={styles.cardRow}>
+                  <button
+                    type="button"
+                    className={styles.shortlistBtn}
+                    title={inShortlist ? "Remove from shortlist" : "Save to shortlist"}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleShortlist(f.id);
+                      setShortlistIdsState(getShortlistIds());
+                    }}
+                    aria-pressed={inShortlist}
+                  >
+                    <span className={styles.shortlistIcon} aria-hidden>{inShortlist ? "★" : "☆"}</span>
+                    <span className={styles.shortlistLabelText}>{inShortlist ? "Saved" : "Save"}</span>
+                  </button>
                   <button
                     type="button"
                     className={styles.compareBtn}

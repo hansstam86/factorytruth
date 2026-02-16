@@ -1,9 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 const COOKIE_NAME = "admin_session";
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "change-me-in-production"
-);
 const JWT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export function getAdminSessionCookieName(): string {
@@ -43,14 +41,14 @@ export async function createAdminSession(email: string): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime(Date.now() + JWT_TTL_MS)
     .setIssuedAt()
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifyAdminSession(
   token: string
 ): Promise<{ email: string } | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     if (payload.admin !== true) return null;
     const email = payload.email as string;
     if (!email) return null;

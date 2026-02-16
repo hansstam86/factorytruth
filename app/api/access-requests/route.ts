@@ -4,6 +4,7 @@ import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { verifySession as verifyEntrepreneurSession, getSessionCookieName as getEntrepreneurSessionCookieName } from "@/lib/entrepreneur-auth";
+import { sendEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     }
 
     const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string; visibility?: Record<string, string> }[];
+    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string; visibility?: Record<string, string> }[];
     const sub = submissions.find((s) => s.id === submissionId);
     if (!sub) return NextResponse.json({ error: "Submission not found" }, { status: 404 });
 
@@ -76,6 +77,18 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     });
     await writeFile(REQUESTS_FILE, JSON.stringify(list, null, 2), "utf-8");
+
+    const factoryEmail = sub.userId?.trim();
+    if (factoryEmail) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.factorytruth.com";
+      const link = `${appUrl.replace(/\/$/, "")}/factories/access-requests`;
+      await sendEmail({
+        to: factoryEmail,
+        subject: "Factory Truth: New access request to your private answers",
+        html: `<p>An entrepreneur has requested access to your private audit answers on Factory Truth.</p><p><a href="${link}">View and respond to access requests</a></p><p>You need to be logged in to the factory portal.</p>`,
+      });
+    }
+
     return NextResponse.json({ ok: true, id });
   } catch (e) {
     console.error("access-requests POST error", e);

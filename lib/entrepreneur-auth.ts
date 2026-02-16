@@ -1,10 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { compare, hash } from "bcryptjs";
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 const COOKIE_NAME = "entrepreneur_session";
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "change-me-in-production"
-);
 const JWT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export async function hashPassword(password: string): Promise<string> {
@@ -23,14 +21,14 @@ export async function createSession(email: string, name?: string): Promise<strin
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime(Date.now() + JWT_TTL_MS)
     .setIssuedAt()
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifySession(
   token: string
 ): Promise<{ email: string; name?: string } | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     const email = payload.email as string;
     if (!email) return null;
     return { email, name: (payload.name as string) || undefined };

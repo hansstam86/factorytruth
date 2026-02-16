@@ -22,6 +22,11 @@ export async function GET(request: Request) {
   }
 
   const fullPath = path.join(DATA_DIR, filePath);
+  const resolvedPath = path.resolve(fullPath);
+  const resolvedDataDir = path.resolve(DATA_DIR);
+  if (resolvedPath === resolvedDataDir || !resolvedPath.startsWith(resolvedDataDir + path.sep)) {
+    return NextResponse.json({ error: "Invalid path" }, { status: 400 });
+  }
   let canAccess = false;
 
   try {
@@ -61,7 +66,7 @@ export async function GET(request: Request) {
 
     if (!canAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const buf = await readFile(fullPath);
+    const buf = await readFile(resolvedPath);
     const ext = path.extname(filePath).toLowerCase();
     const types: Record<string, string> = {
       ".pdf": "application/pdf",

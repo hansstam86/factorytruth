@@ -6,6 +6,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { AUDIT_QUESTIONS } from "@/lib/audit-questions";
 import { getCompareIds, addToCompare, removeFromCompare, COMPARE_MAX } from "@/lib/compare-factories";
+import { getShortlistIds, toggleShortlist } from "@/lib/shortlist";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
 
@@ -103,11 +104,13 @@ export default function FactoryDetailPage() {
   const [questionSubmitting, setQuestionSubmitting] = useState(false);
   const [inCompare, setInCompare] = useState(false);
   const [compareCount, setCompareCount] = useState(0);
+  const [inShortlist, setInShortlist] = useState(false);
 
   useEffect(() => {
     const ids = getCompareIds();
     setInCompare(ids.includes(id));
     setCompareCount(ids.length);
+    setInShortlist(getShortlistIds().includes(id));
   }, [id]);
 
   useEffect(() => {
@@ -231,6 +234,17 @@ export default function FactoryDetailPage() {
           })}
         </p>
         <div className={styles.compareActions}>
+          <button
+            type="button"
+            className={styles.shortlistBtn}
+            title={inShortlist ? "Remove from shortlist" : "Save to shortlist"}
+            onClick={() => {
+              toggleShortlist(factory.id);
+              setInShortlist(getShortlistIds().includes(factory.id));
+            }}
+          >
+            {inShortlist ? "★ In shortlist" : "☆ Save to shortlist"}
+          </button>
           {inCompare ? (
             <button
               type="button"

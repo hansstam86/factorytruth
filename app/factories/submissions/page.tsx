@@ -21,7 +21,7 @@ export default function SubmissionsPage() {
         </div>
       )}
       <p className={`${styles.pageDesc} zh`}>
-        您提交的审核答案会在「创业者」端展示。如需修改或补充，请重新提交一份新的审核答案。
+        您提交的审核答案会在「创业者」端展示，帮助海外客户了解并信任您的工厂。信息越完整，越容易获得优质客户。如需修改或补充，请重新提交审核答案。
       </p>
       <Link href="/factories" className={`${styles.btn} ${styles.btnPrimary}`}>
         再次提交审核答案

@@ -10,14 +10,12 @@ import {
   getSsoStateCookieName,
   getSsoStateCookieOptions,
 } from "@/lib/entrepreneur-auth";
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 export const dynamic = "force-dynamic";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "change-me-in-production"
-);
 const USERS_FILE = path.join(process.cwd(), "data", "entrepreneur-users.json");
 
 type EntrepreneurUser = {
@@ -88,7 +86,7 @@ export async function GET(request: Request) {
     if (!savedState || savedState !== stateToken) {
       return redirectToEntrepreneurs();
     }
-    const { payload } = await jwtVerify(stateToken, JWT_SECRET);
+    const { payload } = await jwtVerify(stateToken, getJwtSecret());
     if (!payload.state) return redirectToEntrepreneurs();
   } catch {
     return redirectToEntrepreneurs();

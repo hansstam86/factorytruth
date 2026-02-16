@@ -40,7 +40,7 @@ export default function HomePage() {
         <div className={styles.card}>
           <h2 className={`${styles.cardTitle} zh`}>工厂端</h2>
           <p className={`${styles.cardDesc} zh`}>
-            填写审核问卷，展示您的生产与合规信息，吸引海外客户。
+            找到更多优质客户。您分享的审核信息越完整、越透明，海外创业者越信任您，越有可能将硬件项目交给您生产。
           </p>
           <Link href="/factories" className={`${styles.cardLink} zh`}>
             进入工厂入口 →
@@ -49,8 +49,8 @@ export default function HomePage() {
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>For entrepreneurs</h2>
           <p className={styles.cardDesc}>
-            Browse audit answers from factories. Compare and select the right
-            manufacturing partner for your hardware.
+            Find trustworthy factories for your hardware. Browse transparent audit
+            answers, compare manufacturers, and choose partners you can rely on.
           </p>
           <Link href="/entrepreneurs" className={styles.cardLink}>
             Go to entrepreneur portal →

@@ -28,6 +28,12 @@ function sanitizeFilename(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
 }
 
+/** Only allow question ids that are alphanumeric, underscore, or hyphen (e.g. q1, B2). */
+const SAFE_QUESTION_ID = /^[a-zA-Z0-9_-]+$/;
+function isSafeQuestionId(id: string): boolean {
+  return id.length > 0 && id.length <= 64 && SAFE_QUESTION_ID.test(id);
+}
+
 const REQUIRED_BASIC_IDS = ["q1", "q2"] as const;
 
 function validateBasicInfo(answers: Record<string, string>): NextResponse | null {
@@ -114,14 +120,20 @@ export async function POST(request: Request) {
       for (const [key, value] of Array.from(formData.entries())) {
         if (!key.startsWith("file_") || !(value instanceof File)) continue;
         const questionId = key.slice(5);
+        if (!isSafeQuestionId(questionId)) continue;
         const file = value;
         if (file.size > MAX_FILE_SIZE) continue;
         const base = file.name || "file";
         if (!ALLOWED_EXT.test(base)) continue;
         const filename = `${questionId}_${Date.now()}_${sanitizeFilename(base)}`;
         const filePath = path.join(uploadDir, filename);
+        const resolvedFilePath = path.resolve(filePath);
+        const resolvedUploadDir = path.resolve(uploadDir);
+        if (resolvedFilePath !== resolvedUploadDir && !resolvedFilePath.startsWith(resolvedUploadDir + path.sep)) {
+          continue;
+        }
         const buf = await file.arrayBuffer();
-        await writeFile(filePath, Buffer.from(buf));
+        await writeFile(resolvedFilePath, Buffer.from(buf));
 
         const relativePath = `uploads/${submissionId}/${filename}`;
         const entry = { path: relativePath, name: file.name || "" };
