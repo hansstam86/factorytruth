@@ -101,9 +101,32 @@
   border-color: var(--color-accent);
 }
 
+.sectionHeadRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
 .sectionTitle {
   font-size: 1.1rem;
-  margin-bottom: 0.75rem;
+  margin: 0;
+}
+
+.exportCsvBtn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.exportCsvBtn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .form {

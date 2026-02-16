@@ -36,6 +36,34 @@ export default function AdminFactoriesPage() {
       .catch(() => setFactories([]));
   };
 
+  const escapeCsvCell = (value: string): string => {
+    const s = String(value ?? "");
+    if (s.includes('"') || s.includes(",") || s.includes("\n") || s.includes("\r")) {
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+    return s;
+  };
+
+  const handleExportCsv = () => {
+    const header = ["Name", "Address", "Expertise", "Login (email)", "Created", "ID"];
+    const rows = factories.map((f) => [
+      escapeCsvCell(f.name),
+      escapeCsvCell(f.address),
+      escapeCsvCell(f.expertise),
+      escapeCsvCell(f.userId ?? ""),
+      escapeCsvCell(new Date(f.createdAt).toISOString()),
+      escapeCsvCell(f.id),
+    ]);
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `factories-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetch("/api/admin-auth/me", { credentials: "include" })
       .then((res) => res.json())
@@ -388,7 +416,14 @@ export default function AdminFactoriesPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Factories with submissions ({factories.length})</h2>
+        <div className={styles.sectionHeadRow}>
+          <h2 className={styles.sectionTitle}>Factories with submissions ({factories.length})</h2>
+          {factories.length > 0 && (
+            <button type="button" onClick={handleExportCsv} className={styles.exportCsvBtn}>
+              Export to CSV
+            </button>
+          )}
+        </div>
         {factories.length === 0 ? (
           <p className={styles.empty}>No factories yet. Create an account above or wait for one to register and submit.</p>
         ) : (

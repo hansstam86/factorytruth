@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
 import { getCompareIds, setCompareIds, toggleCompare, COMPARE_MAX } from "@/lib/compare-factories";
+
+const FREE_PREVIEW_COUNT = 25;
 
 type Factory = {
   id: string;
@@ -13,13 +16,35 @@ type Factory = {
   createdAt: string;
 };
 
+type SortOption = "name" | "date";
+
 export default function EntrepreneursPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
   const [compareIds, setCompareIdsState] = useState<string[]>([]);
-  const [searchName, setSearchName] = useState("");
-  const [searchAddress, setSearchAddress] = useState("");
-  const [searchExpertise, setSearchExpertise] = useState("");
+  const [searchName, setSearchName] = useState(() => searchParams.get("name") ?? "");
+  const [searchAddress, setSearchAddress] = useState(() => searchParams.get("address") ?? "");
+  const [searchExpertise, setSearchExpertise] = useState(() => searchParams.get("expertise") ?? "");
+  const [sort, setSort] = useState<SortOption>(() => (searchParams.get("sort") === "date" ? "date" : "name"));
+  const [user, setUser] = useState<{ email: string; name?: string } | null>(null);
+  const [showSearchSignInModal, setShowSearchSignInModal] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/entrepreneur-auth/me", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user ?? null))
+      .catch(() => setUser(null));
+  }, []);
+
+  // Sync state from URL when user navigates (e.g. back/forward or shared link after hydration)
+  useEffect(() => {
+    setSearchName(searchParams.get("name") ?? "");
+    setSearchAddress(searchParams.get("address") ?? "");
+    setSearchExpertise(searchParams.get("expertise") ?? "");
+    setSort(searchParams.get("sort") === "date" ? "date" : "name");
+  }, [searchParams]);
 
   useEffect(() => {
     fetch("/api/factories")
@@ -61,13 +86,43 @@ export default function EntrepreneursPage() {
   const nameLower = searchName.trim().toLowerCase();
   const addressLower = searchAddress.trim().toLowerCase();
   const expertiseLower = searchExpertise.trim().toLowerCase();
-  const filteredFactories = factories.filter((f) => {
-    const matchName = !nameLower || (f.name && f.name.toLowerCase().includes(nameLower));
-    const matchAddress = !addressLower || (f.address && f.address.toLowerCase().includes(addressLower));
-    const matchExpertise =
-      !expertiseLower || (f.expertise && f.expertise.toLowerCase().includes(expertiseLower));
-    return matchName && matchAddress && matchExpertise;
+  const searchAllowed = !!user;
+  const filtered = searchAllowed
+    ? factories.filter((f) => {
+        const matchName = !nameLower || (f.name && f.name.toLowerCase().includes(nameLower));
+        const matchAddress = !addressLower || (f.address && f.address.toLowerCase().includes(addressLower));
+        const matchExpertise =
+          !expertiseLower || (f.expertise && f.expertise.toLowerCase().includes(expertiseLower));
+        return matchName && matchAddress && matchExpertise;
+      })
+    : factories;
+  const filteredFactories = [...filtered].sort((a, b) => {
+    if (sort === "date") {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    return (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" });
   });
+  const visibleFactories = user ? filteredFactories : filteredFactories.slice(0, FREE_PREVIEW_COUNT);
+  const hasMoreForGuests = !user && filteredFactories.length > FREE_PREVIEW_COUNT;
+
+  const handleSearchFocus = () => {
+    if (!user) {
+      setShowSearchSignInModal(true);
+      if (typeof document !== "undefined") (document.activeElement as HTMLElement)?.blur?.();
+    }
+  };
+
+  // Keep URL in sync with search and sort so links are shareable (only when signed in)
+  useEffect(() => {
+    if (!user) return;
+    const params = new URLSearchParams();
+    if (searchName.trim()) params.set("name", searchName.trim());
+    if (searchAddress.trim()) params.set("address", searchAddress.trim());
+    if (searchExpertise.trim()) params.set("expertise", searchExpertise.trim());
+    if (sort !== "name") params.set("sort", sort);
+    const q = params.toString();
+    router.replace(q ? `/entrepreneurs?${q}` : "/entrepreneurs", { scroll: false });
+  }, [user, searchName, searchAddress, searchExpertise, sort, router]);
 
   return (
     <div className={styles.listWrap}>
@@ -77,6 +132,11 @@ export default function EntrepreneursPage() {
       </p>
 
       <div className={styles.searchBar}>
+        {!user && (
+          <p className={styles.searchGuestHint}>
+            Sign in to search by name, address, or expertise.
+          </p>
+        )}
         <div className={styles.searchFields}>
           <div className={styles.searchField}>
             <label htmlFor="search-name" className={styles.searchLabel}>
@@ -86,9 +146,11 @@ export default function EntrepreneursPage() {
               id="search-name"
               type="text"
               value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              placeholder="Factory name…"
-              className={styles.searchInput}
+              onChange={(e) => user && setSearchName(e.target.value)}
+              onFocus={handleSearchFocus}
+              placeholder={user ? "Factory name…" : "Sign in to search"}
+              readOnly={!user}
+              className={user ? styles.searchInput : styles.searchInputLocked}
               aria-label="Search by factory name"
             />
           </div>
@@ -100,9 +162,11 @@ export default function EntrepreneursPage() {
               id="search-address"
               type="text"
               value={searchAddress}
-              onChange={(e) => setSearchAddress(e.target.value)}
-              placeholder="City, region, country…"
-              className={styles.searchInput}
+              onChange={(e) => user && setSearchAddress(e.target.value)}
+              onFocus={handleSearchFocus}
+              placeholder={user ? "City, region, country…" : "Sign in to search"}
+              readOnly={!user}
+              className={user ? styles.searchInput : styles.searchInputLocked}
               aria-label="Search by address"
             />
           </div>
@@ -114,19 +178,72 @@ export default function EntrepreneursPage() {
               id="search-expertise"
               type="text"
               value={searchExpertise}
-              onChange={(e) => setSearchExpertise(e.target.value)}
-              placeholder="Expertise, business, capability…"
-              className={styles.searchInput}
+              onChange={(e) => user && setSearchExpertise(e.target.value)}
+              onFocus={handleSearchFocus}
+              placeholder={user ? "Expertise, business, capability…" : "Sign in to search"}
+              readOnly={!user}
+              className={user ? styles.searchInput : styles.searchInputLocked}
               aria-label="Search by expertise"
             />
           </div>
         </div>
-        {(nameLower || addressLower || expertiseLower) && (
-          <p className={styles.searchSummary}>
-            Showing {filteredFactories.length} of {factories.length} factories
-          </p>
-        )}
+        <div className={styles.searchSortRow}>
+          <div className={styles.searchField}>
+            <label htmlFor="sort-factories" className={styles.searchLabel}>
+              Sort by
+            </label>
+            {user ? (
+              <select
+                id="sort-factories"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortOption)}
+                className={styles.sortSelect}
+                aria-label="Sort factories"
+              >
+                <option value="name">Name (A–Z)</option>
+                <option value="date">Date added (newest first)</option>
+              </select>
+            ) : (
+              <button
+                type="button"
+                id="sort-factories"
+                className={styles.sortSelectLocked}
+                onClick={() => setShowSearchSignInModal(true)}
+                aria-label="Sort factories (sign in to change)"
+              >
+                {sort === "date" ? "Date added (newest first)" : "Name (A–Z)"}
+              </button>
+            )}
+          </div>
+          {searchAllowed && (nameLower || addressLower || expertiseLower) && (
+            <p className={styles.searchSummary}>
+              Showing {filteredFactories.length} of {factories.length} factories
+            </p>
+          )}
+        </div>
       </div>
+
+      {showSearchSignInModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowSearchSignInModal(false)} role="dialog" aria-modal="true" aria-labelledby="search-signin-title">
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <h2 id="search-signin-title" className={styles.modalTitle}>Sign in to search</h2>
+            <p className={styles.modalDesc}>
+              Search by name, address, or expertise is available once you have an account. It’s free — create one or log in.
+            </p>
+            <div className={styles.modalActions}>
+              <Link href="/entrepreneurs/login" className={styles.modalBtnPrimary}>
+                Log in
+              </Link>
+              <Link href="/entrepreneurs/register" className={styles.modalBtnSecondary}>
+                Create free account
+              </Link>
+              <button type="button" className={styles.modalClose} onClick={() => setShowSearchSignInModal(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {compareIds.length >= 2 && (
         <div className={styles.compareBar}>
@@ -162,12 +279,18 @@ export default function EntrepreneursPage() {
         <div className={styles.empty}>
           <p>No factories match your search.</p>
           <p className={styles.emptyHint}>
-            Try different or shorter terms for name or expertise.
+            Try different or shorter terms for name, address, or expertise.
           </p>
         </div>
       ) : (
-        <ul className={styles.factoryList}>
-          {filteredFactories.map((f) => {
+        <>
+          {hasMoreForGuests && (
+            <p className={styles.previewHint}>
+              Showing first {FREE_PREVIEW_COUNT} of {filteredFactories.length} factories. Sign in to see all and compare.
+            </p>
+          )}
+          <ul className={styles.factoryList}>
+          {visibleFactories.map((f) => {
             const selected = compareIds.includes(f.id);
             const atMax = compareIds.length >= COMPARE_MAX && !selected;
             return (
@@ -203,7 +326,24 @@ export default function EntrepreneursPage() {
               </li>
             );
           })}
-        </ul>
+          </ul>
+          {hasMoreForGuests && (
+            <div className={styles.loginGate}>
+              <p className={styles.loginGateTitle}>Sign in to see more factories</p>
+              <p className={styles.loginGateDesc}>
+                It’s still free — you just need an account. Log in or sign up to browse all {filteredFactories.length} factories and use the compare tool.
+              </p>
+              <div className={styles.loginGateActions}>
+                <Link href="/entrepreneurs/login" className={styles.loginGateBtnPrimary}>
+                  Log in
+                </Link>
+                <Link href="/entrepreneurs/register" className={styles.loginGateBtnSecondary}>
+                  Create free account
+                </Link>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
