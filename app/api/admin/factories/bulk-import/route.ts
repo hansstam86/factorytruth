@@ -55,7 +55,7 @@ export async function POST(request: Request) {
             expertise: typeof o.expertise === "string" ? o.expertise : String(o.expertise ?? ""),
           });
         })
-        .filter((r): r is { name: string; address: string; expertise: string } => r !== null);
+        .filter((r: { name: string; address: string; expertise: string } | null): r is { name: string; address: string; expertise: string } => r !== null);
     } else if (Array.isArray(body.names)) {
       rows = body.names
         .map((n: unknown) => (typeof n === "string" ? n.trim() : String(n).trim()))
