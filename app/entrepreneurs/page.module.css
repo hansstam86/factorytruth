@@ -576,10 +576,28 @@
   color: inherit;
 }
 
+.cardHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
 .cardName {
   font-weight: 600;
   font-size: 1.1rem;
-  margin-bottom: 0.35rem;
+}
+
+.transparencyBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border-radius: 6px;
 }
 
 .cardMeta {

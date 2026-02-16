@@ -11,6 +11,7 @@ type Factory = {
   address?: string;
   expertise?: string;
   createdAt: string;
+  transparencyScore?: number;
 };
 
 export default function ShortlistPage() {
@@ -88,7 +89,14 @@ export default function ShortlistPage() {
                   <span className={styles.shortlistLabelText}>Saved</span>
                 </button>
                 <Link href={`/entrepreneurs/factory/${f.id}`} className={styles.cardLink}>
-                  <div className={styles.cardName}>{f.name}</div>
+                  <div className={styles.cardHead}>
+                    <span className={styles.cardName}>{f.name}</span>
+                    {typeof f.transparencyScore === "number" && (
+                      <span className={styles.transparencyBadge} title="Transparency score">
+                        {f.transparencyScore}%
+                      </span>
+                    )}
+                  </div>
                   {f.address && (
                     <div className={styles.cardMeta}>Address: {f.address}</div>
                   )}

@@ -15,6 +15,7 @@ type Factory = {
   address?: string;
   expertise?: string;
   createdAt: string;
+  transparencyScore?: number;
 };
 
 type SortOption = "name" | "date";
@@ -29,6 +30,12 @@ function EntrepreneursBrowseContent() {
   const [searchAddress, setSearchAddress] = useState(() => searchParams.get("address") ?? "");
   const [searchExpertise, setSearchExpertise] = useState(() => searchParams.get("expertise") ?? "");
   const [sort, setSort] = useState<SortOption>(() => (searchParams.get("sort") === "date" ? "date" : "name"));
+  const [minTransparency, setMinTransparency] = useState<number | null>(() => {
+    const v = searchParams.get("minScore");
+    if (v === "") return null;
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
+  });
   const [user, setUser] = useState<{ email: string; name?: string } | null>(null);
   const [showSearchSignInModal, setShowSearchSignInModal] = useState(false);
   const [shortlistIds, setShortlistIdsState] = useState<string[]>([]);
@@ -46,6 +53,12 @@ function EntrepreneursBrowseContent() {
     setSearchAddress(searchParams.get("address") ?? "");
     setSearchExpertise(searchParams.get("expertise") ?? "");
     setSort(searchParams.get("sort") === "date" ? "date" : "name");
+    const v = searchParams.get("minScore");
+    if (v === "" || v === null) setMinTransparency(null);
+    else {
+      const n = parseInt(v, 10);
+      setMinTransparency(Number.isFinite(n) && n >= 0 && n <= 100 ? n : null);
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -99,7 +112,9 @@ function EntrepreneursBrowseContent() {
         const matchAddress = !addressLower || (f.address && f.address.toLowerCase().includes(addressLower));
         const matchExpertise =
           !expertiseLower || (f.expertise && f.expertise.toLowerCase().includes(expertiseLower));
-        return matchName && matchAddress && matchExpertise;
+        const score = typeof f.transparencyScore === "number" ? f.transparencyScore : 0;
+        const matchScore = minTransparency === null || score >= minTransparency;
+        return matchName && matchAddress && matchExpertise && matchScore;
       })
     : factories;
   const filteredFactories = [...filtered].sort((a, b) => {
@@ -118,7 +133,7 @@ function EntrepreneursBrowseContent() {
     }
   };
 
-  // Keep URL in sync with search and sort so links are shareable (only when signed in)
+  // Keep URL in sync with search, sort, and min score so links are shareable (only when signed in)
   useEffect(() => {
     if (!user) return;
     const params = new URLSearchParams();
@@ -126,9 +141,10 @@ function EntrepreneursBrowseContent() {
     if (searchAddress.trim()) params.set("address", searchAddress.trim());
     if (searchExpertise.trim()) params.set("expertise", searchExpertise.trim());
     if (sort !== "name") params.set("sort", sort);
+    if (minTransparency !== null) params.set("minScore", String(minTransparency));
     const q = params.toString();
     router.replace(q ? `/entrepreneurs?${q}` : "/entrepreneurs", { scroll: false });
-  }, [user, searchName, searchAddress, searchExpertise, sort, router]);
+  }, [user, searchName, searchAddress, searchExpertise, sort, minTransparency, router]);
 
   return (
     <div className={styles.listWrap}>
@@ -227,7 +243,30 @@ function EntrepreneursBrowseContent() {
               </button>
             )}
           </div>
-          {searchAllowed && (nameLower || addressLower || expertiseLower) && (
+          {user && (
+            <div className={styles.searchField}>
+              <label htmlFor="min-transparency" className={styles.searchLabel}>
+                Min. transparency
+              </label>
+              <select
+                id="min-transparency"
+                value={minTransparency === null ? "" : String(minTransparency)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setMinTransparency(v === "" ? null : parseInt(v, 10));
+                }}
+                className={styles.sortSelect}
+                aria-label="Minimum transparency score"
+              >
+                <option value="">All factories</option>
+                <option value="25">25%+</option>
+                <option value="50">50%+</option>
+                <option value="75">75%+</option>
+                <option value="90">90%+</option>
+              </select>
+            </div>
+          )}
+          {searchAllowed && (nameLower || addressLower || expertiseLower || minTransparency !== null) && (
             <p className={styles.searchSummary}>
               Showing {filteredFactories.length} of {factories.length} factories
             </p>
@@ -342,7 +381,14 @@ function EntrepreneursBrowseContent() {
                     <span className={styles.compareLabelText}>Compare</span>
                   </button>
                   <Link href={`/entrepreneurs/factory/${f.id}`} className={styles.cardLink}>
-                    <div className={styles.cardName}>{f.name}</div>
+                    <div className={styles.cardHead}>
+                      <span className={styles.cardName}>{f.name}</span>
+                      {typeof f.transparencyScore === "number" && (
+                        <span className={styles.transparencyBadge} title="Transparency score: share more audit answers = higher score">
+                          {f.transparencyScore}%
+                        </span>
+                      )}
+                    </div>
                     {f.address && (
                       <div className={styles.cardMeta}>Address: {f.address}</div>
                     )}

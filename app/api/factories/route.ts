@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
 import path from "path";
+import { getQuestionsSync } from "@/lib/audit-questions-server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,13 +18,28 @@ export async function GET(request: Request) {
       createdAt: string;
     }[];
 
-    let factories = list.map((entry) => ({
-      id: entry.id,
-      createdAt: entry.createdAt,
-      name: entry.answers.q1 || "Unnamed factory",
-      address: entry.answers.q2,
-      expertise: entry.answers.q3,
-    }));
+    const questions = getQuestionsSync();
+    const totalQuestions = questions.length;
+
+    let factories = list.map((entry) => {
+      const answers = entry.answers || {};
+      const answeredCount = totalQuestions
+        ? questions.filter((q) => {
+            const v = answers[q.id];
+            return v != null && String(v).trim() !== "";
+          }).length
+        : 0;
+      const transparencyScore =
+        totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+      return {
+        id: entry.id,
+        createdAt: entry.createdAt,
+        name: entry.answers.q1 || "Unnamed factory",
+        address: entry.answers.q2,
+        expertise: entry.answers.q3,
+        transparencyScore,
+      };
+    });
 
     const { searchParams } = new URL(request.url);
     const idsParam = searchParams.get("ids");
