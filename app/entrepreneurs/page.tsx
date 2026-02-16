@@ -32,7 +32,7 @@ function EntrepreneursBrowseContent() {
   const [sort, setSort] = useState<SortOption>(() => (searchParams.get("sort") === "date" ? "date" : "name"));
   const [minTransparency, setMinTransparency] = useState<number | null>(() => {
     const v = searchParams.get("minScore");
-    if (v === "") return null;
+    if (v === "" || v === null) return null;
     const n = parseInt(v, 10);
     return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
   });
