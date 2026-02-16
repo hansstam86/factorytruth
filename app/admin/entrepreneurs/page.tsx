@@ -158,6 +158,7 @@ export default function AdminEntrepreneursPage() {
         {entrepreneurs.length === 0 ? (
           <p className={styles.empty}>No entrepreneurs yet.</p>
         ) : (
+          <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -189,6 +190,7 @@ export default function AdminEntrepreneursPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </section>
 

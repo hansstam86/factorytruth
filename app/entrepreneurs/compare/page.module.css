@@ -2,6 +2,25 @@
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .wrap {
+    padding: 0;
+  }
+
+  .title {
+    font-size: 1.35rem;
+  }
+
+  .thFactory {
+    min-width: 160px;
+  }
+
+  .tdQuestion {
+    min-width: 180px;
+    max-width: 220px;
+  }
+}
+
 .headerRow {
   display: flex;
   align-items: center;

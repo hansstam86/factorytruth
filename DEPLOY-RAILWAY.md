@@ -59,11 +59,13 @@ In the same service: **Variables** → **+ New Variable** (or **Raw Editor**). A
 
 Generate a strong `JWT_SECRET` (e.g. `openssl rand -base64 32`).
 
-If you use Google SSO, set the OAuth redirect URI in Google Cloud Console to:
+**Google SSO (entrepreneurs):** To enable “Sign in with Google” on the entrepreneur portal, set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and add this redirect URI in Google Cloud Console:
 
 ```text
 https://www.factorytruth.com/api/entrepreneur-auth/sso/callback
 ```
+
+See **[docs/SSO-SETUP.md](docs/SSO-SETUP.md)** for full step-by-step setup (Google Cloud project, OAuth client, redirect URIs).
 
 Save. Railway will redeploy when variables change.
 
@@ -101,9 +103,9 @@ Save. Railway will redeploy when variables change.
    - **Value:** the Railway CNAME target (e.g. `factorytruth-production-xxxx.up.railway.app`)  
    - **TTL:** 600 (or default)
 
-   **For root (factorytruth.com) — optional:**
+   **For root (factorytruth.com) — redirect to www:**
 
-   - Railway often recommends a CNAME for root too, or an A record. Follow the exact instructions Railway shows for the root domain.
+   - GoDaddy does not allow CNAME at the apex. To have factorytruth.com redirect to www.factorytruth.com, use **GoDaddy domain forwarding** (e.g. forward factorytruth.com → https://www.factorytruth.com). See **[docs/APEX-REDIRECT.md](docs/APEX-REDIRECT.md)** for step-by-step options (forwarding only, or Cloudflare DNS so the apex points to Railway).
 
 3. Save. Wait 5–60 minutes for DNS to propagate.
 

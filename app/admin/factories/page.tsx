@@ -141,6 +141,7 @@ export default function AdminFactoriesPage() {
         {factories.length === 0 ? (
           <p className={styles.empty}>No factories yet. Create an account above or wait for one to register and submit.</p>
         ) : (
+          <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
@@ -172,6 +173,7 @@ export default function AdminFactoriesPage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </section>
 

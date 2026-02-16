@@ -193,6 +193,17 @@
   color: var(--color-text-muted);
 }
 
+@media (max-width: 768px) {
+  .detailName {
+    font-size: 1.4rem;
+  }
+
+  .compareActions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 @media (max-width: 600px) {
   .detailRow {
     grid-template-columns: 1fr;

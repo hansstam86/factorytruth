@@ -12,6 +12,16 @@
 .userEmail {
   font-size: 0.9rem;
   color: var(--color-text-muted);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .userEmail {
+    max-width: 100px;
+  }
 }
 
 .logoutBtn {
