@@ -18,6 +18,7 @@ export default function EntrepreneursPage() {
   const [loading, setLoading] = useState(true);
   const [compareIds, setCompareIdsState] = useState<string[]>([]);
   const [searchName, setSearchName] = useState("");
+  const [searchAddress, setSearchAddress] = useState("");
   const [searchExpertise, setSearchExpertise] = useState("");
 
   useEffect(() => {
@@ -58,12 +59,14 @@ export default function EntrepreneursPage() {
     : "/entrepreneurs/compare";
 
   const nameLower = searchName.trim().toLowerCase();
+  const addressLower = searchAddress.trim().toLowerCase();
   const expertiseLower = searchExpertise.trim().toLowerCase();
   const filteredFactories = factories.filter((f) => {
     const matchName = !nameLower || (f.name && f.name.toLowerCase().includes(nameLower));
+    const matchAddress = !addressLower || (f.address && f.address.toLowerCase().includes(addressLower));
     const matchExpertise =
       !expertiseLower || (f.expertise && f.expertise.toLowerCase().includes(expertiseLower));
-    return matchName && matchExpertise;
+    return matchName && matchAddress && matchExpertise;
   });
 
   return (
@@ -90,6 +93,20 @@ export default function EntrepreneursPage() {
             />
           </div>
           <div className={styles.searchField}>
+            <label htmlFor="search-address" className={styles.searchLabel}>
+              Search by address
+            </label>
+            <input
+              id="search-address"
+              type="text"
+              value={searchAddress}
+              onChange={(e) => setSearchAddress(e.target.value)}
+              placeholder="City, region, country…"
+              className={styles.searchInput}
+              aria-label="Search by address"
+            />
+          </div>
+          <div className={styles.searchField}>
             <label htmlFor="search-expertise" className={styles.searchLabel}>
               Search by expertise
             </label>
@@ -104,7 +121,7 @@ export default function EntrepreneursPage() {
             />
           </div>
         </div>
-        {(nameLower || expertiseLower) && (
+        {(nameLower || addressLower || expertiseLower) && (
           <p className={styles.searchSummary}>
             Showing {filteredFactories.length} of {factories.length} factories
           </p>
