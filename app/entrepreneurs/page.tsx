@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
@@ -18,7 +18,7 @@ type Factory = {
 
 type SortOption = "name" | "date";
 
-export default function EntrepreneursPage() {
+function EntrepreneursBrowseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [factories, setFactories] = useState<Factory[]>([]);
@@ -346,5 +346,13 @@ export default function EntrepreneursPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function EntrepreneursPage() {
+  return (
+    <Suspense fallback={<p className={styles.loading}>Loading factories…</p>}>
+      <EntrepreneursBrowseContent />
+    </Suspense>
   );
 }
