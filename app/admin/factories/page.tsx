@@ -27,8 +27,6 @@ export default function AdminFactoriesPage() {
   const [bulkImporting, setBulkImporting] = useState(false);
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState("");
   const [bulkDeleting, setBulkDeleting] = useState(false);
-  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState("");
-  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchFactories = () => {
     return fetch("/api/admin/factories", { credentials: "include" })
