@@ -23,6 +23,8 @@ export default function AdminFactoriesPage() {
   const [createEmail, setCreateEmail] = useState("");
   const [createPassword, setCreatePassword] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkNamesText, setBulkNamesText] = useState("");
+  const [bulkImporting, setBulkImporting] = useState(false);
 
   const fetchFactories = () => {
     return fetch("/api/admin/factories", { credentials: "include" })
@@ -95,6 +97,62 @@ export default function AdminFactoriesPage() {
     }
   };
 
+  const parseNamesFromText = (text: string): string[] => {
+    return text
+      .split(/\r?\n/)
+      .map((line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return "";
+        const firstComma = trimmed.indexOf(",");
+        return firstComma >= 0 ? trimmed.slice(0, firstComma).trim() : trimmed;
+      })
+      .filter((n) => n.length > 0);
+  };
+
+  const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result ?? "");
+      setBulkNamesText(text);
+    };
+    reader.readAsText(file, "UTF-8");
+    e.target.value = "";
+  };
+
+  const handleBulkImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const names = parseNamesFromText(bulkNamesText);
+    if (names.length === 0) {
+      setError("Enter or upload at least one factory name.");
+      return;
+    }
+    setError(null);
+    setMessage(null);
+    setBulkImporting(true);
+    try {
+      const res = await fetch("/api/admin/factories/bulk-import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ names }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Bulk import failed.");
+        return;
+      }
+      setMessage(`Bulk import: ${data.added} added, ${data.skipped} skipped (duplicates). Total factories: ${data.total}.`);
+      setBulkNamesText("");
+      fetchFactories();
+    } catch {
+      setError("Network error.");
+    } finally {
+      setBulkImporting(false);
+    }
+  };
+
   if (loading) return <p className={styles.loading}>Loading…</p>;
 
   return (
@@ -132,6 +190,39 @@ export default function AdminFactoriesPage() {
           </div>
           <button type="submit" className={styles.primaryBtn} disabled={creating}>
             {creating ? "Creating…" : "Create factory account"}
+          </button>
+        </form>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Bulk import factory names</h2>
+        <p className={styles.bulkHint}>
+          Add many factories at once so they appear in the entrepreneur list (name only, no login account). Export your Excel sheet as CSV, or paste one name per line. Max 2000 per import; duplicates are skipped.
+        </p>
+        <form onSubmit={handleBulkImport} className={styles.bulkForm}>
+          <div className={styles.bulkRow}>
+            <label className={styles.bulkFileLabel}>
+              <span className={styles.bulkFileBtn}>Choose CSV or TXT file</span>
+              <input
+                type="file"
+                accept=".csv,.txt"
+                onChange={handleBulkFileChange}
+                className={styles.bulkFileInput}
+              />
+            </label>
+          </div>
+          <div className={styles.field}>
+            <label>Factory names (one per line, or paste CSV — first column used)</label>
+            <textarea
+              value={bulkNamesText}
+              onChange={(e) => setBulkNamesText(e.target.value)}
+              placeholder={"Factory A\nFactory B\n..."}
+              rows={12}
+              className={styles.bulkTextarea}
+            />
+          </div>
+          <button type="submit" className={styles.primaryBtn} disabled={bulkImporting}>
+            {bulkImporting ? "Importing…" : `Import ${parseNamesFromText(bulkNamesText).length} names`}
           </button>
         </form>
       </section>

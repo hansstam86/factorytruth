@@ -13,9 +13,10 @@ export interface AuditQuestion {
 export const FILE_ACCEPT = ".pdf,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp";
 
 export const AUDIT_QUESTIONS: AuditQuestion[] = [
-  // Basic info (keep for factory name/address on list)
+  // Basic info (keep for factory name/address/expertise on list)
   { id: "q1", section: "基本信息", sectionEn: "Basic info", questionZh: "工厂名称", questionEn: "Factory name", type: "text" },
   { id: "q2", section: "基本信息", sectionEn: "Basic info", questionZh: "工厂地址（省/市/区）", questionEn: "Address (Province/City/District)", type: "text" },
+  { id: "q3", section: "基本信息", sectionEn: "Basic info", questionZh: "主营业务/专长", questionEn: "Expertise / Main business", type: "textarea" },
 
   // A. Receiving
   { id: "A1", section: "A. 收货", sectionEn: "A. Receiving", questionZh: "从接收到进料质量需要多长时间？", questionEn: "How long does it take from receiving to Incoming Quality?", type: "text" },

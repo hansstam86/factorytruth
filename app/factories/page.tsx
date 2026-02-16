@@ -66,13 +66,14 @@ export default function FactoriesPage() {
   };
 
   const REQUIRED_BASIC_IDS = ["q1", "q2"];
+  const BASIC_LABELS: Record<string, string> = { q1: "工厂名称", q2: "工厂地址" };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     for (const id of REQUIRED_BASIC_IDS) {
       if (!answers[id]?.trim()) {
-        const label = id === "q1" ? "工厂名称" : "工厂地址";
+        const label = BASIC_LABELS[id] || id;
         alert(`请填写必填项：${label}`);
         return;
       }

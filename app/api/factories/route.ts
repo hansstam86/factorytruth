@@ -22,6 +22,7 @@ export async function GET() {
       createdAt: entry.createdAt,
       name: entry.answers.q1 || "Unnamed factory",
       address: entry.answers.q2,
+      expertise: entry.answers.q3,
     }));
 
     return NextResponse.json(factories, {

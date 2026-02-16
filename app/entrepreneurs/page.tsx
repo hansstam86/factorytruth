@@ -9,6 +9,7 @@ type Factory = {
   id: string;
   name: string;
   address?: string;
+  expertise?: string;
   createdAt: string;
 };
 
@@ -120,6 +121,9 @@ export default function EntrepreneursPage() {
                     <div className={styles.cardName}>{f.name}</div>
                     {f.address && (
                       <div className={styles.cardMeta}>Address: {f.address}</div>
+                    )}
+                    {f.expertise && (
+                      <div className={styles.cardMeta}>Expertise: {f.expertise}</div>
                     )}
                   </Link>
                 </div>
