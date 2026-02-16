@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       rows = body.names
         .map((n: unknown) => (typeof n === "string" ? n.trim() : String(n).trim()))
         .filter((n: string) => n.length > 0)
-        .map((name) => normalizeRow({ name }));
+        .map((name: string) => normalizeRow({ name }));
     } else {
       return NextResponse.json(
         { error: "Body must be { names: string[] } or { rows: { name, address?, expertise? }[] }." },
