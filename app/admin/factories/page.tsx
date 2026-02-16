@@ -25,6 +25,10 @@ export default function AdminFactoriesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [bulkNamesText, setBulkNamesText] = useState("");
   const [bulkImporting, setBulkImporting] = useState(false);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState("");
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState("");
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchFactories = () => {
     return fetch("/api/admin/factories", { credentials: "include" })
@@ -97,8 +101,16 @@ export default function AdminFactoriesPage() {
     }
   };
 
+  /** Strip BOM and normalize line endings for CSV. */
+  const normalizeCSVText = (text: string): string => {
+    let t = text.trim();
+    if (t.charCodeAt(0) === 0xfeff) t = t.slice(1);
+    return t;
+  };
+
   /** Parse CSV with quoted fields (handles newlines and commas inside quotes). Returns array of [company, address?, expertise?]. */
   const parseCSV = (text: string): string[][] => {
+    text = normalizeCSVText(text);
     const rows: string[][] = [];
     let i = 0;
     const len = text.length;
@@ -123,10 +135,10 @@ export default function AdminFactoriesPage() {
             }
           }
           row.push(cell.trim());
-          if (text[i] === ",") i++;
-          else if (text[i] === "\n" || text[i] === "\r") {
+          if (i < len && text[i] === ",") i++;
+          else if (i < len && (text[i] === "\n" || text[i] === "\r")) {
             i++;
-            if (text[i] === "\n") i++;
+            if (i < len && text[i] === "\n") i++;
             break;
           } else break;
         } else {
@@ -136,14 +148,15 @@ export default function AdminFactoriesPage() {
             i++;
           }
           row.push(cell.trim());
-          if (text[i] === ",") i++;
-          else if (text[i] === "\n" || text[i] === "\r") {
+          if (i < len && text[i] === ",") i++;
+          else if (i < len && (text[i] === "\n" || text[i] === "\r")) {
             i++;
-            if (text[i] === "\n") i++;
+            if (i < len && text[i] === "\n") i++;
             break;
           } else break;
         }
       }
+      while (row.length < 3) row.push("");
       if (row.some((c) => c.length > 0)) rows.push(row);
     }
     return rows;
@@ -153,16 +166,19 @@ export default function AdminFactoriesPage() {
   const csvRowsToBulkRows = (parsed: string[][]): { name: string; address: string; expertise: string }[] => {
     if (parsed.length === 0) return [];
     const first = parsed[0];
+    const firstCell = (first[0] ?? "").trim().toLowerCase().replace(/^\ufeff/, "");
     const hasHeader =
       first.length >= 1 &&
-      (first[0].toLowerCase() === "company" || first[0].toLowerCase() === "name") &&
+      (firstCell === "company" || firstCell === "name") &&
       parsed.length > 1;
     const data = hasHeader ? parsed.slice(1) : parsed;
-    return data.map((row) => ({
-      name: (row[0] ?? "").trim(),
-      address: (row[1] ?? "").trim(),
-      expertise: (row[2] ?? "").trim(),
-    })).filter((r) => r.name.length > 0);
+    return data
+      .map((row) => ({
+        name: (row[0] ?? "").trim(),
+        address: (row[1] ?? "").trim(),
+        expertise: (row[2] ?? "").trim(),
+      }))
+      .filter((r) => r.name.length > 0);
   };
 
   /** Parse paste area: "name" per line or "name, address, expertise" per line (simple split). */
@@ -195,10 +211,10 @@ export default function AdminFactoriesPage() {
   };
 
   const getBulkRows = (): { name: string; address: string; expertise: string }[] => {
-    const text = bulkNamesText.trim();
+    const text = normalizeCSVText(bulkNamesText);
     if (!text) return [];
     const firstLine = text.split(/\r?\n/)[0] ?? "";
-    if (firstLine.includes('"') || (firstLine.includes(",") && firstLine.split(",").length >= 2)) {
+    if (firstLine.includes('"') || firstLine.includes(",")) {
       const parsed = parseCSV(text);
       return csvRowsToBulkRows(parsed);
     }
@@ -234,6 +250,37 @@ export default function AdminFactoriesPage() {
       setError("Network error.");
     } finally {
       setBulkImporting(false);
+    }
+  };
+
+  const handleBulkDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (bulkDeleteConfirm !== "DELETE ALL") {
+      setError('Type DELETE ALL (exactly) to confirm.');
+      return;
+    }
+    setError(null);
+    setMessage(null);
+    setBulkDeleting(true);
+    try {
+      const res = await fetch("/api/admin/factories/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ confirm: "DELETE ALL" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Bulk delete failed.");
+        return;
+      }
+      setMessage("All factories and related data have been deleted.");
+      setBulkDeleteConfirm("");
+      fetchFactories();
+    } catch {
+      setError("Network error.");
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -281,7 +328,7 @@ export default function AdminFactoriesPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Bulk import factories</h2>
         <p className={styles.bulkHint}>
-          Add many factories at once (name, address, expertise). Upload a CSV with columns <strong>Company, Address, Expertise</strong> (header row optional), or paste one row per line: <code>Company, Address, Expertise</code>. Max 5000 per import; duplicates by name are skipped.
+          Add many factories at once (name, address, expertise). Upload a CSV with columns <strong>Company, Address, Expertise</strong> (header row optional), or paste one row per line: <code>Company, Address, Expertise</code>. Max 50000 per import; duplicates by name are skipped.
         </p>
         <form onSubmit={handleBulkImport} className={styles.bulkForm}>
           <div className={styles.bulkRow}>
@@ -312,6 +359,36 @@ export default function AdminFactoriesPage() {
       </section>
 
       <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Delete all factories</h2>
+        <p className={styles.dangerHint}>
+          Permanently remove every factory submission, access requests, grants, and uploads. Factory user accounts are kept. This cannot be undone.
+        </p>
+        <form onSubmit={handleBulkDelete} className={styles.bulkForm}>
+          <div className={styles.field}>
+            <label htmlFor="bulk-delete-confirm">
+              Type <strong>DELETE ALL</strong> to confirm
+            </label>
+            <input
+              id="bulk-delete-confirm"
+              type="text"
+              value={bulkDeleteConfirm}
+              onChange={(e) => setBulkDeleteConfirm(e.target.value)}
+              placeholder="DELETE ALL"
+              className={styles.dangerInput}
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="submit"
+            className={styles.dangerBtnBig}
+            disabled={bulkDeleting || bulkDeleteConfirm !== "DELETE ALL"}
+          >
+            {bulkDeleting ? "Deleting…" : "Delete all factories"}
+          </button>
+        </form>
+      </section>
+
+      <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Factories with submissions ({factories.length})</h2>
         {factories.length === 0 ? (
           <p className={styles.empty}>No factories yet. Create an account above or wait for one to register and submit.</p>
@@ -335,6 +412,10 @@ export default function AdminFactoriesPage() {
                   <td>{f.userId || "—"}</td>
                   <td>{new Date(f.createdAt).toLocaleDateString()}</td>
                   <td>
+                    <Link href={`/admin/factories/${encodeURIComponent(f.id)}`} className={styles.editLink}>
+                      Edit
+                    </Link>
+                    {" · "}
                     <button
                       type="button"
                       className={styles.dangerBtn}

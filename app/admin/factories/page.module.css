@@ -199,6 +199,15 @@
   border-bottom: none;
 }
 
+.editLink {
+  color: var(--color-accent);
+  font-size: 0.9rem;
+}
+
+.editLink:hover {
+  text-decoration: underline;
+}
+
 .dangerBtn {
   padding: 0.35rem 0.65rem;
   background: transparent;
@@ -214,6 +223,42 @@
 }
 
 .dangerBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dangerHint {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.dangerInput {
+  padding: 0.5rem 0.65rem;
+  background: var(--color-bg);
+  border: 1px solid #c85050;
+  border-radius: 6px;
+  color: var(--color-text);
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.dangerBtnBig {
+  padding: 0.65rem 1.25rem;
+  background: #c85050;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.dangerBtnBig:hover:not(:disabled) {
+  background: #b04040;
+}
+
+.dangerBtnBig:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

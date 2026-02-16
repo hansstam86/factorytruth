@@ -22,6 +22,90 @@ async function requireAdmin(): Promise<NextResponse | null> {
   return null;
 }
 
+type SubmissionEntry = {
+  id: string;
+  userId?: string;
+  answers: Record<string, string>;
+  answersEn?: Record<string, string>;
+  visibility?: Record<string, string>;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+/** GET — return full submission for admin edit. */
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const err = await requireAdmin();
+  if (err) return err;
+  try {
+    const { id: submissionId } = await params;
+    if (!submissionId) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
+    const submissions = JSON.parse(submissionsRaw) as SubmissionEntry[];
+    const entry = submissions.find((s) => s.id === submissionId);
+    if (!entry) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
+
+    return NextResponse.json({
+      id: entry.id,
+      userId: entry.userId,
+      answers: entry.answers || {},
+      answersEn: entry.answersEn,
+      visibility: entry.visibility,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
+    });
+  } catch (e) {
+    console.error("admin factories GET [id] error", e);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
+/** PATCH — update factory submission answers (partial merge). */
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const err = await requireAdmin();
+  if (err) return err;
+  try {
+    const { id: submissionId } = await params;
+    if (!submissionId) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
+    const body = await request.json();
+    const updates = body.answers;
+    if (!updates || typeof updates !== "object" || Array.isArray(updates)) {
+      return NextResponse.json({ error: "Body must be { answers: Record<string, string> }." }, { status: 400 });
+    }
+
+    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
+    const submissions = JSON.parse(submissionsRaw) as SubmissionEntry[];
+    const idx = submissions.findIndex((s) => s.id === submissionId);
+    if (idx < 0) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
+
+    const entry = submissions[idx];
+    const merged: Record<string, string> = { ...(entry.answers || {}) };
+    for (const [key, val] of Object.entries(updates)) {
+      if (typeof key === "string" && typeof val === "string") {
+        merged[key] = val;
+      }
+    }
+    submissions[idx] = {
+      ...entry,
+      answers: merged,
+      updatedAt: new Date().toISOString(),
+    };
+    await writeFile(SUBMISSIONS_FILE, JSON.stringify(submissions, null, 2), "utf-8");
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("admin factories PATCH error", e);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
 /** DELETE — remove a factory (submission, user account, related data). */
 export async function DELETE(
   _request: Request,

@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 const DATA_DIR = path.join(process.cwd(), "data");
 const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
 
-const MAX_ROWS = 5000;
+const MAX_ROWS = 50000;
+const BULK_IMPORT_PLACEHOLDER_EMAIL =
+  (process.env.BULK_IMPORT_PLACEHOLDER_EMAIL || "hans.stam@gmail.com").trim().toLowerCase();
 
 type BulkRow = { name: string; address?: string; expertise?: string };
 
@@ -93,6 +95,7 @@ export async function POST(request: Request) {
     const now = new Date().toISOString();
     const newEntries = toAdd.map((r) => ({
       id: randomUUID(),
+      userId: BULK_IMPORT_PLACEHOLDER_EMAIL,
       answers: { q1: r.name, q2: r.address, q3: r.expertise },
       createdAt: now,
     }));
