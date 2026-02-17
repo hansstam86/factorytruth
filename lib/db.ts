@@ -27,6 +27,6 @@ function getPrisma(): PrismaClient {
 
 export const prisma = new Proxy({} as PrismaClient, {
   get(_, prop) {
-    return (getPrisma() as Record<string, unknown>)[prop as string];
+    return (getPrisma() as unknown as Record<string, unknown>)[prop as string];
   },
 });
