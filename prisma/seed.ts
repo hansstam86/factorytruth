@@ -149,7 +149,7 @@ async function main() {
   console.log(`Seeded ${accessRequests.length} access request(s).`);
 
   if (accessGrants.length > 0) {
-    const subIds = [...new Set(accessGrants.map((g) => g.submissionId))];
+    const subIds = Array.from(new Set(accessGrants.map((g) => g.submissionId)));
     await prisma.accessGrant.deleteMany({
       where: { submissionId: { in: subIds } },
     });
