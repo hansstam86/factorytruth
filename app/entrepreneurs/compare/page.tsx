@@ -64,6 +64,7 @@ function ComparePageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [shortlistIds, setShortlistIds] = useState<string[]>([]);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const idsParam = searchParams.get("ids");
   const ids = useMemo(() => {
@@ -122,6 +123,14 @@ function ComparePageContent() {
 
   const notInShortlist = factories.filter((f) => !shortlistIds.includes(f.id));
   const allInShortlist = notInShortlist.length === 0 && factories.length > 0;
+
+  const handleCopyLink = () => {
+    if (typeof window === "undefined") return;
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
+  };
 
   // Build ordered list of (section, questionId, questionEn) from first factory's questions or default audit list
   const questionRows = useMemo(() => {
@@ -226,6 +235,14 @@ function ComparePageContent() {
               {allInShortlist ? "All in shortlist" : `Add all ${factories.length} to shortlist`}
             </button>
           )}
+          <button
+            type="button"
+            className={styles.copyLinkBtn}
+            onClick={handleCopyLink}
+            title="Copy link to this comparison"
+          >
+            {shareCopied ? "Link copied!" : "Copy link"}
+          </button>
           <Link href="/entrepreneurs" className={styles.backLink}>
             ← Back to factories
           </Link>

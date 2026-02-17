@@ -67,6 +67,21 @@
   color: var(--color-text-muted);
 }
 
+.copyLinkBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.copyLinkBtn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 .backLink:hover {
   color: var(--color-accent);
   text-decoration: none;

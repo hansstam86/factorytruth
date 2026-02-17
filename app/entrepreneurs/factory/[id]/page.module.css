@@ -144,6 +144,21 @@
   border-color: var(--color-accent);
 }
 
+.shareBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.shareBtn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 .compareFull {
   font-size: 0.9rem;
   color: var(--color-text-muted);

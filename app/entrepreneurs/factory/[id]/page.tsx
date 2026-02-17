@@ -109,6 +109,16 @@ export default function FactoryDetailPage() {
   const [inCompare, setInCompare] = useState(false);
   const [compareCount, setCompareCount] = useState(0);
   const [inShortlist, setInShortlist] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
+  };
 
   useEffect(() => {
     const ids = getCompareIds();
@@ -310,6 +320,14 @@ export default function FactoryDetailPage() {
               Compare {compareCount} factories →
             </Link>
           )}
+          <button
+            type="button"
+            className={styles.shareBtn}
+            onClick={handleCopyLink}
+            title="Copy link to this factory"
+          >
+            {shareCopied ? "Link copied!" : "Copy link"}
+          </button>
         </div>
       </header>
 

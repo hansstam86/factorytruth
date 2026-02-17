@@ -399,6 +399,10 @@
 }
 
 .shortlistCompareCta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1.25rem;
 }
 
@@ -416,6 +420,21 @@
   background: var(--color-cta-hover);
   color: var(--color-bg);
   text-decoration: none;
+}
+
+.shareShortlistBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.shareShortlistBtn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .empty {
@@ -574,6 +593,14 @@
   gap: 0.75rem;
 }
 
+.shortlistCardActions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .shortlistBtn {
   flex-shrink: 0;
   display: flex;
@@ -584,6 +611,20 @@
   border: none;
   cursor: pointer;
   color: var(--color-text-muted);
+}
+
+.removeFromShortlistLink {
+  padding: 0.35rem 0;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+}
+
+.removeFromShortlistLink:hover {
+  color: var(--color-accent);
 }
 
 .shortlistBtn:hover {

@@ -19,6 +19,7 @@ export default function ShortlistPage() {
   const [ids, setIds] = useState<string[]>([]);
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [shareCopied, setShareCopied] = useState(false);
 
   useEffect(() => {
     setIds(getShortlistIds());
@@ -44,6 +45,15 @@ export default function ShortlistPage() {
     setFactories((prev) => prev.filter((f) => f.id !== id));
   };
 
+  const handleShareShortlist = () => {
+    if (typeof window === "undefined" || ids.length < 2) return;
+    const url = `${window.location.origin}/entrepreneurs/compare?ids=${ids.slice(0, 6).join(",")}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
+  };
+
   return (
     <div className={styles.listWrap}>
       <h1 className={styles.pageTitle}>My shortlist</h1>
@@ -59,6 +69,14 @@ export default function ShortlistPage() {
           >
             Compare these {ids.length} factories →
           </Link>
+          <button
+            type="button"
+            className={styles.shareShortlistBtn}
+            onClick={handleShareShortlist}
+            title="Copy link to compare these factories"
+          >
+            {shareCopied ? "Link copied!" : "Share shortlist"}
+          </button>
         </div>
       )}
 
@@ -86,20 +104,33 @@ export default function ShortlistPage() {
           {factories.map((f) => (
             <li key={f.id} className={styles.factoryCard}>
               <div className={styles.cardRow}>
-                <button
-                  type="button"
-                  className={styles.shortlistBtn}
-                  title="Remove from shortlist"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleRemove(f.id);
-                  }}
-                  aria-pressed="true"
-                >
-                  <span className={styles.shortlistIcon} aria-hidden>★</span>
-                  <span className={styles.shortlistLabelText}>Saved</span>
-                </button>
+                <div className={styles.shortlistCardActions}>
+                  <button
+                    type="button"
+                    className={styles.shortlistBtn}
+                    title="Remove from shortlist"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRemove(f.id);
+                    }}
+                    aria-pressed="true"
+                  >
+                    <span className={styles.shortlistIcon} aria-hidden>★</span>
+                    <span className={styles.shortlistLabelText}>Saved</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.removeFromShortlistLink}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRemove(f.id);
+                    }}
+                  >
+                    Remove from shortlist
+                  </button>
+                </div>
                 <Link href={`/entrepreneurs/factory/${f.id}`} className={styles.cardLink}>
                   <div className={styles.cardHead}>
                     <span className={styles.cardName}>{f.name}</span>
