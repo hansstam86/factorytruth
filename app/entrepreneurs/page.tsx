@@ -27,9 +27,7 @@ function EntrepreneursBrowseContent() {
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
   const [compareIds, setCompareIdsState] = useState<string[]>([]);
-  const [searchName, setSearchName] = useState(() => searchParams.get("name") ?? "");
-  const [searchAddress, setSearchAddress] = useState(() => searchParams.get("address") ?? "");
-  const [searchExpertise, setSearchExpertise] = useState(() => searchParams.get("expertise") ?? "");
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
   const [sort, setSort] = useState<SortOption>(() => {
     const s = searchParams.get("sort");
     return s === "date" || s === "transparency" ? s : "name";
@@ -53,9 +51,7 @@ function EntrepreneursBrowseContent() {
 
   // Sync state from URL when user navigates (e.g. back/forward or shared link after hydration)
   useEffect(() => {
-    setSearchName(searchParams.get("name") ?? "");
-    setSearchAddress(searchParams.get("address") ?? "");
-    setSearchExpertise(searchParams.get("expertise") ?? "");
+    setSearchQuery(searchParams.get("q") ?? "");
     const s = searchParams.get("sort");
     setSort(s === "date" || s === "transparency" ? s : "name");
     const v = searchParams.get("minScore");
@@ -107,19 +103,18 @@ function EntrepreneursBrowseContent() {
     ? `/entrepreneurs/compare?ids=${compareIds.join(",")}`
     : "/entrepreneurs/compare";
 
-  const nameLower = searchName.trim().toLowerCase();
-  const addressLower = searchAddress.trim().toLowerCase();
-  const expertiseLower = searchExpertise.trim().toLowerCase();
+  const queryLower = searchQuery.trim().toLowerCase();
   const searchAllowed = !!user;
   const filtered = searchAllowed
     ? factories.filter((f) => {
-        const matchName = !nameLower || (f.name && f.name.toLowerCase().includes(nameLower));
-        const matchAddress = !addressLower || (f.address && f.address.toLowerCase().includes(addressLower));
-        const matchExpertise =
-          !expertiseLower || (f.expertise && f.expertise.toLowerCase().includes(expertiseLower));
+        const matchQuery =
+          !queryLower ||
+          [f.name, f.address, f.expertise].some(
+            (v) => v && String(v).toLowerCase().includes(queryLower)
+          );
         const score = typeof f.transparencyScore === "number" ? f.transparencyScore : 0;
         const matchScore = minTransparency === null || score >= minTransparency;
-        return matchName && matchAddress && matchExpertise && matchScore;
+        return matchQuery && matchScore;
       })
     : factories;
   const filteredFactories = [...filtered].sort((a, b) => {
@@ -147,14 +142,12 @@ function EntrepreneursBrowseContent() {
   useEffect(() => {
     if (!user) return;
     const params = new URLSearchParams();
-    if (searchName.trim()) params.set("name", searchName.trim());
-    if (searchAddress.trim()) params.set("address", searchAddress.trim());
-    if (searchExpertise.trim()) params.set("expertise", searchExpertise.trim());
+    if (searchQuery.trim()) params.set("q", searchQuery.trim());
     if (sort !== "name") params.set("sort", sort);
     if (minTransparency !== null) params.set("minScore", String(minTransparency));
-    const q = params.toString();
-    router.replace(q ? `/entrepreneurs?${q}` : "/entrepreneurs", { scroll: false });
-  }, [user, searchName, searchAddress, searchExpertise, sort, minTransparency, router]);
+    const qs = params.toString();
+    router.replace(qs ? `/entrepreneurs?${qs}` : "/entrepreneurs", { scroll: false });
+  }, [user, searchQuery, sort, minTransparency, router]);
 
   const highTransparencyCount = factories.filter(
     (f) => (typeof f.transparencyScore === "number" ? f.transparencyScore : 0) >= 75
@@ -188,125 +181,50 @@ function EntrepreneursBrowseContent() {
     }
   };
 
+  const hasActiveFilters = searchAllowed && (queryLower || minTransparency !== null);
+
   return (
     <div className={styles.listWrap}>
-      <h1 className={styles.pageTitle}>Find trustworthy factories</h1>
-      <HowItWorks />
-      <div className={styles.valueBlock}>
-        <p className={styles.valueTitle}>Choose manufacturing partners you can rely on</p>
-        <p className={styles.valueDesc}>
-          Factories on this platform have answered the same audit questions. Browse their answers, compare capabilities, and shortlist or contact the ones that best fit your hardware project. The more transparent a factory’s profile, the easier it is to trust them with your production.
-        </p>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>Find trustworthy factories</h1>
+        {!loading && factories.length > 0 && (
+          <span className={styles.platformStatsInline}>
+            {factories.length} factories
+            {highTransparencyCount > 0 && ` · ${highTransparencyCount} with 75%+ transparency`}
+          </span>
+        )}
       </div>
-      {!loading && factories.length > 0 && (
-        <p className={styles.platformStats}>
-          <strong>{factories.length}</strong> factories
-          {highTransparencyCount > 0 && (
-            <> · <strong>{highTransparencyCount}</strong> with 75%+ transparency</>
-          )}
-        </p>
-      )}
-      <div className={styles.nextStepCta}>
-        {shortlistIds.length === 0 && (
-          <p>Save factories to build your shortlist and compare them side by side.</p>
-        )}
-        {shortlistIds.length === 1 && (
-          <p>Save one more factory to compare.</p>
-        )}
-        {shortlistIds.length >= 2 && (
+      <p className={styles.pageIntro}>
+        Browse by the same audit steps, compare answers, and shortlist or contact factories. Click a factory to see full details.
+      </p>
+      <HowItWorks />
+      {shortlistIds.length >= 2 && (
+        <div className={styles.nextStepCta}>
           <p>
             <Link href={compareShortlistUrl} className={styles.nextStepLink}>
               Compare your {shortlistIds.length} shortlisted factories →
             </Link>
           </p>
-        )}
-      </div>
-      <p className={styles.pageDesc}>
-        View audit answers submitted by factories in China. Click a factory to see full details, or select several to compare answers side by side.
-      </p>
-
-      {factories.length > 0 && (
-        <div className={styles.filterChips}>
-          <button
-            type="button"
-            className={styles.filterChip}
-            onClick={() => applyChip("recent")}
-            aria-label="Sort by recently added"
-          >
-            Recently added
-          </button>
-          <button
-            type="button"
-            className={styles.filterChip}
-            onClick={() => applyChip("high-transparency")}
-            aria-label="High transparency 75%+"
-          >
-            High transparency (75%+)
-          </button>
         </div>
       )}
 
-      <div className={styles.searchBar}>
-        {!user && (
-          <p className={styles.searchGuestHint}>
-            Sign in to search by name, address, or expertise.
-          </p>
-        )}
-        <div className={styles.searchFields}>
-          <div className={styles.searchField}>
-            <label htmlFor="search-name" className={styles.searchLabel}>
-              Search by name
-            </label>
-            <input
-              id="search-name"
-              type="text"
-              value={searchName}
-              onChange={(e) => user && setSearchName(e.target.value)}
-              onFocus={handleSearchFocus}
-              placeholder={user ? "Factory name…" : "Sign in to search"}
-              readOnly={!user}
-              className={user ? styles.searchInput : styles.searchInputLocked}
-              aria-label="Search by factory name"
-            />
-          </div>
-          <div className={styles.searchField}>
-            <label htmlFor="search-address" className={styles.searchLabel}>
-              Search by address
-            </label>
-            <input
-              id="search-address"
-              type="text"
-              value={searchAddress}
-              onChange={(e) => user && setSearchAddress(e.target.value)}
-              onFocus={handleSearchFocus}
-              placeholder={user ? "City, region, country…" : "Sign in to search"}
-              readOnly={!user}
-              className={user ? styles.searchInput : styles.searchInputLocked}
-              aria-label="Search by address"
-            />
-          </div>
-          <div className={styles.searchField}>
-            <label htmlFor="search-expertise" className={styles.searchLabel}>
-              Search by expertise
-            </label>
-            <input
-              id="search-expertise"
-              type="text"
-              value={searchExpertise}
-              onChange={(e) => user && setSearchExpertise(e.target.value)}
-              onFocus={handleSearchFocus}
-              placeholder={user ? "Expertise, business, capability…" : "Sign in to search"}
-              readOnly={!user}
-              className={user ? styles.searchInput : styles.searchInputLocked}
-              aria-label="Search by expertise"
-            />
-          </div>
+      <div className={styles.toolbar}>
+        <div className={styles.searchWrap}>
+          <input
+            id="search-factories"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => user && setSearchQuery(e.target.value)}
+            onFocus={handleSearchFocus}
+            placeholder={user ? "Search name, address or expertise…" : "Sign in to search"}
+            readOnly={!user}
+            className={user ? styles.searchInputSingle : styles.searchInputLocked}
+            aria-label="Search factories"
+          />
         </div>
-        <div className={styles.searchSortRow}>
-          <div className={styles.searchField}>
-            <label htmlFor="sort-factories" className={styles.searchLabel}>
-              Sort by
-            </label>
+        <div className={styles.toolbarRow}>
+          <div className={styles.toolbarGroup}>
+            <label htmlFor="sort-factories" className={styles.toolbarLabel}>Sort</label>
             {user ? (
               <select
                 id="sort-factories"
@@ -316,8 +234,8 @@ function EntrepreneursBrowseContent() {
                 aria-label="Sort factories"
               >
                 <option value="name">Name (A–Z)</option>
-                <option value="date">Date added (newest first)</option>
-                <option value="transparency">Transparency (high first)</option>
+                <option value="date">Newest</option>
+                <option value="transparency">Transparency</option>
               </select>
             ) : (
               <button
@@ -325,21 +243,15 @@ function EntrepreneursBrowseContent() {
                 id="sort-factories"
                 className={styles.sortSelectLocked}
                 onClick={() => setShowSearchSignInModal(true)}
-                aria-label="Sort factories (sign in to change)"
+                aria-label="Sort (sign in to change)"
               >
-                {sort === "date"
-                  ? "Date added (newest first)"
-                  : sort === "transparency"
-                    ? "Transparency (high first)"
-                    : "Name (A–Z)"}
+                {sort === "date" ? "Newest" : sort === "transparency" ? "Transparency" : "Name (A–Z)"}
               </button>
             )}
           </div>
           {user && (
-            <div className={styles.searchField}>
-              <label htmlFor="min-transparency" className={styles.searchLabel}>
-                Min. transparency
-              </label>
+            <div className={styles.toolbarGroup}>
+              <label htmlFor="min-transparency" className={styles.toolbarLabel}>Min. transparency</label>
               <select
                 id="min-transparency"
                 value={minTransparency === null ? "" : String(minTransparency)}
@@ -348,9 +260,9 @@ function EntrepreneursBrowseContent() {
                   setMinTransparency(v === "" ? null : parseInt(v, 10));
                 }}
                 className={styles.sortSelect}
-                aria-label="Minimum transparency score"
+                aria-label="Minimum transparency"
               >
-                <option value="">All factories</option>
+                <option value="">All</option>
                 <option value="25">25%+</option>
                 <option value="50">50%+</option>
                 <option value="75">75%+</option>
@@ -358,20 +270,35 @@ function EntrepreneursBrowseContent() {
               </select>
             </div>
           )}
-          {searchAllowed && (nameLower || addressLower || expertiseLower || minTransparency !== null) && (
-            <p className={styles.searchSummary}>
-              Showing {filteredFactories.length} of {factories.length} factories
-            </p>
+          {factories.length > 0 && (
+            <div className={styles.filterChips}>
+              <button type="button" className={styles.filterChip} onClick={() => applyChip("recent")} aria-label="Recently added">
+                Recently added
+              </button>
+              <button type="button" className={styles.filterChip} onClick={() => applyChip("high-transparency")} aria-label="High transparency 75%+">
+                High transparency (75%+)
+              </button>
+            </div>
+          )}
+          {hasActiveFilters && (
+            <span className={styles.searchSummary}>
+              {filteredFactories.length} of {factories.length}
+            </span>
           )}
         </div>
       </div>
+      {!user && (
+        <p className={styles.searchGuestHint}>
+          Sign in to search and filter. It’s free.
+        </p>
+      )}
 
       {showSearchSignInModal && (
         <div className={styles.modalOverlay} onClick={() => setShowSearchSignInModal(false)} role="dialog" aria-modal="true" aria-labelledby="search-signin-title">
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h2 id="search-signin-title" className={styles.modalTitle}>Sign in to search</h2>
             <p className={styles.modalDesc}>
-              Search by name, address, or expertise is available once you have an account. It’s free — create one or log in.
+              Search and filter are available once you have an account. It’s free — create one or log in.
             </p>
             <div className={styles.modalActions}>
               <Link href="/entrepreneurs/login" className={styles.modalBtnPrimary}>
@@ -422,7 +349,7 @@ function EntrepreneursBrowseContent() {
         <div className={styles.empty}>
           <p>No factories match your search.</p>
           <p className={styles.emptyHint}>
-            Try different or shorter terms for name, address, or expertise.
+            Try a different or shorter search term.
           </p>
         </div>
       ) : (

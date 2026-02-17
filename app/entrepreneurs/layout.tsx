@@ -31,13 +31,13 @@ export default function EntrepreneursLayout({
         <span className={styles.badge}>For entrepreneurs</span>
         <div className={styles.navAndAuth}>
           <nav className={styles.nav}>
-            <Link href="/entrepreneurs">Browse factories</Link>
+            <Link href="/entrepreneurs">Browse</Link>
             <ShortlistLink />
-            <LastViewedLink />
             <Link href="/entrepreneurs/compare">Compare</Link>
-            <Link href="/flow">The factory flow</Link>
+            <LastViewedLink />
+            <Link href="/flow">Flow</Link>
             <Link href="/">Home</Link>
-            <Link href="/factories" className="zh">工厂入口</Link>
+            <Link href="/factories" className="zh">工厂</Link>
           </nav>
           <EntrepreneurAuthBar />
         </div>

@@ -32,10 +32,14 @@ export default function HomePage() {
         </nav>
       </header>
 
-      <section className={styles.flowSection}>
-        <h2 className={styles.flowSectionTitle}>What actually happens in a factory?</h2>
-        <p className={styles.flowSectionDesc}>
-          Most factories follow the same path: goods come in, get checked and stored, turn into product on the line, then get packed and shipped out. The steps in between — receiving, incoming quality, kitting, production, packing, and more — are what we ask about so you can compare.
+      <section className={styles.hero}>
+        <h1 className={styles.heroTitle}>
+          What actually happens in the factory.
+          <br />
+          <span className={styles.heroSub}>Factories share it. You see it.</span>
+        </h1>
+        <p className={styles.heroDesc}>
+          Most factories follow the same path — receiving, quality checks, production, packing, shipping. We ask the same questions so you can compare real answers and choose partners you trust.
         </p>
         <div className={styles.flowPreview}>
           <span className={styles.flowStep}>Receiving</span>
@@ -52,30 +56,15 @@ export default function HomePage() {
           <span className={styles.flowArrow} aria-hidden>→</span>
           <span className={styles.flowStep}>Shipping</span>
         </div>
-        <Link href="/flow" className={styles.flowSectionLink}>
-          See the full flow →
-        </Link>
-      </section>
-
-      <section className={styles.hero}>
-        <p className={styles.heroMission}>
-          See what really happens in your factory.
-        </p>
-        <h1 className={styles.heroTitle}>
-          What actually happens inside the factory.
-          <br />
-          <span className={styles.heroSub}>Factories share it. You see it.</span>
-        </h1>
-        <p className={styles.heroDesc}>
-          Same questions, real answers — quality, processes, how things get made.
-          So you can choose partners you actually trust.
-        </p>
         <div className={styles.heroActions}>
           <Link href="/factories" className={`${styles.btn} ${styles.btnPrimary} zh`}>
             工厂提交审核答案
           </Link>
           <Link href="/entrepreneurs" className={`${styles.btn} ${styles.btnSecondary}`}>
             Browse factories
+          </Link>
+          <Link href="/flow" className={styles.heroFlowLink}>
+            See the full flow →
           </Link>
         </div>
       </section>

@@ -68,7 +68,13 @@
 .heroDesc {
   color: var(--color-text-muted);
   font-size: 1.1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
+  line-height: 1.55;
+}
+
+.hero .flowPreview {
+  margin: 1.5rem 0;
+  justify-content: center;
 }
 
 .heroActions {
@@ -76,6 +82,18 @@
   gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+}
+
+.heroFlowLink {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-accent);
+}
+
+.heroFlowLink:hover {
+  text-decoration: none;
+  color: var(--color-text);
 }
 
 .btn {
