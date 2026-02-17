@@ -147,6 +147,67 @@
   text-decoration: none;
 }
 
+.flowSection {
+  background: linear-gradient(135deg, rgba(126, 184, 218, 0.12), rgba(126, 184, 218, 0.04));
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.flowSectionTitle {
+  font-size: clamp(1.35rem, 3vw, 1.65rem);
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+}
+
+.flowSectionDesc {
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.flowPreview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.flowStep {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+}
+
+.flowArrow {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.flowSectionLink {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--color-accent);
+}
+
+.flowSectionLink:hover {
+  text-decoration: none;
+  color: var(--color-text);
+}
+
 .landingFooter {
   padding: 1.5rem 2rem;
   border-top: 1px solid var(--color-border);
@@ -203,6 +264,19 @@
   .split {
     padding: 2rem 1rem;
     grid-template-columns: 1fr;
+  }
+
+  .flowSection {
+    padding: 1.75rem 1rem;
+  }
+
+  .flowSectionDesc {
+    font-size: 0.95rem;
+  }
+
+  .flowStep {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.6rem;
   }
 
   .landingFooter {

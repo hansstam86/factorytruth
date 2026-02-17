@@ -7,6 +7,9 @@ export default function HomePage() {
       <header className={styles.landingHeader}>
         <div className={styles.landingBrand}>Factory Truth</div>
         <nav className={styles.landingNav}>
+          <Link href="/flow" className={styles.navLink}>
+            The factory flow
+          </Link>
           <Link href="/factories" className={`${styles.navLink} zh`}>
             工厂入口
           </Link>
@@ -59,6 +62,31 @@ export default function HomePage() {
             Go to entrepreneur portal →
           </Link>
         </div>
+      </section>
+
+      <section className={styles.flowSection}>
+        <h2 className={styles.flowSectionTitle}>What actually happens in a factory?</h2>
+        <p className={styles.flowSectionDesc}>
+          Most factories follow the same path: goods come in, get checked and stored, turn into product on the line, then get packed and shipped out. The steps in between — receiving, incoming quality, kitting, production, packing, and more — are what we ask about so you can compare.
+        </p>
+        <div className={styles.flowPreview}>
+          <span className={styles.flowStep}>Receiving</span>
+          <span className={styles.flowArrow} aria-hidden>→</span>
+          <span className={styles.flowStep}>Incoming quality</span>
+          <span className={styles.flowArrow} aria-hidden>→</span>
+          <span className={styles.flowStep}>Warehouse</span>
+          <span className={styles.flowArrow} aria-hidden>→</span>
+          <span className={styles.flowStep}>Kitting</span>
+          <span className={styles.flowArrow} aria-hidden>→</span>
+          <span className={styles.flowStep}>Production</span>
+          <span className={styles.flowArrow} aria-hidden>→</span>
+          <span className={styles.flowStep}>Packing</span>
+          <span className={styles.flowArrow} aria-hidden>→</span>
+          <span className={styles.flowStep}>Shipping</span>
+        </div>
+        <Link href="/flow" className={styles.flowSectionLink}>
+          See the full flow →
+        </Link>
       </section>
 
       <footer className={styles.landingFooter}>

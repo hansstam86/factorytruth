@@ -22,6 +22,7 @@ export default function EntrepreneursLayout({
             <ShortlistLink />
             <LastViewedLink />
             <Link href="/entrepreneurs/compare">Compare</Link>
+            <Link href="/flow">The factory flow</Link>
             <Link href="/">Home</Link>
             <Link href="/factories" className="zh">工厂入口</Link>
           </nav>
