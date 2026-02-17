@@ -63,6 +63,7 @@ export default function HomePage() {
 
       <footer className={styles.landingFooter}>
         <span>Factory Truth</span>
+        <Link href="/flow">The factory flow</Link>
         <Link href="/factories" className="zh">工厂</Link>
         <Link href="/entrepreneurs">Entrepreneurs</Link>
       </footer>
