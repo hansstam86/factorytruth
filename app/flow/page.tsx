@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "./page.module.css";
+
+export const metadata: Metadata = {
+  title: "The factory flow",
+  description:
+    "Most factories follow the same path: receiving, incoming quality, warehouse, kitting, production, packing, shipping. See every step from goods in to goods out — and what we ask about each.",
+  openGraph: {
+    title: "The factory flow | Factory Truth",
+    description:
+      "From receiving to shipping: the steps every factory follows, and what we ask so you can compare.",
+    url: "/flow",
+  },
+};
 
 const FLOW_STEPS = [
   {

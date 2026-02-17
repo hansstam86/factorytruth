@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "./page.module.css";
+
+export const metadata: Metadata = {
+  title: "Factory Truth — See what really happens in the factory",
+  description:
+    "What actually happens inside the factory? Factories share it. Same questions, real answers — so you can choose manufacturing partners you actually trust.",
+  openGraph: {
+    title: "Factory Truth — See what really happens in the factory",
+    description:
+      "Factories share real answers. Entrepreneurs see what goes on inside — from receiving to shipping — and choose partners they can trust.",
+    url: "/",
+  },
+};
 
 export default function HomePage() {
   return (

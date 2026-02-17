@@ -137,6 +137,15 @@ export default function SubmissionsPage() {
       <p className={`${styles.pageDesc} zh`}>
         您提交的审核答案会在「创业者」端展示，帮助海外客户了解并信任您的工厂。信息越完整，越容易获得优质客户。如需修改或补充，请重新提交审核答案。
       </p>
+      <div className={styles.whyTransparencyBlock}>
+        <h3 className={styles.whyTransparencyTitle}>为什么透明度重要？</h3>
+        <p className={styles.whyTransparencyDesc}>
+          平台按同一套流程（从收货、来料检验、仓储到生产、包装、发货）比较所有工厂。您填写的环节越多、越清晰，海外创业者在筛选时越容易看到您、信任您。
+          <Link href="/flow" className={styles.whyTransparencyLink} target="_blank" rel="noopener noreferrer">
+            了解审核流程与各环节 →
+          </Link>
+        </p>
+      </div>
       <Link href="/factories" className={`${styles.btn} ${styles.btnPrimary}`}>
         再次提交审核答案
       </Link>
