@@ -1,6 +1,7 @@
 /**
  * Seed / migrate existing data from data/*.json into PostgreSQL.
- * Run: npx prisma db seed
+ * Only runs when ALLOW_DB_SEED=1 (to avoid running on deploy).
+ * Run: ALLOW_DB_SEED=1 npx prisma db seed
  * Requires DATABASE_URL in .env.local (or .env).
  */
 import "dotenv/config";
@@ -8,6 +9,12 @@ import { config } from "dotenv";
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
 import { prisma } from "../lib/db";
+
+const allow = process.env.ALLOW_DB_SEED === "1" || process.env.ALLOW_DB_SEED === "true";
+if (!allow) {
+  console.log("Seed skipped. Set ALLOW_DB_SEED=1 to run (e.g. ALLOW_DB_SEED=1 npx prisma db seed).");
+  process.exit(0);
+}
 
 const dataDir = resolve(process.cwd(), "data");
 
