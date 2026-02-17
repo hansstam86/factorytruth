@@ -30,6 +30,34 @@
   margin-bottom: 1.5rem;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.addAllShortlistBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: var(--color-cta);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addAllShortlistBtn:hover:not(:disabled) {
+  background: var(--color-cta-hover);
+}
+
+.addAllShortlistBtn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
 .title {
   font-size: 1.75rem;
   margin: 0;
@@ -121,6 +149,35 @@ th.thQuestion {
   margin-bottom: 0.5rem;
 }
 
+.thFactoryActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.addShortlistBtn {
+  align-self: flex-start;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.addShortlistBtn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.addShortlistBtn:disabled {
+  opacity: 0.8;
+  cursor: default;
+  color: var(--color-cta);
+}
+
 .thFactoryLink {
   font-size: 0.85rem;
   color: var(--color-accent);
@@ -137,6 +194,11 @@ th.thQuestion {
   max-width: 320px;
   word-break: break-word;
   white-space: pre-wrap;
+}
+
+.tdCellBest {
+  background: rgba(92, 184, 138, 0.08);
+  border-left: 2px solid var(--color-cta);
 }
 
 .sectionRow {

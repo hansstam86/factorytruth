@@ -17,14 +17,18 @@ export default function HomePage() {
       </header>
 
       <section className={styles.hero}>
+        <p className={styles.heroMission}>
+          See what really happens in your factory.
+        </p>
         <h1 className={styles.heroTitle}>
           Transparent factory audits.
           <br />
           <span className={styles.heroSub}>One platform, two sides.</span>
         </h1>
         <p className={styles.heroDesc}>
-          Factories in China answer audit questions. Hardware entrepreneurs in
-          Europe discover and select the right manufacturing partner.
+          Factories share real answers to the same audit questions. Entrepreneurs
+          see what actually goes on inside — and choose manufacturing partners
+          they can trust.
         </p>
         <div className={styles.heroActions}>
           <Link href="/factories" className={`${styles.btn} ${styles.btnPrimary} zh`}>
@@ -40,7 +44,7 @@ export default function HomePage() {
         <div className={styles.card}>
           <h2 className={`${styles.cardTitle} zh`}>工厂端</h2>
           <p className={`${styles.cardDesc} zh`}>
-            找到更多优质客户。您分享的审核信息越完整、越透明，海外创业者越信任您，越有可能将硬件项目交给您生产。
+            让海外客户看清您工厂的真实情况。您分享的审核信息越完整，创业者越能了解您的生产与质量，越有可能将项目交给您。
           </p>
           <Link href="/factories" className={`${styles.cardLink} zh`}>
             进入工厂入口 →
@@ -49,8 +53,8 @@ export default function HomePage() {
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>For entrepreneurs</h2>
           <p className={styles.cardDesc}>
-            Find trustworthy factories for your hardware. Browse transparent audit
-            answers, compare manufacturers, and choose partners you can rely on.
+            See what really happens inside the factories you’re considering.
+            Same questions, real answers — compare and choose partners you can rely on.
           </p>
           <Link href="/entrepreneurs" className={styles.cardLink}>
             Go to entrepreneur portal →

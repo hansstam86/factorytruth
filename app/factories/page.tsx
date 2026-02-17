@@ -15,17 +15,25 @@ export default function FactoriesPage() {
   const [sending, setSending] = useState(false);
   const [hasExisting, setHasExisting] = useState(false);
   const [questions, setQuestions] = useState<typeof AUDIT_QUESTIONS>(AUDIT_QUESTIONS);
+  const [stats, setStats] = useState<{
+    rankPercentile: number;
+    totalFactories: number;
+    platformAverageScore: number;
+    nextMilestone: { targetPct: number; questionsNeeded: number } | null;
+  } | null>(null);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     Promise.all([
       fetch("/api/auth/me", { credentials: "include" }).then((res) => res.json()),
       fetch("/api/questions", { credentials: "include" }).then((res) => (res.ok ? res.json() : [])),
-    ]).then(([authData, questionsList]) => {
+      fetch("/api/factory-stats", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+    ]).then(([authData, questionsList, statsData]) => {
       setUser(authData.user);
       if (Array.isArray(questionsList) && questionsList.length > 0) {
         setQuestions(questionsList);
       }
+      setStats(statsData ?? null);
       if (!authData.user) {
         setAuthLoading(false);
         return;
@@ -127,6 +135,34 @@ export default function FactoriesPage() {
   }).length;
   const transparencyPct = totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0;
 
+  const MILESTONES = [25, 50, 75, 90, 100];
+  const nextMilestoneLocal =
+    totalQuestions > 0
+      ? (() => {
+          const next = MILESTONES.find((m) => m > transparencyPct);
+          if (next == null) return null;
+          const targetAnswered = Math.ceil((next / 100) * totalQuestions);
+          const questionsNeeded = Math.max(0, targetAnswered - answeredCount);
+          return { targetPct: next, questionsNeeded };
+        })()
+      : null;
+
+  const sectionProgress = (() => {
+    const bySection = new Map<string, { total: number; answered: number }>();
+    for (const q of questions) {
+      const cur = bySection.get(q.section) ?? { total: 0, answered: 0 };
+      cur.total += 1;
+      const v = answers[q.id];
+      if (v != null && String(v).trim() !== "") cur.answered += 1;
+      bySection.set(q.section, cur);
+    }
+    return Array.from(bySection.entries()).map(([section, { total, answered }]) => ({
+      section,
+      answered,
+      total,
+    }));
+  })();
+
   if (authLoading) {
     return (
       <div className={styles.formWrap}>
@@ -176,6 +212,31 @@ export default function FactoriesPage() {
         <p className={styles.scoreDesc}>
           已填写 {answeredCount} / {totalQuestions} 项。答得越多，海外客户越容易信任您并选择与您合作。请继续完善下面的问题以提高得分。
         </p>
+        {stats && stats.totalFactories > 0 && (
+          <div className={styles.rankRow}>
+            <span>您超过了平台 <strong>{stats.rankPercentile}%</strong> 的工厂</span>
+            <span className={styles.rankDivider}>·</span>
+            <span>平台平均完成度 <strong>{stats.platformAverageScore}%</strong></span>
+          </div>
+        )}
+        {(() => {
+          const next = stats?.nextMilestone ?? nextMilestoneLocal;
+          return next && next.questionsNeeded > 0 ? (
+            <p className={styles.nextMilestone}>
+              再答 <strong>{next.questionsNeeded}</strong> 题即可达到 <strong>{next.targetPct}%</strong>，获得更高曝光。
+            </p>
+          ) : null;
+        })()}
+        {sectionProgress.length > 0 && (
+          <div className={styles.sectionProgressInline}>
+            <span className={styles.sectionProgressLabel}>各板块：</span>
+            {sectionProgress.map(({ section, answered, total }, i) => (
+              <span key={section} className={answered === total ? styles.sectionDone : undefined}>
+                {section} {answered}/{total}{i < sectionProgress.length - 1 ? "、" : ""}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <p className={styles.pageDesc}>
         {hasExisting

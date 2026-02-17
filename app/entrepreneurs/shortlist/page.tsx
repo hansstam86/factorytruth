@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "../page.module.css";
 import { getShortlistIds, removeFromShortlist } from "@/lib/shortlist";
+import { setCompareIds } from "@/lib/compare-factories";
 
 type Factory = {
   id: string;
@@ -49,6 +50,17 @@ export default function ShortlistPage() {
       <p className={styles.pageDesc}>
         Factories you’ve saved. Click a factory to see full details, or remove it from your shortlist.
       </p>
+      {ids.length >= 2 && (
+        <div className={styles.shortlistCompareCta}>
+          <Link
+            href={`/entrepreneurs/compare?ids=${ids.slice(0, 6).join(",")}`}
+            className={styles.shortlistCompareBtn}
+            onClick={() => setCompareIds(ids.slice(0, 6))}
+          >
+            Compare these {ids.length} factories →
+          </Link>
+        </div>
+      )}
 
       {loading ? (
         <p className={styles.loading}>Loading shortlist…</p>

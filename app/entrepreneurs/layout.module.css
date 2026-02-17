@@ -53,6 +53,21 @@
   text-decoration: none;
 }
 
+.lastViewedLink {
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.lastViewedLink:hover {
+  text-decoration: none;
+  color: var(--color-text);
+}
+
 .portalMain {
   flex: 1;
   padding: 2rem;

@@ -7,6 +7,7 @@ import styles from "./page.module.css";
 import { AUDIT_QUESTIONS } from "@/lib/audit-questions";
 import { getCompareIds, addToCompare, removeFromCompare, COMPARE_MAX } from "@/lib/compare-factories";
 import { getShortlistIds, toggleShortlist } from "@/lib/shortlist";
+import { setLastViewed } from "@/lib/last-viewed";
 
 const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
 
@@ -28,6 +29,9 @@ type FactoryDetail = {
   questions?: { id: string; sectionEn: string; questionEn: string }[];
   createdAt: string;
   privateQuestionIds?: string[];
+  transparencyScore?: number;
+  rankPercentile?: number | null;
+  accessRequestCount?: number;
 };
 
 function formatValue(value: string, submissionId: string): React.ReactNode {
@@ -124,7 +128,10 @@ export default function FactoryDetailPage() {
     if (!id) return;
     fetch(`/api/factories/${encodeURIComponent(id)}`, { credentials: "include" })
       .then((res) => (res.ok ? res.json() : null))
-      .then((f) => setFactory(f ?? null))
+      .then((f) => {
+        if (f?.id && f?.name) setLastViewed(f.id, f.name);
+        setFactory(f ?? null);
+      })
       .catch(() => setFactory(null))
       .finally(() => setLoading(false));
   }, [id]);
@@ -223,7 +230,24 @@ export default function FactoryDetailPage() {
     const v = answers[q.id];
     return v != null && String(v).trim() !== "";
   }).length;
-  const transparencyPct = totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const transparencyPct = factory.transparencyScore ?? (totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0);
+
+  const sectionStats = (() => {
+    const bySec = new Map<string, { total: number; answered: number }>();
+    for (const q of questionList) {
+      const cur = bySec.get(q.sectionEn) ?? { total: 0, answered: 0 };
+      cur.total += 1;
+      if (answers[q.id] != null && String(answers[q.id]).trim() !== "") cur.answered += 1;
+      bySec.set(q.sectionEn, cur);
+    }
+    return Array.from(bySec.entries()).map(([sectionEn, { total, answered }]) => ({ sectionEn, total, answered }));
+  })();
+
+  const nextStepLine = !inShortlist
+    ? "Save to shortlist to compare with others."
+    : hasPrivate && !requestSent
+      ? "Request access to see private answers."
+      : null;
 
   return (
     <div className={styles.detailWrap}>
@@ -289,6 +313,22 @@ export default function FactoryDetailPage() {
         </div>
       </header>
 
+      {(typeof factory.rankPercentile === "number" || (factory.accessRequestCount != null && factory.accessRequestCount > 0)) && (
+        <div className={styles.detailStats}>
+          {typeof factory.rankPercentile === "number" && (
+            <span>This profile is more complete than <strong>{factory.rankPercentile}%</strong> of factories on the platform.</span>
+          )}
+          {factory.accessRequestCount != null && factory.accessRequestCount > 0 && (
+            <>
+              {typeof factory.rankPercentile === "number" && <span className={styles.detailStatsDivider}> · </span>}
+              <span><strong>{factory.accessRequestCount}</strong> entrepreneur{factory.accessRequestCount !== 1 ? "s have" : " has"} requested access.</span>
+            </>
+          )}
+        </div>
+      )}
+      {nextStepLine && (
+        <p className={styles.nextStepLine}>{nextStepLine}</p>
+      )}
       <div className={styles.whyBlock}>
         <h2 className={styles.whyTitle}>Why this factory?</h2>
         <p className={styles.whyDesc}>
@@ -299,6 +339,21 @@ export default function FactoryDetailPage() {
           The more factories share, the easier it is to compare and choose partners you can trust for your production.
         </p>
       </div>
+
+      {sectionStats.length > 0 && (
+        <div className={styles.sectionCompleteness}>
+          <h3 className={styles.sectionCompletenessTitle}>Section completeness</h3>
+          <ul className={styles.sectionCompletenessList}>
+            {sectionStats.map(({ sectionEn, answered, total }) => (
+              <li key={sectionEn}>
+                <span className={answered === total ? styles.sectionComplete : undefined}>
+                  {sectionEn}: {answered}/{total}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <section className={styles.detailSection}>
         <h2>Audit answers</h2>

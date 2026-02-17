@@ -8,10 +8,42 @@ type Submission = {
   answers: Record<string, string>;
 };
 
+type Question = { id: string; section: string };
+
+type FactoryStats = {
+  myScore: number;
+  myAnsweredCount: number;
+  totalQuestions: number;
+  totalFactories: number;
+  rankPercentile: number;
+  factoriesBeatCount: number;
+  platformAverageScore: number;
+  nextMilestone: { targetPct: number; questionsNeeded: number } | null;
+  badge: string;
+  hasSubmission: boolean;
+};
+
+function sectionProgress(questions: Question[], answers: Record<string, string>) {
+  const bySection = new Map<string, { total: number; answered: number }>();
+  for (const q of questions) {
+    const cur = bySection.get(q.section) ?? { total: 0, answered: 0 };
+    cur.total += 1;
+    const v = answers[q.id];
+    if (v != null && String(v).trim() !== "") cur.answered += 1;
+    bySection.set(q.section, cur);
+  }
+  return Array.from(bySection.entries()).map(([section, { total, answered }]) => ({
+    section,
+    answered,
+    total,
+  }));
+}
+
 export default function SubmissionsPage() {
   const [success, setSuccess] = useState(false);
   const [submission, setSubmission] = useState<Submission | null>(null);
-  const [questions, setQuestions] = useState<{ id: string }[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [stats, setStats] = useState<FactoryStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +55,14 @@ export default function SubmissionsPage() {
     Promise.all([
       fetch("/api/my-submission", { credentials: "include" }).then((r) => r.json()),
       fetch("/api/questions", { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/factory-stats", { credentials: "include" }).then((r) =>
+        r.ok ? r.json() : null
+      ),
     ])
-      .then(([subData, qList]) => {
+      .then(([subData, qList, statsData]) => {
         setSubmission(subData.submission ?? null);
         setQuestions(Array.isArray(qList) ? qList : []);
+        setStats(statsData ?? null);
       })
       .catch(() => setSubmission(null))
       .finally(() => setLoading(false));
@@ -41,6 +77,7 @@ export default function SubmissionsPage() {
       }).length
     : 0;
   const transparencyPct = totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const sections = sectionProgress(questions, answers);
 
   return (
     <div className={styles.submissionsWrap}>
@@ -51,12 +88,51 @@ export default function SubmissionsPage() {
         </div>
       )}
       {!loading && submission && totalQuestions > 0 && (
-        <div className={styles.scoreBlock}>
-          <p className={styles.scoreTitle}>您的透明度得分：<strong>{transparencyPct}%</strong></p>
-          <p className={styles.scoreDesc}>
-            已填写 {answeredCount} / {totalQuestions} 项。答得越多，海外客户越容易信任您。点击下方按钮补充或修改答案，提高得分以吸引更多优质客户。
-          </p>
-        </div>
+        <>
+          <div className={styles.scoreBlock}>
+            <div className={styles.scoreHead}>
+              <p className={styles.scoreTitle}>
+                您的透明度得分：<strong>{transparencyPct}%</strong>
+              </p>
+              {stats?.badge && (
+                <span className={styles.badge} data-level={stats.myScore >= 75 ? "high" : stats.myScore >= 50 ? "mid" : "low"}>
+                  {stats.badge}
+                </span>
+              )}
+            </div>
+            <p className={styles.scoreDesc}>
+              已填写 {answeredCount} / {totalQuestions} 项。答得越多，海外客户越容易信任您。点击下方按钮补充或修改答案，提高得分以吸引更多优质客户。
+            </p>
+            {stats && stats.totalFactories > 0 && (
+              <div className={styles.rankRow}>
+                <span>您超过了平台 <strong>{stats.rankPercentile}%</strong> 的工厂</span>
+                <span className={styles.rankDivider}>·</span>
+                <span>平台平均完成度 <strong>{stats.platformAverageScore}%</strong></span>
+              </div>
+            )}
+            {stats?.nextMilestone && stats.nextMilestone.questionsNeeded > 0 && (
+              <p className={styles.nextMilestone}>
+                再答 <strong>{stats.nextMilestone.questionsNeeded}</strong> 题即可达到{" "}
+                <strong>{stats.nextMilestone.targetPct}%</strong>，获得更高曝光。
+              </p>
+            )}
+          </div>
+          {sections.length > 0 && (
+            <div className={styles.sectionProgressBlock}>
+              <h2 className={styles.sectionProgressTitle}>各板块完成情况</h2>
+              <ul className={styles.sectionProgressList}>
+                {sections.map(({ section, answered, total }) => (
+                  <li key={section} className={styles.sectionProgressItem}>
+                    <span className={styles.sectionName}>{section}</span>
+                    <span className={styles.sectionCount}>
+                      {answered}/{total}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
       <p className={`${styles.pageDesc} zh`}>
         您提交的审核答案会在「创业者」端展示，帮助海外客户了解并信任您的工厂。信息越完整，越容易获得优质客户。如需修改或补充，请重新提交审核答案。

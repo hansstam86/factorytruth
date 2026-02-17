@@ -122,6 +122,54 @@
   line-height: 1.5;
 }
 
+.rankRow {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-top: 0.75rem;
+}
+
+.rankRow strong {
+  color: var(--color-text);
+}
+
+.rankDivider {
+  margin: 0 0.5rem;
+  opacity: 0.6;
+}
+
+.nextMilestone {
+  font-size: 0.95rem;
+  margin: 0.75rem 0 0;
+  color: var(--color-accent);
+}
+
+.nextMilestone strong {
+  color: var(--color-text);
+}
+
+.sectionProgressInline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-top: 0.75rem;
+}
+
+.sectionProgressLabel {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.sectionProgressInline span:not(.sectionProgressLabel) {
+  white-space: nowrap;
+}
+
+.sectionDone {
+  color: var(--color-cta);
+}
+
 .pageDesc {
   color: var(--color-text-muted);
   margin-bottom: 2rem;

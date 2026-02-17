@@ -53,6 +53,17 @@
   text-decoration: none;
 }
 
+.scoreNavLink {
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.scoreNavLink:hover {
+  text-decoration: none;
+  color: var(--color-text);
+}
+
 .portalMain {
   flex: 1;
   padding: 2rem;

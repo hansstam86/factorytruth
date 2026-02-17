@@ -29,6 +29,62 @@
   line-height: 1.5;
 }
 
+.platformStats {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin: -0.5rem 0 0.75rem;
+}
+
+.platformStats strong {
+  color: var(--color-text);
+}
+
+.nextStepCta {
+  background: linear-gradient(135deg, rgba(126, 184, 218, 0.08), rgba(126, 184, 218, 0.03));
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.nextStepCta p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.nextStepLink {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.nextStepLink:hover {
+  text-decoration: underline;
+}
+
+.filterChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filterChip {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.filterChip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .pageDesc {
   color: var(--color-text-muted);
   margin-bottom: 2rem;
@@ -340,6 +396,26 @@
 
 .loading {
   color: var(--color-text-muted);
+}
+
+.shortlistCompareCta {
+  margin-bottom: 1.25rem;
+}
+
+.shortlistCompareBtn {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  background: var(--color-cta);
+  color: var(--color-bg);
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.shortlistCompareBtn:hover {
+  background: var(--color-cta-hover);
+  color: var(--color-bg);
+  text-decoration: none;
 }
 
 .empty {

@@ -9,6 +9,7 @@ import { getQuestionsSync } from "@/lib/audit-questions-server";
 const DATA_DIR = path.join(process.cwd(), "data");
 const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
 const GRANTS_FILE = path.join(DATA_DIR, "access-grants.json");
+const REQUESTS_FILE = path.join(DATA_DIR, "access-requests.json");
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,34 @@ export async function GET(
     }
 
     const questions = getQuestionsSync();
+    const totalQuestions = questions.length;
+    const answeredCount = totalQuestions
+      ? questions.filter((q) => {
+          const v = entry.answers[q.id];
+          return v != null && String(v).trim() !== "";
+        }).length
+      : 0;
+    const transparencyScore = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+
+    let rankPercentile: number | null = null;
+    let accessRequestCount = 0;
+    try {
+      const allScores = list.map((e) => {
+        const ans = e.answers || {};
+        const n = totalQuestions ? questions.filter((q) => ans[q.id] != null && String(ans[q.id]).trim() !== "").length : 0;
+        return totalQuestions > 0 ? Math.round((n / totalQuestions) * 100) : 0;
+      });
+      const totalFactories = allScores.length;
+      const withLowerScore = allScores.filter((s) => s < transparencyScore).length;
+      rankPercentile = totalFactories > 1 ? Math.round((withLowerScore / totalFactories) * 100) : 100;
+
+      const requestsRaw = await readFile(REQUESTS_FILE, "utf-8");
+      const requests = JSON.parse(requestsRaw) as { submissionId: string }[];
+      accessRequestCount = requests.filter((r) => r.submissionId === id).length;
+    } catch {
+      // optional stats
+    }
+
     const questionsEn = Object.fromEntries(questions.map((q) => [q.id, q.questionEn]));
     const questionsList = questions.map((q) => ({ id: q.id, sectionEn: q.sectionEn, questionEn: q.questionEn }));
 
@@ -98,6 +127,9 @@ export async function GET(
       privateQuestionIds: Object.entries(visibility)
         .filter(([, v]) => v === "private")
         .map(([qId]) => qId),
+      transparencyScore,
+      rankPercentile,
+      accessRequestCount,
     });
   } catch (e) {
     console.error("factory detail error", e);

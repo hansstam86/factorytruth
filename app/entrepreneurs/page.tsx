@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
+import HowItWorks from "./how-it-works";
 import { getCompareIds, setCompareIds, toggleCompare, COMPARE_MAX } from "@/lib/compare-factories";
 import { getShortlistIds, toggleShortlist } from "@/lib/shortlist";
 
@@ -155,18 +156,95 @@ function EntrepreneursBrowseContent() {
     router.replace(q ? `/entrepreneurs?${q}` : "/entrepreneurs", { scroll: false });
   }, [user, searchName, searchAddress, searchExpertise, sort, minTransparency, router]);
 
+  const highTransparencyCount = factories.filter(
+    (f) => (typeof f.transparencyScore === "number" ? f.transparencyScore : 0) >= 75
+  ).length;
+  const compareShortlistUrl =
+    shortlistIds.length >= 2
+      ? `/entrepreneurs/compare?ids=${shortlistIds.slice(0, 6).join(",")}`
+      : "/entrepreneurs/compare";
+
+  const applyChip = (chip: "high-transparency" | "recent") => {
+    if (chip === "recent") {
+      setSort("date");
+      setMinTransparency(null);
+      if (user) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("sort", "date");
+        params.delete("minScore");
+        router.replace(`/entrepreneurs?${params.toString()}`, { scroll: false });
+      }
+    } else {
+      setSort("transparency");
+      if (user) {
+        setMinTransparency(75);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("sort", "transparency");
+        params.set("minScore", "75");
+        router.replace(`/entrepreneurs?${params.toString()}`, { scroll: false });
+      } else {
+        setShowSearchSignInModal(true);
+      }
+    }
+  };
+
   return (
     <div className={styles.listWrap}>
       <h1 className={styles.pageTitle}>Find trustworthy factories</h1>
+      <HowItWorks />
       <div className={styles.valueBlock}>
         <p className={styles.valueTitle}>Choose manufacturing partners you can rely on</p>
         <p className={styles.valueDesc}>
           Factories on this platform have answered the same audit questions. Browse their answers, compare capabilities, and shortlist or contact the ones that best fit your hardware project. The more transparent a factory’s profile, the easier it is to trust them with your production.
         </p>
       </div>
+      {!loading && factories.length > 0 && (
+        <p className={styles.platformStats}>
+          <strong>{factories.length}</strong> factories
+          {highTransparencyCount > 0 && (
+            <> · <strong>{highTransparencyCount}</strong> with 75%+ transparency</>
+          )}
+        </p>
+      )}
+      <div className={styles.nextStepCta}>
+        {shortlistIds.length === 0 && (
+          <p>Save factories to build your shortlist and compare them side by side.</p>
+        )}
+        {shortlistIds.length === 1 && (
+          <p>Save one more factory to compare.</p>
+        )}
+        {shortlistIds.length >= 2 && (
+          <p>
+            <Link href={compareShortlistUrl} className={styles.nextStepLink}>
+              Compare your {shortlistIds.length} shortlisted factories →
+            </Link>
+          </p>
+        )}
+      </div>
       <p className={styles.pageDesc}>
         View audit answers submitted by factories in China. Click a factory to see full details, or select several to compare answers side by side.
       </p>
+
+      {factories.length > 0 && (
+        <div className={styles.filterChips}>
+          <button
+            type="button"
+            className={styles.filterChip}
+            onClick={() => applyChip("recent")}
+            aria-label="Sort by recently added"
+          >
+            Recently added
+          </button>
+          <button
+            type="button"
+            className={styles.filterChip}
+            onClick={() => applyChip("high-transparency")}
+            aria-label="High transparency 75%+"
+          >
+            High transparency (75%+)
+          </button>
+        </div>
+      )}
 
       <div className={styles.searchBar}>
         {!user && (

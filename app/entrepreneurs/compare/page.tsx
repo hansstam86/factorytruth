@@ -6,6 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
 import { getCompareIds } from "@/lib/compare-factories";
+import { getShortlistIds, addToShortlist } from "@/lib/shortlist";
 import { AUDIT_QUESTIONS } from "@/lib/audit-questions";
 
 type FactoryDetail = {
@@ -62,6 +63,7 @@ function ComparePageContent() {
   const [factories, setFactories] = useState<FactoryDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shortlistIds, setShortlistIds] = useState<string[]>([]);
 
   const idsParam = searchParams.get("ids");
   const ids = useMemo(() => {
@@ -101,6 +103,25 @@ function ComparePageContent() {
       .catch(() => setError("Failed to load factory data."))
       .finally(() => setLoading(false));
   }, [ids.join(",")]);
+
+  useEffect(() => {
+    setShortlistIds(getShortlistIds());
+    const onStorage = () => setShortlistIds(getShortlistIds());
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("factorytruth-shortlist-change", onStorage);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("factorytruth-shortlist-change", onStorage);
+    };
+  }, []);
+
+  const handleAddAllToShortlist = () => {
+    factories.forEach((f) => addToShortlist(f.id));
+    setShortlistIds(getShortlistIds());
+  };
+
+  const notInShortlist = factories.filter((f) => !shortlistIds.includes(f.id));
+  const allInShortlist = notInShortlist.length === 0 && factories.length > 0;
 
   // Build ordered list of (section, questionId, questionEn) from first factory's questions or default audit list
   const questionRows = useMemo(() => {
@@ -174,13 +195,41 @@ function ComparePageContent() {
 
   const labelsEn = factories[0].questionsEn || {};
 
+  /** Score cell for "best in row": higher = more complete. */
+  function cellScore(raw: string | undefined): number {
+    if (raw == null || String(raw).trim() === "") return 0;
+    const s = String(raw).trim();
+    if (s === "yes" || s === "no") return 1;
+    if (s.startsWith("uploads/")) return 2;
+    try {
+      const arr = JSON.parse(s) as unknown[];
+      if (Array.isArray(arr) && arr.length > 0) return 2;
+    } catch {
+      // text
+    }
+    return 1 + Math.min(1, s.length / 200);
+  }
+
   return (
     <div className={styles.wrap}>
       <div className={styles.headerRow}>
         <h1 className={styles.title}>Compare factories</h1>
-        <Link href="/entrepreneurs" className={styles.backLink}>
-          ← Back to factories
-        </Link>
+        <div className={styles.headerActions}>
+          {factories.length > 0 && (
+            <button
+              type="button"
+              className={styles.addAllShortlistBtn}
+              onClick={handleAddAllToShortlist}
+              disabled={allInShortlist}
+              title={allInShortlist ? "All in shortlist" : "Add all to shortlist"}
+            >
+              {allInShortlist ? "All in shortlist" : `Add all ${factories.length} to shortlist`}
+            </button>
+          )}
+          <Link href="/entrepreneurs" className={styles.backLink}>
+            ← Back to factories
+          </Link>
+        </div>
       </div>
 
       <div className={styles.tableScroll}>
@@ -188,17 +237,34 @@ function ComparePageContent() {
           <thead>
             <tr>
               <th className={styles.thQuestion}>Question</th>
-              {factories.map((f) => (
-                <th key={f.id} className={styles.thFactory}>
-                  <div className={styles.thFactoryName}>{f.name}</div>
-                  {f.address && (
-                    <div className={styles.thFactoryAddress}>{f.address}</div>
-                  )}
-                  <Link href={`/entrepreneurs/factory/${f.id}`} className={styles.thFactoryLink}>
-                    View full profile →
-                  </Link>
-                </th>
-              ))}
+              {factories.map((f) => {
+                const inShortlist = shortlistIds.includes(f.id);
+                return (
+                  <th key={f.id} className={styles.thFactory}>
+                    <div className={styles.thFactoryName}>{f.name}</div>
+                    {f.address && (
+                      <div className={styles.thFactoryAddress}>{f.address}</div>
+                    )}
+                    <div className={styles.thFactoryActions}>
+                      <button
+                        type="button"
+                        className={styles.addShortlistBtn}
+                        onClick={() => {
+                          addToShortlist(f.id);
+                          setShortlistIds(getShortlistIds());
+                        }}
+                        disabled={inShortlist}
+                        title={inShortlist ? "In shortlist" : "Add to shortlist"}
+                      >
+                        {inShortlist ? "★ In shortlist" : "☆ Add to shortlist"}
+                      </button>
+                      <Link href={`/entrepreneurs/factory/${f.id}`} className={styles.thFactoryLink}>
+                        View full profile →
+                      </Link>
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -213,14 +279,25 @@ function ComparePageContent() {
                 );
               }
               const label = labelsEn[row.id] ?? row.questionEn;
+              const scores = factories.map((f) => {
+                const raw = f.answers[row.id];
+                if (f.privateQuestionIds?.includes(row.id)) return 0;
+                return cellScore(raw);
+              });
+              const maxScore = Math.max(...scores, 0);
+              const bestIndex = maxScore > 0 ? scores.indexOf(maxScore) : -1;
               return (
                 <tr key={row.id}>
                   <td className={styles.tdQuestion}>{label}</td>
-                  {factories.map((f) => {
+                  {factories.map((f, colIndex) => {
                     const raw = f.answers[row.id];
                     const isPrivate = f.privateQuestionIds?.includes(row.id);
+                    const isBest = bestIndex >= 0 && colIndex === bestIndex;
                     return (
-                      <td key={f.id} className={styles.tdCell}>
+                      <td
+                        key={f.id}
+                        className={`${styles.tdCell} ${isBest ? styles.tdCellBest : ""}`}
+                      >
                         {isPrivate ? (
                           <span className={styles.privateCell}>Not shared</span>
                         ) : raw != null && String(raw).trim() !== "" ? (

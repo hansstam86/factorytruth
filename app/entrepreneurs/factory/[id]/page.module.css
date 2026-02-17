@@ -53,6 +53,49 @@
   color: var(--color-text);
 }
 
+.detailStats {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.detailStats strong {
+  color: var(--color-text);
+}
+
+.detailStatsDivider {
+  opacity: 0.7;
+}
+
+.nextStepLine {
+  font-size: 0.95rem;
+  color: var(--color-accent);
+  margin: 0 0 1rem;
+}
+
+.sectionCompleteness {
+  margin-bottom: 1.5rem;
+}
+
+.sectionCompletenessTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--color-text);
+}
+
+.sectionCompletenessList {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.sectionComplete {
+  color: var(--color-cta);
+}
+
 .detailName {
   font-size: 1.75rem;
   margin-bottom: 0.25rem;

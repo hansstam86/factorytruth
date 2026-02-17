@@ -1,0 +1,63 @@
+.banner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.bannerInner {
+  max-width: 100%;
+}
+
+.bannerTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--color-text);
+}
+
+.steps {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.steps strong {
+  color: var(--color-text);
+}
+
+.bannerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dismissBtn {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: var(--color-cta);
+  color: var(--color-bg);
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dismissBtn:hover {
+  background: var(--color-cta-hover);
+}
+
+.compareLink {
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.compareLink:hover {
+  text-decoration: underline;
+}
