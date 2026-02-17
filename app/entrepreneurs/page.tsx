@@ -36,7 +36,7 @@ function EntrepreneursBrowseContent() {
   });
   const [minTransparency, setMinTransparency] = useState<number | null>(() => {
     const v = searchParams.get("minScore");
-    if (v === "" || v === null) return null;
+    if (v == null || v === "") return null;
     const n = parseInt(v, 10);
     return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
   });
@@ -59,7 +59,7 @@ function EntrepreneursBrowseContent() {
     const s = searchParams.get("sort");
     setSort(s === "date" || s === "transparency" ? s : "name");
     const v = searchParams.get("minScore");
-    if (v === "" || v === null) setMinTransparency(null);
+    if (v == null || v === "") setMinTransparency(null);
     else {
       const n = parseInt(v, 10);
       setMinTransparency(Number.isFinite(n) && n >= 0 && n <= 100 ? n : null);
