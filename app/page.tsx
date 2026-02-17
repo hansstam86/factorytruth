@@ -21,14 +21,13 @@ export default function HomePage() {
           See what really happens in your factory.
         </p>
         <h1 className={styles.heroTitle}>
-          Transparent factory audits.
+          What actually happens inside the factory.
           <br />
-          <span className={styles.heroSub}>One platform, two sides.</span>
+          <span className={styles.heroSub}>Factories share it. You see it.</span>
         </h1>
         <p className={styles.heroDesc}>
-          Factories share real answers to the same audit questions. Entrepreneurs
-          see what actually goes on inside — and choose manufacturing partners
-          they can trust.
+          Same questions, real answers — quality, processes, how things get made.
+          So you can choose partners you actually trust.
         </p>
         <div className={styles.heroActions}>
           <Link href="/factories" className={`${styles.btn} ${styles.btnPrimary} zh`}>
