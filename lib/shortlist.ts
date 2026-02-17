@@ -14,11 +14,14 @@ export function getShortlistIds(): string[] {
   }
 }
 
+const SHORTLIST_CHANGE_EVENT = "factorytruth-shortlist-change";
+
 export function setShortlistIds(ids: string[]): void {
   if (typeof window === "undefined") return;
   try {
     const trimmed = ids.slice(0, SHORTLIST_MAX);
     localStorage.setItem(SHORTLIST_STORAGE_KEY, JSON.stringify(trimmed));
+    window.dispatchEvent(new CustomEvent(SHORTLIST_CHANGE_EVENT));
   } catch {
     // ignore
   }

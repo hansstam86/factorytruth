@@ -18,7 +18,7 @@ type Factory = {
   transparencyScore?: number;
 };
 
-type SortOption = "name" | "date";
+type SortOption = "name" | "date" | "transparency";
 
 function EntrepreneursBrowseContent() {
   const router = useRouter();
@@ -29,7 +29,10 @@ function EntrepreneursBrowseContent() {
   const [searchName, setSearchName] = useState(() => searchParams.get("name") ?? "");
   const [searchAddress, setSearchAddress] = useState(() => searchParams.get("address") ?? "");
   const [searchExpertise, setSearchExpertise] = useState(() => searchParams.get("expertise") ?? "");
-  const [sort, setSort] = useState<SortOption>(() => (searchParams.get("sort") === "date" ? "date" : "name"));
+  const [sort, setSort] = useState<SortOption>(() => {
+    const s = searchParams.get("sort");
+    return s === "date" || s === "transparency" ? s : "name";
+  });
   const [minTransparency, setMinTransparency] = useState<number | null>(() => {
     const v = searchParams.get("minScore");
     if (v === "" || v === null) return null;
@@ -52,7 +55,8 @@ function EntrepreneursBrowseContent() {
     setSearchName(searchParams.get("name") ?? "");
     setSearchAddress(searchParams.get("address") ?? "");
     setSearchExpertise(searchParams.get("expertise") ?? "");
-    setSort(searchParams.get("sort") === "date" ? "date" : "name");
+    const s = searchParams.get("sort");
+    setSort(s === "date" || s === "transparency" ? s : "name");
     const v = searchParams.get("minScore");
     if (v === "" || v === null) setMinTransparency(null);
     else {
@@ -120,6 +124,11 @@ function EntrepreneursBrowseContent() {
   const filteredFactories = [...filtered].sort((a, b) => {
     if (sort === "date") {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    if (sort === "transparency") {
+      const sa = typeof a.transparencyScore === "number" ? a.transparencyScore : 0;
+      const sb = typeof b.transparencyScore === "number" ? b.transparencyScore : 0;
+      return sb - sa;
     }
     return (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" });
   });
@@ -230,6 +239,7 @@ function EntrepreneursBrowseContent() {
               >
                 <option value="name">Name (A–Z)</option>
                 <option value="date">Date added (newest first)</option>
+                <option value="transparency">Transparency (high first)</option>
               </select>
             ) : (
               <button
@@ -239,7 +249,11 @@ function EntrepreneursBrowseContent() {
                 onClick={() => setShowSearchSignInModal(true)}
                 aria-label="Sort factories (sign in to change)"
               >
-                {sort === "date" ? "Date added (newest first)" : "Name (A–Z)"}
+                {sort === "date"
+                  ? "Date added (newest first)"
+                  : sort === "transparency"
+                    ? "Transparency (high first)"
+                    : "Name (A–Z)"}
               </button>
             )}
           </div>

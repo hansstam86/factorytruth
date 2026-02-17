@@ -1,5 +1,6 @@
 import Link from "next/link";
 import EntrepreneurAuthBar from "./auth-bar";
+import ShortlistLink from "./shortlist-link";
 import styles from "./layout.module.css";
 
 export default function EntrepreneursLayout({
@@ -17,7 +18,7 @@ export default function EntrepreneursLayout({
         <div className={styles.navAndAuth}>
           <nav className={styles.nav}>
             <Link href="/entrepreneurs">Browse factories</Link>
-            <Link href="/entrepreneurs/shortlist">Shortlist</Link>
+            <ShortlistLink />
             <Link href="/entrepreneurs/compare">Compare</Link>
             <Link href="/">Home</Link>
             <Link href="/factories" className="zh">工厂入口</Link>
