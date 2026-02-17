@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_FILE = path.join(process.cwd(), "data", "submissions.json");
 
 export async function GET() {
   try {
@@ -21,27 +18,20 @@ export async function GET() {
     }
     const userId = session.email;
 
-    const raw = await readFile(DATA_FILE, "utf-8");
-    const list = JSON.parse(raw) as {
-      id: string;
-      userId?: string;
-      answers: Record<string, string>;
-      visibility?: Record<string, "public" | "private">;
-      createdAt: string;
-      updatedAt?: string;
-    }[];
-
-    const mine = list.find((s) => s.userId === userId);
+    const mine = await prisma.submission.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
     if (!mine) {
       return NextResponse.json({ submission: null }, { status: 200 });
     }
     return NextResponse.json({
       submission: {
         id: mine.id,
-        answers: mine.answers,
-        visibility: mine.visibility ?? {},
-        createdAt: mine.createdAt,
-        updatedAt: mine.updatedAt,
+        answers: (mine.answers as Record<string, string>) ?? {},
+        visibility: (mine.visibility as Record<string, "public" | "private">) ?? {},
+        createdAt: mine.createdAt.toISOString(),
+        updatedAt: mine.updatedAt?.toISOString(),
       },
     });
   } catch (e) {

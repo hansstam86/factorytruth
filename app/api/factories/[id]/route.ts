@@ -1,15 +1,9 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { verifySession as verifyEntrepreneurSession, getSessionCookieName as getEntrepreneurSessionCookieName } from "@/lib/entrepreneur-auth";
 import { getQuestionsSync } from "@/lib/audit-questions-server";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-const GRANTS_FILE = path.join(DATA_DIR, "access-grants.json");
-const REQUESTS_FILE = path.join(DATA_DIR, "access-requests.json");
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -19,20 +13,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const raw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const list = JSON.parse(raw) as {
-      id: string;
-      userId?: string;
-      answers: Record<string, string>;
-      answersEn?: Record<string, string>;
-      visibility?: Record<string, "public" | "private">;
-      createdAt: string;
-    }[];
-
-    const entry = list.find((e) => e.id === id);
+    const entry = await prisma.submission.findUnique({ where: { id } });
     if (!entry) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
+
+    const answers = (entry.answers as Record<string, string>) ?? {};
+    const answersEn = (entry.answersEn as Record<string, string>) ?? {};
+    const visibility = (entry.visibility as Record<string, "public" | "private">) ?? {};
 
     let grantedQuestionIds: string[] = [];
     let isFactoryOwner = false;
@@ -50,23 +38,16 @@ export async function GET(
     if (grantedQuestionIds.length === 0 && entrepreneurToken) {
       const session = await verifyEntrepreneurSession(entrepreneurToken);
       if (session?.email) {
-        try {
-          const grantsRaw = await readFile(GRANTS_FILE, "utf-8");
-          const grants = JSON.parse(grantsRaw) as { submissionId: string; entrepreneurEmail: string; questionIds: string[] }[];
-          const forEntrepreneur = grants.filter(
-            (g) => g.submissionId === id && g.entrepreneurEmail === session.email
-          );
-          if (forEntrepreneur.length > 0) {
-            const merged = forEntrepreneur.flatMap((g) => g.questionIds);
-            grantedQuestionIds = merged.includes("all") ? ["all"] : Array.from(new Set(merged));
-          }
-        } catch {
-          // no grants
+        const grants = await prisma.accessGrant.findMany({
+          where: { submissionId: id, entrepreneurEmail: session.email },
+        });
+        if (grants.length > 0) {
+          const merged = grants.flatMap((g) => (g.questionIds as string[]) ?? []);
+          grantedQuestionIds = merged.includes("all") ? ["all"] : Array.from(new Set(merged));
         }
       }
     }
 
-    const visibility = entry.visibility ?? {};
     const canSee = (qId: string) => {
       if (visibility[qId] !== "private") return true;
       if (grantedQuestionIds.includes("all")) return true;
@@ -74,10 +55,10 @@ export async function GET(
     };
 
     const sourceAnswers = isFactoryOwner
-      ? entry.answers
-      : { ...entry.answers, ...(entry.answersEn ?? {}) };
+      ? answers
+      : { ...answers, ...answersEn };
     const filteredAnswers: Record<string, string> = {};
-    for (const [qId, value] of Object.entries(entry.answers)) {
+    for (const [qId, value] of Object.entries(answers)) {
       if (canSee(qId)) {
         filteredAnswers[qId] = sourceAnswers[qId] ?? value;
       }
@@ -87,7 +68,7 @@ export async function GET(
     const totalQuestions = questions.length;
     const answeredCount = totalQuestions
       ? questions.filter((q) => {
-          const v = entry.answers[q.id];
+          const v = answers[q.id];
           return v != null && String(v).trim() !== "";
         }).length
       : 0;
@@ -96,8 +77,11 @@ export async function GET(
     let rankPercentile: number | null = null;
     let accessRequestCount = 0;
     try {
+      const list = await prisma.submission.findMany({
+        select: { id: true, answers: true },
+      });
       const allScores = list.map((e) => {
-        const ans = e.answers || {};
+        const ans = (e.answers as Record<string, string>) || {};
         const n = totalQuestions ? questions.filter((q) => ans[q.id] != null && String(ans[q.id]).trim() !== "").length : 0;
         return totalQuestions > 0 ? Math.round((n / totalQuestions) * 100) : 0;
       });
@@ -105,9 +89,9 @@ export async function GET(
       const withLowerScore = allScores.filter((s) => s < transparencyScore).length;
       rankPercentile = totalFactories > 1 ? Math.round((withLowerScore / totalFactories) * 100) : 100;
 
-      const requestsRaw = await readFile(REQUESTS_FILE, "utf-8");
-      const requests = JSON.parse(requestsRaw) as { submissionId: string }[];
-      accessRequestCount = requests.filter((r) => r.submissionId === id).length;
+      accessRequestCount = await prisma.accessRequest.count({
+        where: { submissionId: id },
+      });
     } catch {
       // optional stats
     }
@@ -117,9 +101,9 @@ export async function GET(
 
     return NextResponse.json({
       id: entry.id,
-      createdAt: entry.createdAt,
-      name: entry.answers.q1 || "Unnamed factory",
-      address: entry.answers.q2,
+      createdAt: entry.createdAt.toISOString(),
+      name: answers.q1 || "Unnamed factory",
+      address: answers.q2,
       answers: filteredAnswers,
       visibility,
       questionsEn,

@@ -1,31 +1,9 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const GRANTS_FILE = path.join(DATA_DIR, "access-grants.json");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-
-type Grant = {
-  submissionId: string;
-  entrepreneurEmail: string;
-  questionIds: string[];
-  grantedAt: string;
-};
-
-async function loadGrants(): Promise<Grant[]> {
-  try {
-    const raw = await readFile(GRANTS_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    await mkdir(DATA_DIR, { recursive: true });
-    return [];
-  }
-}
 
 /** GET ?submissionId=... — list current access (aggregated by entrepreneur). Factory must own submission. */
 export async function GET(request: Request) {
@@ -46,20 +24,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Session expired." }, { status: 401 });
     }
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string }[];
-    const mine = submissions.find((s) => s.userId === session.email);
+    const mine = await prisma.submission.findFirst({
+      where: { userId: session.email },
+      orderBy: { createdAt: "desc" },
+    });
     if (mine?.id !== submissionId) {
       return NextResponse.json({ error: "Forbidden or submission not found" }, { status: 403 });
     }
 
-    const grants = await loadGrants();
-    const forSubmission = grants.filter((g) => g.submissionId === submissionId);
+    const grants = await prisma.accessGrant.findMany({
+      where: { submissionId },
+    });
     const byEmail = new Map<string, string[]>();
-    for (const g of forSubmission) {
+    for (const g of grants) {
+      const ids = (g.questionIds as string[]) ?? [];
       const existing = byEmail.get(g.entrepreneurEmail) ?? [];
-      const merged = Array.from(new Set([...existing, ...g.questionIds]));
-      byEmail.set(g.entrepreneurEmail, merged);
+      byEmail.set(g.entrepreneurEmail, Array.from(new Set([...existing, ...ids])));
     }
     const list = Array.from(byEmail.entries()).map(([entrepreneurEmail, questionIds]) => ({
       entrepreneurEmail,
@@ -93,23 +73,22 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Session expired." }, { status: 401 });
     }
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string }[];
-    const mine = submissions.find((s) => s.userId === session.email);
+    const mine = await prisma.submission.findFirst({
+      where: { userId: session.email },
+      orderBy: { createdAt: "desc" },
+    });
     if (mine?.id !== submissionId) {
       return NextResponse.json({ error: "Forbidden or submission not found" }, { status: 403 });
     }
 
-    let grants = await loadGrants();
-    const before = grants.length;
-    grants = grants.filter(
-      (g) => !(g.submissionId === submissionId && g.entrepreneurEmail === entrepreneurEmail)
-    );
-    if (grants.length === before) {
-      return NextResponse.json({ ok: true, revoked: false, message: "No grants found for this entrepreneur." });
-    }
-    await writeFile(GRANTS_FILE, JSON.stringify(grants, null, 2), "utf-8");
-    return NextResponse.json({ ok: true, revoked: true });
+    const result = await prisma.accessGrant.deleteMany({
+      where: { submissionId, entrepreneurEmail },
+    });
+    return NextResponse.json({
+      ok: true,
+      revoked: result.count > 0,
+      ...(result.count === 0 ? { message: "No grants found for this entrepreneur." } : {}),
+    });
   } catch (e) {
     console.error("access-grants DELETE error", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

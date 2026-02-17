@@ -1,26 +1,9 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const REQUESTS_FILE = path.join(DATA_DIR, "access-requests.json");
-const GRANTS_FILE = path.join(DATA_DIR, "access-grants.json");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-
-type AccessRequest = {
-  id: string;
-  submissionId: string;
-  entrepreneurEmail: string;
-  entrepreneurName?: string;
-  questionIds: string[];
-  status: "pending" | "approved" | "denied";
-  createdAt: string;
-  respondedAt?: string;
-};
 
 export async function PATCH(
   request: Request,
@@ -44,38 +27,32 @@ export async function PATCH(
       return NextResponse.json({ error: "status must be approved or denied" }, { status: 400 });
     }
 
-    const list: AccessRequest[] = JSON.parse(await readFile(REQUESTS_FILE, "utf-8"));
-    const req = list.find((r) => r.id === id);
+    const req = await prisma.accessRequest.findUnique({ where: { id } });
     if (!req) return NextResponse.json({ error: "Request not found" }, { status: 404 });
     if (req.status !== "pending") {
       return NextResponse.json({ error: "Already responded" }, { status: 400 });
     }
 
-    const submissions = JSON.parse(await readFile(SUBMISSIONS_FILE, "utf-8")) as { id: string; userId?: string }[];
-    const sub = submissions.find((s) => s.id === req.submissionId);
+    const sub = await prisma.submission.findUnique({ where: { id: req.submissionId } });
     if (!sub || sub.userId !== session.email) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const now = new Date().toISOString();
-    req.status = status;
-    req.respondedAt = now;
-    await writeFile(REQUESTS_FILE, JSON.stringify(list, null, 2), "utf-8");
+    const now = new Date();
+    await prisma.accessRequest.update({
+      where: { id },
+      data: { status, respondedAt: now },
+    });
 
     if (status === "approved") {
-      let grants: { submissionId: string; entrepreneurEmail: string; questionIds: string[]; grantedAt: string }[] = [];
-      try {
-        grants = JSON.parse(await readFile(GRANTS_FILE, "utf-8"));
-      } catch {
-        grants = [];
-      }
-      grants.push({
-        submissionId: req.submissionId,
-        entrepreneurEmail: req.entrepreneurEmail,
-        questionIds: req.questionIds,
-        grantedAt: now,
+      await prisma.accessGrant.create({
+        data: {
+          submissionId: req.submissionId,
+          entrepreneurEmail: req.entrepreneurEmail,
+          questionIds: req.questionIds as object,
+          grantedAt: now,
+        },
       });
-      await writeFile(GRANTS_FILE, JSON.stringify(grants, null, 2), "utf-8");
     }
 
     return NextResponse.json({ ok: true, status });

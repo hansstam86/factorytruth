@@ -1,28 +1,20 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 import { getQuestionsSync } from "@/lib/audit-questions-server";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-const DATA_FILE = path.join(process.cwd(), "data", "submissions.json");
-
 export async function GET(request: Request) {
   try {
-    const raw = await readFile(DATA_FILE, "utf-8");
-    const list = JSON.parse(raw) as {
-      id: string;
-      userId?: string;
-      answers: Record<string, string>;
-      visibility?: Record<string, "public" | "private">;
-      createdAt: string;
-    }[];
+    const list = await prisma.submission.findMany({
+      select: { id: true, userId: true, answers: true, createdAt: true },
+    });
 
     const questions = getQuestionsSync();
     const totalQuestions = questions.length;
 
     let factories = list.map((entry) => {
-      const answers = entry.answers || {};
+      const answers = (entry.answers as Record<string, string>) || {};
       const answeredCount = totalQuestions
         ? questions.filter((q) => {
             const v = answers[q.id];
@@ -33,10 +25,10 @@ export async function GET(request: Request) {
         totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
       return {
         id: entry.id,
-        createdAt: entry.createdAt,
-        name: entry.answers.q1 || "Unnamed factory",
-        address: entry.answers.q2,
-        expertise: entry.answers.q3,
+        createdAt: entry.createdAt.toISOString(),
+        name: answers.q1 || "Unnamed factory",
+        address: answers.q2,
+        expertise: answers.q3,
         transparencyScore,
       };
     });

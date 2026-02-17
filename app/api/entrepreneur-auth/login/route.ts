@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 import {
   verifyPassword,
   createSession,
   getSessionCookieName,
   getCookieOptions,
 } from "@/lib/entrepreneur-auth";
-
-const USERS_FILE = path.join(process.cwd(), "data", "entrepreneur-users.json");
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -23,18 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let users: { email: string; passwordHash: string; name?: string }[] = [];
-    try {
-      const raw = await readFile(USERS_FILE, "utf-8");
-      users = JSON.parse(raw);
-    } catch {
-      return NextResponse.json(
-        { error: "Invalid email or password." },
-        { status: 401 }
-      );
-    }
-
-    const user = users.find((u) => u.email === email);
+    const user = await prisma.entrepreneurUser.findUnique({ where: { email } });
     if (!user || !user.passwordHash || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json(
         { error: "Invalid email or password." },
@@ -42,7 +28,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = await createSession(email, user.name);
+    const token = await createSession(email, user.name ?? undefined);
     const res = NextResponse.json({ ok: true, email });
     res.cookies.set(getSessionCookieName(), token, getCookieOptions());
     return res;

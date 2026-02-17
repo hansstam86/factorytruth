@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifyAdminSession, getAdminSessionCookieName } from "@/lib/admin-auth";
 import { hashPassword } from "@/lib/entrepreneur-auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const USERS_FILE = path.join(DATA_DIR, "entrepreneur-users.json");
 
 async function requireAdmin(): Promise<NextResponse | null> {
   const cookieStore = await cookies();
@@ -19,26 +15,20 @@ async function requireAdmin(): Promise<NextResponse | null> {
   return null;
 }
 
-type EntrepreneurUser = {
-  email: string;
-  passwordHash?: string;
-  name?: string;
-  provider?: string;
-  createdAt?: string;
-};
-
 /** GET — list all entrepreneurs (no password hashes). */
 export async function GET() {
   const err = await requireAdmin();
   if (err) return err;
   try {
-    const raw = await readFile(USERS_FILE, "utf-8").catch(() => "[]");
-    const list = JSON.parse(raw) as EntrepreneurUser[];
+    const list = await prisma.entrepreneurUser.findMany({
+      select: { email: true, name: true, googleId: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    });
     const safe = list.map((u) => ({
       email: u.email,
-      name: u.name,
-      provider: u.provider,
-      createdAt: u.createdAt,
+      name: u.name ?? undefined,
+      provider: u.googleId ? "google" : undefined,
+      createdAt: u.createdAt.toISOString(),
     }));
     return NextResponse.json(safe);
   } catch (e) {
@@ -64,25 +54,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
-    let users: EntrepreneurUser[] = [];
-    try {
-      users = JSON.parse(await readFile(USERS_FILE, "utf-8"));
-    } catch {
-      await mkdir(DATA_DIR, { recursive: true });
-    }
-
-    if (users.some((u) => u.email === email)) {
+    const existing = await prisma.entrepreneurUser.findUnique({ where: { email } });
+    if (existing) {
       return NextResponse.json({ error: "This email is already registered as an entrepreneur" }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(password);
-    users.push({
-      email,
-      passwordHash,
-      name,
-      createdAt: new Date().toISOString(),
+    await prisma.entrepreneurUser.create({
+      data: { email, passwordHash, name },
     });
-    await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
     return NextResponse.json({ ok: true, email });
   } catch (e) {
     console.error("admin entrepreneurs POST error", e);
@@ -99,19 +79,10 @@ export async function DELETE(request: Request) {
     const email = (body.email || "").trim().toLowerCase();
     if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
 
-    let users: EntrepreneurUser[] = [];
-    try {
-      users = JSON.parse(await readFile(USERS_FILE, "utf-8"));
-    } catch {
-      return NextResponse.json({ error: "No entrepreneurs file" }, { status: 200 });
-    }
-
-    const before = users.length;
-    users = users.filter((u) => u.email !== email);
-    if (users.length === before) {
+    const result = await prisma.entrepreneurUser.deleteMany({ where: { email } });
+    if (result.count === 0) {
       return NextResponse.json({ error: "Entrepreneur not found" }, { status: 404 });
     }
-    await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("admin entrepreneurs DELETE error", e);

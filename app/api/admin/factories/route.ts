@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifyAdminSession, getAdminSessionCookieName } from "@/lib/admin-auth";
 import { hashPassword } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-const USERS_FILE = path.join(DATA_DIR, "users.json");
 
 async function requireAdmin(): Promise<NextResponse | null> {
   const cookieStore = await cookies();
@@ -25,21 +20,21 @@ export async function GET() {
   const err = await requireAdmin();
   if (err) return err;
   try {
-    const raw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const list = JSON.parse(raw) as {
-      id: string;
-      userId?: string;
-      answers: Record<string, string>;
-      createdAt: string;
-    }[];
-    const factories = list.map((entry) => ({
-      id: entry.id,
-      userId: entry.userId,
-      name: entry.answers?.q1 || "Unnamed factory",
-      address: entry.answers?.q2 || "",
-      expertise: entry.answers?.q3 || "",
-      createdAt: entry.createdAt,
-    }));
+    const list = await prisma.submission.findMany({
+      select: { id: true, userId: true, answers: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    });
+    const factories = list.map((entry) => {
+      const answers = (entry.answers as Record<string, string>) ?? {};
+      return {
+        id: entry.id,
+        userId: entry.userId,
+        name: answers.q1 || "Unnamed factory",
+        address: answers.q2 || "",
+        expertise: answers.q3 || "",
+        createdAt: entry.createdAt.toISOString(),
+      };
+    });
     return NextResponse.json(factories);
   } catch (e) {
     console.error("admin factories GET error", e);
@@ -63,24 +58,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
-    let users: { email: string; passwordHash: string; createdAt?: string }[] = [];
-    try {
-      users = JSON.parse(await readFile(USERS_FILE, "utf-8"));
-    } catch {
-      await mkdir(DATA_DIR, { recursive: true });
-    }
-
-    if (users.some((u) => u.email === email)) {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
       return NextResponse.json({ error: "This email is already registered as a factory" }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(password);
-    users.push({
-      email,
-      passwordHash,
-      createdAt: new Date().toISOString(),
+    await prisma.user.create({
+      data: { email, passwordHash },
     });
-    await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
     return NextResponse.json({ ok: true, email });
   } catch (e) {
     console.error("admin factories POST error", e);

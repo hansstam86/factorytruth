@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import {
   hashPassword,
   createSession,
   getSessionCookieName,
   getCookieOptions,
 } from "@/lib/entrepreneur-auth";
-
-const USERS_FILE = path.join(process.cwd(), "data", "entrepreneur-users.json");
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -30,15 +27,8 @@ export async function POST(request: Request) {
       );
     }
 
-    let users: { email: string; passwordHash: string; name?: string; createdAt: string }[] = [];
-    try {
-      const raw = await readFile(USERS_FILE, "utf-8");
-      users = JSON.parse(raw);
-    } catch {
-      await mkdir(path.dirname(USERS_FILE), { recursive: true });
-    }
-
-    if (users.some((u) => u.email === email)) {
+    const existing = await prisma.entrepreneurUser.findUnique({ where: { email } });
+    if (existing) {
       return NextResponse.json(
         { error: "This email is already registered. Please log in." },
         { status: 409 }
@@ -46,12 +36,9 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await hashPassword(password);
-    users.push({
-      email,
-      passwordHash,
-      createdAt: new Date().toISOString(),
+    await prisma.entrepreneurUser.create({
+      data: { email, passwordHash },
     });
-    await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
 
     const token = await createSession(email);
     const res = NextResponse.json({ ok: true, email });

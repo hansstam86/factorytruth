@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, rm } from "fs/promises";
+import { rm } from "fs/promises";
 import path from "path";
 import { cookies } from "next/headers";
 import { verifyAdminSession, getAdminSessionCookieName } from "@/lib/admin-auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-const USERS_FILE = path.join(DATA_DIR, "users.json");
-const REQUESTS_FILE = path.join(DATA_DIR, "access-requests.json");
-const GRANTS_FILE = path.join(DATA_DIR, "access-grants.json");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 
 async function requireAdmin(): Promise<NextResponse | null> {
@@ -21,16 +18,6 @@ async function requireAdmin(): Promise<NextResponse | null> {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return null;
 }
-
-type SubmissionEntry = {
-  id: string;
-  userId?: string;
-  answers: Record<string, string>;
-  answersEn?: Record<string, string>;
-  visibility?: Record<string, string>;
-  createdAt: string;
-  updatedAt?: string;
-};
 
 /** GET — return full submission for admin edit. */
 export async function GET(
@@ -43,19 +30,17 @@ export async function GET(
     const { id: submissionId } = await params;
     if (!submissionId) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as SubmissionEntry[];
-    const entry = submissions.find((s) => s.id === submissionId);
+    const entry = await prisma.submission.findUnique({ where: { id: submissionId } });
     if (!entry) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
 
     return NextResponse.json({
       id: entry.id,
       userId: entry.userId,
-      answers: entry.answers || {},
-      answersEn: entry.answersEn,
-      visibility: entry.visibility,
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt,
+      answers: (entry.answers as Record<string, string>) ?? {},
+      answersEn: entry.answersEn as Record<string, string> | undefined,
+      visibility: entry.visibility as Record<string, string> | undefined,
+      createdAt: entry.createdAt.toISOString(),
+      updatedAt: entry.updatedAt?.toISOString(),
     });
   } catch (e) {
     console.error("admin factories GET [id] error", e);
@@ -80,24 +65,20 @@ export async function PATCH(
       return NextResponse.json({ error: "Body must be { answers: Record<string, string> }." }, { status: 400 });
     }
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as SubmissionEntry[];
-    const idx = submissions.findIndex((s) => s.id === submissionId);
-    if (idx < 0) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
+    const entry = await prisma.submission.findUnique({ where: { id: submissionId } });
+    if (!entry) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
 
-    const entry = submissions[idx];
-    const merged: Record<string, string> = { ...(entry.answers || {}) };
+    const merged: Record<string, string> = { ...((entry.answers as Record<string, string>) ?? {}) };
     for (const [key, val] of Object.entries(updates)) {
       if (typeof key === "string" && typeof val === "string") {
         merged[key] = val;
       }
     }
-    submissions[idx] = {
-      ...entry,
-      answers: merged,
-      updatedAt: new Date().toISOString(),
-    };
-    await writeFile(SUBMISSIONS_FILE, JSON.stringify(submissions, null, 2), "utf-8");
+
+    await prisma.submission.update({
+      where: { id: submissionId },
+      data: { answers: merged as object, updatedAt: new Date() },
+    });
 
     return NextResponse.json({ ok: true });
   } catch (e) {
@@ -117,41 +98,18 @@ export async function DELETE(
     const { id: submissionId } = await params;
     if (!submissionId) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string }[];
-    const entry = submissions.find((s) => s.id === submissionId);
+    const entry = await prisma.submission.findUnique({ where: { id: submissionId } });
     if (!entry) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
 
     const userId = entry.userId;
 
-    const newSubmissions = submissions.filter((s) => s.id !== submissionId);
-    await writeFile(SUBMISSIONS_FILE, JSON.stringify(newSubmissions, null, 2), "utf-8");
+    await prisma.factoryQuestion.deleteMany({ where: { submissionId } });
+    await prisma.accessGrant.deleteMany({ where: { submissionId } });
+    await prisma.accessRequest.deleteMany({ where: { submissionId } });
+    await prisma.submission.delete({ where: { id: submissionId } });
 
     if (userId) {
-      let users: { email: string; passwordHash: string }[] = [];
-      try {
-        users = JSON.parse(await readFile(USERS_FILE, "utf-8"));
-      } catch {
-        // no users file
-      }
-      users = users.filter((u) => u.email !== userId);
-      await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
-    }
-
-    try {
-      const requests = JSON.parse(await readFile(REQUESTS_FILE, "utf-8")) as { submissionId: string }[];
-      const newRequests = requests.filter((r) => r.submissionId !== submissionId);
-      await writeFile(REQUESTS_FILE, JSON.stringify(newRequests, null, 2), "utf-8");
-    } catch {
-      // no requests file
-    }
-
-    try {
-      const grants = JSON.parse(await readFile(GRANTS_FILE, "utf-8")) as { submissionId: string }[];
-      const newGrants = grants.filter((g) => g.submissionId !== submissionId);
-      await writeFile(GRANTS_FILE, JSON.stringify(newGrants, null, 2), "utf-8");
-    } catch {
-      // no grants file
+      await prisma.user.deleteMany({ where: { email: userId } });
     }
 
     const uploadsPath = path.join(UPLOADS_DIR, submissionId);

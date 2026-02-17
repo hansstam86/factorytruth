@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 import {
   verifyPassword,
   createSession,
   getSessionCookieName,
   getCookieOptions,
 } from "@/lib/auth";
-
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -23,18 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let users: { email: string; passwordHash: string }[] = [];
-    try {
-      const raw = await readFile(USERS_FILE, "utf-8");
-      users = JSON.parse(raw);
-    } catch {
-      return NextResponse.json(
-        { error: "邮箱或密码错误。" },
-        { status: 401 }
-      );
-    }
-
-    const user = users.find((u) => u.email === email);
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json(
         { error: "邮箱或密码错误。" },

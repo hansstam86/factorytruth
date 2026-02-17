@@ -1,25 +1,15 @@
 import { NextResponse } from "next/server";
-import { writeFile, readFile, mkdir } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { translateAnswers } from "@/lib/translate";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "submissions.json");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
-
-type Submission = {
-  id: string;
-  userId?: string;
-  answers: Record<string, string>;
-  answersEn?: Record<string, string>;
-  visibility?: Record<string, "public" | "private">;
-  createdAt: string;
-  updatedAt?: string;
-};
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
 const ALLOWED_EXT = /\.(pdf|ppt|pptx|xls|xlsx|jpg|jpeg|png|gif|webp)$/i;
@@ -95,21 +85,17 @@ export async function POST(request: Request) {
         }
       }
 
-      let list: Submission[] = [];
-      try {
-        const raw = await readFile(DATA_FILE, "utf-8");
-        list = JSON.parse(raw);
-      } catch {
-        await mkdir(path.dirname(DATA_FILE), { recursive: true });
-      }
-
-      const existingIndex = list.findIndex((s) => s.userId === userId);
-      const now = new Date().toISOString();
+      const existing = await prisma.submission.findFirst({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      });
+      const now = new Date();
       let submissionId: string;
 
-      if (existingIndex >= 0) {
-        submissionId = list[existingIndex].id;
-        answers = { ...list[existingIndex].answers, ...answers };
+      if (existing) {
+        submissionId = existing.id;
+        const existingAnswers = (existing.answers as Record<string, string>) ?? {};
+        answers = { ...existingAnswers, ...answers };
       } else {
         submissionId = `f_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
       }
@@ -152,10 +138,9 @@ export async function POST(request: Request) {
       const validationError = validateBasicInfo(answers);
       if (validationError) return validationError;
 
-      const savedVisibility =
-        existingIndex >= 0
-          ? { ...(list[existingIndex].visibility ?? {}), ...visibility }
-          : visibility;
+      const savedVisibility = existing
+        ? { ...((existing.visibility as Record<string, "public" | "private">) ?? {}), ...visibility }
+        : visibility;
 
       let answersEn: Record<string, string> | undefined;
       try {
@@ -164,30 +149,33 @@ export async function POST(request: Request) {
         console.error("translate answers error", e);
       }
 
-      if (existingIndex >= 0) {
-        list[existingIndex] = {
-          ...list[existingIndex],
-          answers,
-          answersEn: answersEn ?? list[existingIndex].answersEn,
-          visibility: savedVisibility,
-          updatedAt: now,
-        };
+      if (existing) {
+        await prisma.submission.update({
+          where: { id: submissionId },
+          data: {
+            answers: answers as object,
+            answersEn: (answersEn ?? (existing.answersEn as Record<string, string>)) as object,
+            visibility: savedVisibility as object,
+            updatedAt: now,
+          },
+        });
       } else {
-        list.push({
-          id: submissionId,
-          userId,
-          answers,
-          answersEn,
-          visibility: savedVisibility,
-          createdAt: now,
-          updatedAt: now,
+        await prisma.submission.create({
+          data: {
+            id: submissionId,
+            userId,
+            answers: answers as object,
+            answersEn: answersEn as object,
+            visibility: savedVisibility as object,
+            createdAt: now,
+            updatedAt: now,
+          },
         });
       }
-      await writeFile(DATA_FILE, JSON.stringify(list, null, 2), "utf-8");
       return NextResponse.json({
         ok: true,
         id: submissionId,
-        updated: existingIndex >= 0,
+        updated: !!existing,
       });
     }
 
@@ -203,24 +191,17 @@ export async function POST(request: Request) {
     const validationError = validateBasicInfo(answers);
     if (validationError) return validationError;
 
-    let list: Submission[] = [];
-    try {
-      const raw = await readFile(DATA_FILE, "utf-8");
-      list = JSON.parse(raw);
-    } catch {
-      await mkdir(path.dirname(DATA_FILE), { recursive: true });
-    }
-
-    const existingIndex = list.findIndex((s) => s.userId === userId);
-    const now = new Date().toISOString();
-    const mergedAnswers =
-      existingIndex >= 0
-        ? { ...list[existingIndex].answers, ...answers }
-        : answers;
-    const savedVisibilityJson =
-      existingIndex >= 0
-        ? { ...(list[existingIndex].visibility ?? {}), ...visibility }
-        : visibility;
+    const existing = await prisma.submission.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+    const now = new Date();
+    const mergedAnswers = existing
+      ? { ...((existing.answers as Record<string, string>) ?? {}), ...answers }
+      : answers;
+    const savedVisibilityJson = existing
+      ? { ...((existing.visibility as Record<string, "public" | "private">) ?? {}), ...visibility }
+      : visibility;
 
     let answersEn: Record<string, string> | undefined;
     try {
@@ -229,33 +210,35 @@ export async function POST(request: Request) {
       console.error("translate answers error", e);
     }
 
-    if (existingIndex >= 0) {
-      list[existingIndex] = {
-        ...list[existingIndex],
-        answers: mergedAnswers,
-        answersEn: answersEn ?? list[existingIndex].answersEn,
-        visibility: savedVisibilityJson,
-        updatedAt: now,
-      };
-      await writeFile(DATA_FILE, JSON.stringify(list, null, 2), "utf-8");
+    if (existing) {
+      await prisma.submission.update({
+        where: { id: existing.id },
+        data: {
+          answers: mergedAnswers as object,
+          answersEn: (answersEn ?? (existing.answersEn as Record<string, string>)) as object,
+          visibility: savedVisibilityJson as object,
+          updatedAt: now,
+        },
+      });
       return NextResponse.json({
         ok: true,
-        id: list[existingIndex].id,
+        id: existing.id,
         updated: true,
       });
     }
 
     const id = `f_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    list.push({
-      id,
-      userId,
-      answers: mergedAnswers,
-      answersEn,
-      visibility: savedVisibilityJson,
-      createdAt: now,
-      updatedAt: now,
+    await prisma.submission.create({
+      data: {
+        id,
+        userId,
+        answers: mergedAnswers as object,
+        answersEn: answersEn as object,
+        visibility: savedVisibilityJson as object,
+        createdAt: now,
+        updatedAt: now,
+      },
     });
-    await writeFile(DATA_FILE, JSON.stringify(list, null, 2), "utf-8");
     return NextResponse.json({ ok: true, id, updated: false });
   } catch (e) {
     console.error("submit-audit error", e);

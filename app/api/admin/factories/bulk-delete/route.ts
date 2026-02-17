@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir, readdir, rm } from "fs/promises";
+import { readdir, rm } from "fs/promises";
 import path from "path";
 import { cookies } from "next/headers";
 import { verifyAdminSession, getAdminSessionCookieName } from "@/lib/admin-auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-const USERS_FILE = path.join(DATA_DIR, "users.json");
-const REQUESTS_FILE = path.join(DATA_DIR, "access-requests.json");
-const GRANTS_FILE = path.join(DATA_DIR, "access-grants.json");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 
 async function requireAdmin(): Promise<NextResponse | null> {
@@ -36,18 +33,10 @@ export async function POST(request: Request) {
       );
     }
 
-    await writeFile(SUBMISSIONS_FILE, "[]", "utf-8");
-
-    try {
-      await writeFile(REQUESTS_FILE, "[]", "utf-8");
-    } catch {
-      await mkdir(DATA_DIR, { recursive: true });
-    }
-    try {
-      await writeFile(GRANTS_FILE, "[]", "utf-8");
-    } catch {
-      // ignore
-    }
+    await prisma.factoryQuestion.deleteMany({});
+    await prisma.accessGrant.deleteMany({});
+    await prisma.accessRequest.deleteMany({});
+    await prisma.submission.deleteMany({});
 
     try {
       const entries = await readdir(UPLOADS_DIR, { withFileTypes: true });
@@ -57,16 +46,6 @@ export async function POST(request: Request) {
     } catch {
       // uploads dir may not exist
     }
-
-    let users: { email: string; passwordHash: string }[] = [];
-    try {
-      users = JSON.parse(await readFile(USERS_FILE, "utf-8"));
-    } catch {
-      return NextResponse.json({ ok: true, deleted: "all" });
-    }
-
-    const newUsers = users.filter(() => true);
-    await writeFile(USERS_FILE, JSON.stringify(newUsers, null, 2), "utf-8");
 
     return NextResponse.json({ ok: true, deleted: "all" });
   } catch (e) {

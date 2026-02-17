@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { getQuestionsSync } from "@/lib/audit-questions-server";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_FILE = path.join(process.cwd(), "data", "submissions.json");
 
 const MILESTONES = [25, 50, 75, 90, 100];
 
@@ -33,13 +30,9 @@ export async function GET() {
     }
     const userId = session.email;
 
-    const raw = await readFile(DATA_FILE, "utf-8");
-    const list = JSON.parse(raw) as {
-      id: string;
-      userId?: string;
-      answers: Record<string, string>;
-      createdAt?: string;
-    }[];
+    const list = await prisma.submission.findMany({
+      select: { id: true, userId: true, answers: true },
+    });
 
     const questions = getQuestionsSync();
     const totalQuestions = questions.length;
@@ -50,7 +43,7 @@ export async function GET() {
     let mySubmissionId: string | null = null;
 
     for (const entry of list) {
-      const answers = entry.answers || {};
+      const answers = (entry.answers as Record<string, string>) || {};
       const answeredCount = totalQuestions
         ? questions.filter((q) => {
             const v = answers[q.id];

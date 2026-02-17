@@ -1,0 +1,80 @@
+// PostgreSQL + Prisma. Run: npx prisma generate && npx prisma migrate dev
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Factory (manufacturer) users — one per email
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+// Entrepreneur users (email/password or Google SSO)
+model EntrepreneurUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String?
+  name         String?
+  googleId     String?   @unique
+  createdAt    DateTime  @default(now())
+}
+
+// One submission per factory user (userId = factory email). answers/visibility stored as JSON.
+model Submission {
+  id         String    @id
+  userId     String
+  answers    Json
+  answersEn  Json?
+  visibility Json?
+  createdAt  DateTime
+  updatedAt  DateTime?
+}
+
+// Access requests from entrepreneurs to a factory submission
+model AccessRequest {
+  id                 String    @id
+  submissionId       String
+  entrepreneurEmail  String
+  entrepreneurName   String?
+  questionIds        Json      // string[]
+  status             String    // pending | approved | rejected
+  createdAt          DateTime
+  respondedAt        DateTime?
+}
+
+// Granted access: which entrepreneur can see which questions of a submission
+model AccessGrant {
+  id                String   @id @default(cuid())
+  submissionId      String
+  entrepreneurEmail String
+  questionIds       Json     // string[]
+  grantedAt         DateTime
+}
+
+// Q&A: entrepreneur asks factory a question; factory can answer
+model FactoryQuestion {
+  id                String    @id
+  submissionId      String
+  entrepreneurEmail String
+  questionText      String
+  answer            String?
+  createdAt         DateTime
+  answeredAt        DateTime?
+}
+
+// Admin-editable audit form questions (default set in lib/audit-questions.ts)
+model AuditQuestion {
+  id          String @id
+  section     String
+  sectionEn   String
+  questionZh  String
+  questionEn  String
+  type        String // text | textarea | yesno | file | files
+  sortOrder   Int    @default(0)
+}

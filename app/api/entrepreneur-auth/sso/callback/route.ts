@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import {
@@ -11,21 +9,12 @@ import {
   getSsoStateCookieOptions,
 } from "@/lib/entrepreneur-auth";
 import { getJwtSecret } from "@/lib/jwt-secret";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const USERS_FILE = path.join(process.cwd(), "data", "entrepreneur-users.json");
-
-type EntrepreneurUser = {
-  email: string;
-  passwordHash?: string;
-  name?: string;
-  provider?: string;
-  providerId?: string;
-  createdAt: string;
-};
 
 function getRedirectUri(request: Request): string {
   const url = new URL(request.url);
@@ -33,7 +22,10 @@ function getRedirectUri(request: Request): string {
   return `${origin.replace(/\/$/, "")}/api/entrepreneur-auth/sso/callback`;
 }
 
-async function getGoogleUser(code: string, redirectUri: string): Promise<{ email: string; name?: string } | null> {
+async function getGoogleUser(
+  code: string,
+  redirectUri: string
+): Promise<{ email: string; name?: string; googleId: string } | null> {
   const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -60,10 +52,12 @@ async function getGoogleUser(code: string, redirectUri: string): Promise<{ email
   if (!userRes.ok) return null;
   const profile = await userRes.json();
   const email = profile.email?.trim().toLowerCase();
+  const googleId = profile.id ?? email;
   if (!email) return null;
   return {
     email,
     name: profile.name || undefined,
+    googleId: String(googleId),
   };
 }
 
@@ -102,35 +96,32 @@ export async function GET(request: Request) {
     return redirectToEntrepreneurs();
   }
 
-  let users: EntrepreneurUser[] = [];
-  try {
-    const raw = await readFile(USERS_FILE, "utf-8");
-    users = JSON.parse(raw);
-  } catch {
-    await mkdir(path.dirname(USERS_FILE), { recursive: true });
-  }
-
-  let user = users.find((u) => u.email === googleUser.email);
+  let user = await prisma.entrepreneurUser.findFirst({
+    where: {
+      OR: [{ email: googleUser.email }, { googleId: googleUser.googleId }],
+    },
+  });
   if (!user) {
-    user = {
-      email: googleUser.email,
-      name: googleUser.name,
-      provider: "google",
-      providerId: googleUser.email,
-      createdAt: new Date().toISOString(),
-    };
-    users.push(user);
-    await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+    user = await prisma.entrepreneurUser.create({
+      data: {
+        email: googleUser.email,
+        name: googleUser.name,
+        googleId: googleUser.googleId,
+      },
+    });
   } else if (googleUser.name && !user.name) {
-    user.name = googleUser.name;
-    const idx = users.findIndex((u) => u.email === googleUser.email);
-    if (idx >= 0) {
-      users[idx] = { ...users[idx], name: googleUser.name };
-      await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
-    }
+    user = await prisma.entrepreneurUser.update({
+      where: { id: user.id },
+      data: { name: googleUser.name },
+    });
+  } else if (!user.googleId) {
+    await prisma.entrepreneurUser.update({
+      where: { id: user.id },
+      data: { googleId: googleUser.googleId },
+    });
   }
 
-  const token = await createSession(googleUser.email, user.name);
+  const token = await createSession(googleUser.email, user.name ?? undefined);
   const res = redirectToEntrepreneurs();
   res.cookies.set(getSessionCookieName(), token, getCookieOptions());
   res.cookies.set(getSsoStateCookieName(), "", { ...getSsoStateCookieOptions(), maxAge: 0 });

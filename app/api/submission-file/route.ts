@@ -4,6 +4,7 @@ import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { verifySession as verifyEntrepreneurSession, getSessionCookieName as getEntrepreneurSessionCookieName } from "@/lib/entrepreneur-auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -34,32 +35,31 @@ export async function GET(request: Request) {
     const factoryToken = cookieStore.get(getSessionCookieName())?.value;
     const entrepreneurToken = cookieStore.get(getEntrepreneurSessionCookieName())?.value;
 
-    const submissionsRaw = await readFile(path.join(DATA_DIR, "submissions.json"), "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as {
-      id: string;
-      userId?: string;
-      answers: Record<string, string>;
-      visibility?: Record<string, "public" | "private">;
-    }[];
-    const sub = submissions.find((s) => s.id === submissionId);
+    const sub = await prisma.submission.findUnique({
+      where: { id: submissionId },
+      select: { userId: true, visibility: true },
+    });
     if (!sub) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+    const visibility = (sub.visibility as Record<string, "public" | "private">) ?? {};
     const questionId = path.basename(filePath).split("_")[0];
-    const visibility = sub.visibility?.[questionId] ?? "public";
+    const questionVisibility = visibility[questionId] ?? "public";
 
     if (factoryToken) {
       const session = await verifySession(factoryToken);
       if (session?.email === sub.userId) canAccess = true;
     }
-    if (!canAccess && visibility === "public") canAccess = true;
+    if (!canAccess && questionVisibility === "public") canAccess = true;
     if (!canAccess && entrepreneurToken) {
       const session = await verifyEntrepreneurSession(entrepreneurToken);
       if (session?.email) {
-        const grantsRaw = await readFile(path.join(DATA_DIR, "access-grants.json"), "utf-8").catch(() => "[]");
-        const grants = JSON.parse(grantsRaw) as { submissionId: string; entrepreneurEmail: string; questionIds: string[] }[];
-        const hasGrant = grants.some(
-          (g) => g.submissionId === submissionId && g.entrepreneurEmail === session.email && (g.questionIds.includes(questionId) || g.questionIds.includes("all"))
-        );
+        const grants = await prisma.accessGrant.findMany({
+          where: { submissionId, entrepreneurEmail: session.email },
+        });
+        const hasGrant = grants.some((g) => {
+          const ids = (g.questionIds as string[]) ?? [];
+          return ids.includes(questionId) || ids.includes("all");
+        });
         if (hasGrant) canAccess = true;
       }
     }

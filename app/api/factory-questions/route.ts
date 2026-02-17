@@ -1,27 +1,11 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { verifySession as verifyEntrepreneurSession, getSessionCookieName as getEntrepreneurSessionCookieName } from "@/lib/entrepreneur-auth";
 import { sendEmail } from "@/lib/email";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const QUESTIONS_FILE = path.join(DATA_DIR, "factory-questions.json");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
-
-type FactoryQuestion = {
-  id: string;
-  submissionId: string;
-  entrepreneurEmail: string;
-  entrepreneurName?: string;
-  questionText: string;
-  answer?: string;
-  answeredAt?: string;
-  createdAt: string;
-};
 
 function escapeHtml(s: string): string {
   return s
@@ -29,16 +13,6 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-async function loadQuestions(): Promise<FactoryQuestion[]> {
-  try {
-    const raw = await readFile(QUESTIONS_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    await mkdir(DATA_DIR, { recursive: true });
-    return [];
-  }
 }
 
 /** GET ?submissionId=... — List questions. Factory owner sees all for their submission; entrepreneur sees only their own. */
@@ -50,28 +24,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "submissionId required" }, { status: 400 });
     }
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string }[];
-    const sub = submissions.find((s) => s.id === submissionId);
+    const sub = await prisma.submission.findUnique({ where: { id: submissionId } });
     if (!sub) return NextResponse.json({ error: "Factory not found" }, { status: 404 });
 
     const cookieStore = await cookies();
     const factoryToken = cookieStore.get(getSessionCookieName())?.value;
     const entrepreneurToken = cookieStore.get(getEntrepreneurSessionCookieName())?.value;
 
-    const questions = await loadQuestions();
-    const forSubmission = questions.filter((q) => q.submissionId === submissionId);
+    const forSubmission = await prisma.factoryQuestion.findMany({
+      where: { submissionId },
+      orderBy: { createdAt: "desc" },
+    });
+    const list = forSubmission.map((q) => ({
+      id: q.id,
+      submissionId: q.submissionId,
+      entrepreneurEmail: q.entrepreneurEmail,
+      questionText: q.questionText,
+      answer: q.answer ?? undefined,
+      answeredAt: q.answeredAt?.toISOString(),
+      createdAt: q.createdAt.toISOString(),
+    }));
 
     if (factoryToken) {
       const session = await verifySession(factoryToken);
       if (session?.email === sub.userId) {
-        return NextResponse.json(forSubmission);
+        return NextResponse.json(list);
       }
     }
     if (entrepreneurToken) {
       const session = await verifyEntrepreneurSession(entrepreneurToken);
       if (session?.email) {
-        const mine = forSubmission.filter((q) => q.entrepreneurEmail === session.email);
+        const mine = list.filter((q) => q.entrepreneurEmail === session.email);
         return NextResponse.json(mine);
       }
     }
@@ -103,24 +86,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "submissionId and questionText required" }, { status: 400 });
     }
 
-    const submissionsRaw = await readFile(SUBMISSIONS_FILE, "utf-8");
-    const submissions = JSON.parse(submissionsRaw) as { id: string; userId?: string }[];
-    const sub = submissions.find((s) => s.id === submissionId);
+    const sub = await prisma.submission.findUnique({ where: { id: submissionId } });
     if (!sub) {
       return NextResponse.json({ error: "Factory not found" }, { status: 404 });
     }
 
-    const questions = await loadQuestions();
     const id = `fq_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    questions.push({
-      id,
-      submissionId,
-      entrepreneurEmail: session.email,
-      entrepreneurName: session.name,
-      questionText,
-      createdAt: new Date().toISOString(),
+    await prisma.factoryQuestion.create({
+      data: {
+        id,
+        submissionId,
+        entrepreneurEmail: session.email,
+        questionText,
+        createdAt: new Date(),
+      },
     });
-    await writeFile(QUESTIONS_FILE, JSON.stringify(questions, null, 2), "utf-8");
 
     const factoryEmail = sub.userId?.trim();
     if (factoryEmail) {

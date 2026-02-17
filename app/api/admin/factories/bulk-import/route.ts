@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { verifyAdminSession, getAdminSessionCookieName } from "@/lib/admin-auth";
+import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const DATA_DIR = path.join(process.cwd(), "data");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
 
 const MAX_ROWS = 50000;
 const BULK_IMPORT_PLACEHOLDER_EMAIL =
@@ -78,35 +73,33 @@ export async function POST(request: Request) {
       );
     }
 
-    let list: { id: string; answers: Record<string, string>; createdAt: string }[] = [];
-    try {
-      const rawFile = await readFile(SUBMISSIONS_FILE, "utf-8");
-      list = JSON.parse(rawFile);
-    } catch {
-      await mkdir(DATA_DIR, { recursive: true });
-    }
-
+    const existing = await prisma.submission.findMany({
+      select: { answers: true },
+    });
     const existingNames = new Set(
-      list.map((e) => (e.answers?.q1 || "").trim().toLowerCase())
+      existing.map((e) => ((e.answers as Record<string, string>)?.q1 || "").trim().toLowerCase())
     );
     const toAdd = rows.filter((r) => !existingNames.has(r.name.toLowerCase()));
     const skipped = rows.length - toAdd.length;
 
-    const now = new Date().toISOString();
-    const newEntries = toAdd.map((r) => ({
-      id: randomUUID(),
-      userId: BULK_IMPORT_PLACEHOLDER_EMAIL,
-      answers: { q1: r.name, q2: r.address, q3: r.expertise },
-      createdAt: now,
-    }));
+    const now = new Date();
+    for (const r of toAdd) {
+      const id = `f_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+      await prisma.submission.create({
+        data: {
+          id,
+          userId: BULK_IMPORT_PLACEHOLDER_EMAIL,
+          answers: { q1: r.name, q2: r.address, q3: r.expertise } as object,
+          createdAt: now,
+        },
+      });
+    }
 
-    list.push(...newEntries);
-    await writeFile(SUBMISSIONS_FILE, JSON.stringify(list, null, 2), "utf-8");
-
+    const total = await prisma.submission.count();
     return NextResponse.json({
-      added: newEntries.length,
+      added: toAdd.length,
       skipped,
-      total: list.length,
+      total,
     });
   } catch (e) {
     console.error("admin bulk-import error", e);

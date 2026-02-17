@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
 import {
   isEmailAllowed,
   hashPassword,
@@ -8,8 +6,7 @@ import {
   getSessionCookieName,
   getCookieOptions,
 } from "@/lib/auth";
-
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -38,15 +35,8 @@ export async function POST(request: Request) {
       );
     }
 
-    let users: { email: string; passwordHash: string; createdAt: string }[] = [];
-    try {
-      const raw = await readFile(USERS_FILE, "utf-8");
-      users = JSON.parse(raw);
-    } catch {
-      await mkdir(path.dirname(USERS_FILE), { recursive: true });
-    }
-
-    if (users.some((u) => u.email === email)) {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
       return NextResponse.json(
         { error: "该邮箱已注册，请直接登录。" },
         { status: 409 }
@@ -54,12 +44,9 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await hashPassword(password);
-    users.push({
-      email,
-      passwordHash,
-      createdAt: new Date().toISOString(),
+    await prisma.user.create({
+      data: { email, passwordHash },
     });
-    await writeFile(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
 
     const token = await createSession(email);
     const res = NextResponse.json({ ok: true, email });
