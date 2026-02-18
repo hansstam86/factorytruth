@@ -85,6 +85,7 @@ export default function SubmissionsPage() {
       {success && (
         <div className={styles.successBanner}>
           您的审核答案已成功提交。欧洲的创业者将能够看到您的工厂信息并联系您。
+          <p className={styles.successBannerNext}>您可以在顶部菜单查看「访问请求」与「创业者提问」。</p>
         </div>
       )}
       {!loading && submission && totalQuestions > 0 && (

@@ -58,7 +58,7 @@ export default function ShortlistPage() {
     <div className={styles.listWrap}>
       <h1 className={styles.pageTitle}>My shortlist</h1>
       <p className={styles.pageDesc}>
-        Factories you’ve saved. Click a factory to see full details, or remove it from your shortlist.
+        Factories you’ve saved. Compare side by side, or open any factory to request access to private answers and ask questions.
       </p>
       {ids.length >= 2 && (
         <div className={styles.shortlistCompareCta}>

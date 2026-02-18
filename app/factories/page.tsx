@@ -21,6 +21,8 @@ export default function FactoriesPage() {
     platformAverageScore: number;
     nextMilestone: { targetPct: number; questionsNeeded: number } | null;
   } | null>(null);
+  const [pendingAccessCount, setPendingAccessCount] = useState(0);
+  const [unansweredQuestionsCount, setUnansweredQuestionsCount] = useState(0);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -56,6 +58,16 @@ export default function FactoriesPage() {
             setVisibility(data.submission.visibility);
           }
           setHasExisting(!!data.submission.answers);
+          const sid = data.submission.id;
+          if (sid) {
+            Promise.all([
+              fetch(`/api/access-requests?submissionId=${encodeURIComponent(sid)}`, { credentials: "include" }).then((r) => r.ok ? r.json() : []),
+              fetch(`/api/factory-questions?submissionId=${encodeURIComponent(sid)}`, { credentials: "include" }).then((r) => r.ok ? r.json() : []),
+            ]).then(([requests, questions]) => {
+              setPendingAccessCount(Array.isArray(requests) ? requests.filter((r: { status: string }) => r.status === "pending").length : 0);
+              setUnansweredQuestionsCount(Array.isArray(questions) ? questions.filter((q: { answer?: string }) => !q.answer || String(q.answer).trim() === "").length : 0);
+            }).catch(() => {});
+          }
         }
         setAuthLoading(false);
       })
@@ -206,7 +218,24 @@ export default function FactoriesPage() {
         <p className={styles.valueDesc}>
           海外创业者通过本平台寻找可信赖的工厂。您填写的审核答案越完整，越容易获得他们的信任与订单。可将部分答案设为「不公开」，仅经您批准的创业者可见。
         </p>
+        <p className={styles.valueNote}>提交后您的工厂将出现在创业者端，可接收访问请求与创业者提问。</p>
       </div>
+      {hasExisting && (pendingAccessCount > 0 || unansweredQuestionsCount > 0) && (
+        <div className={styles.dashboardStrip}>
+          <span className={styles.dashboardStripTitle}>待处理：</span>
+          {pendingAccessCount > 0 && (
+            <Link href="/factories/access-requests" className={styles.dashboardStripLink}>
+              访问请求 {pendingAccessCount} 个
+            </Link>
+          )}
+          {pendingAccessCount > 0 && unansweredQuestionsCount > 0 && <span className={styles.dashboardStripDivider}> · </span>}
+          {unansweredQuestionsCount > 0 && (
+            <Link href="/factories/questions" className={styles.dashboardStripLink}>
+              创业者提问 {unansweredQuestionsCount} 个待回复
+            </Link>
+          )}
+        </div>
+      )}
       <div className={styles.scoreBlock}>
         <p className={styles.scoreTitle}>您的透明度得分：<strong>{transparencyPct}%</strong></p>
         <p className={styles.scoreDesc}>

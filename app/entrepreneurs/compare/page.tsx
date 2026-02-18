@@ -261,6 +261,10 @@ function ComparePageContent() {
         </div>
       </div>
 
+      <p className={styles.compareTip}>
+        To see private answers in the table, open each factory’s page and use &quot;Request access to private answers&quot;.
+      </p>
+
       <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>

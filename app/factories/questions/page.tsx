@@ -43,10 +43,17 @@ export default function FactoryQuestionsPage() {
         return res.json();
       })
       .then((list) => {
-        setQuestions(Array.isArray(list) ? list : []);
+        const arr = Array.isArray(list) ? list : [];
+        const sorted = [...arr].sort((a: FactoryQuestion, b: FactoryQuestion) => {
+          const aAnswered = !!(a.answer != null && String(a.answer).trim() !== "");
+          const bAnswered = !!(b.answer != null && String(b.answer).trim() !== "");
+          if (aAnswered === bAnswered) return 0;
+          return aAnswered ? 1 : -1;
+        });
+        setQuestions(sorted);
         setAnswerDraft((prev) => {
           const next = { ...prev };
-          list.forEach((q: FactoryQuestion) => {
+          arr.forEach((q: FactoryQuestion) => {
             if (q.answer != null && next[q.id] === undefined) next[q.id] = q.answer;
           });
           return next;
@@ -108,6 +115,7 @@ export default function FactoryQuestionsPage() {
       <p className={styles.desc}>
         创业者在查看您工厂页面时可以提出具体问题。请在下方回复，他们会在工厂页面看到您的回答。
       </p>
+      <p className={styles.descHint}>您的回复会通过邮件发送给创业者，并显示在您的工厂页面上。</p>
 
       {questions.length === 0 ? (
         <p className={styles.empty}>暂无提问。创业者在您工厂页面可以「Ask a question」向您提问。</p>

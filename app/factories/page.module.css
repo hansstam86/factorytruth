@@ -96,6 +96,42 @@
   line-height: 1.5;
 }
 
+.valueNote {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0.75rem 0 0;
+  line-height: 1.4;
+}
+
+.dashboardStrip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.dashboardStripTitle {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-right: 0.35rem;
+}
+
+.dashboardStripLink {
+  color: var(--color-cta);
+  font-weight: 500;
+}
+
+.dashboardStripLink:hover {
+  text-decoration: underline;
+}
+
+.dashboardStripDivider {
+  color: var(--color-text-muted);
+  margin: 0 0.25rem;
+}
+
 .scoreBlock {
   background: linear-gradient(135deg, rgba(126, 184, 218, 0.12), rgba(126, 184, 218, 0.05));
   border: 1px solid var(--color-accent);
