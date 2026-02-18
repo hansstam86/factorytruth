@@ -355,20 +355,35 @@ function EntrepreneursBrowseContent() {
           </button>
         </div>
       ) : loading ? (
-        <p className={styles.loading}>Loading factories…</p>
+        <ul className={styles.factoryList} aria-busy="true" aria-label="Loading factories">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <li key={i} className={styles.skeletonCard}>
+              <div className={styles.cardRow}>
+                <div className={styles.skeletonCardInner} style={{ flex: 1 }}>
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineTitle}`} />
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineMeta}`} />
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineShort}`} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : factories.length === 0 ? (
         <div className={styles.empty}>
-          <p>No factory submissions yet.</p>
+          <p className={styles.emptyTitle}>No factories yet</p>
           <p className={styles.emptyHint}>
-            When factories submit their audit answers via the factory portal, they will appear here.
+            When factories submit their audit answers via the factory portal, they’ll appear here. Check back later or share Factory Truth with manufacturers you know.
           </p>
         </div>
       ) : filteredFactories.length === 0 ? (
         <div className={styles.empty}>
-          <p>No factories match your search.</p>
+          <p className={styles.emptyTitle}>No matches for your search</p>
           <p className={styles.emptyHint}>
-            Try a different or shorter search term.
+            Try a different or shorter search term, or clear the transparency filter to see all factories.
           </p>
+          <Link href="/entrepreneurs" className={styles.emptyAction}>
+            View all factories
+          </Link>
         </div>
       ) : (
         <>

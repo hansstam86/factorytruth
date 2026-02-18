@@ -19,6 +19,30 @@
     min-width: 180px;
     max-width: 220px;
   }
+
+  .tableScroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .addAllShortlistBtn,
+  .copyLinkBtn,
+  .retryBtn {
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+  }
+
+  .thFactoryLink,
+  .addShortlistBtn {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .headerRow {
@@ -92,6 +116,53 @@
 .error {
   color: var(--color-text-muted);
   margin-bottom: 1rem;
+}
+
+@keyframes skeletonShimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.skeletonTable .skeletonCell {
+  height: 1.25rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    var(--color-border) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.2s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.skeletonTable th .skeletonCell,
+.skeletonTable td .skeletonCell {
+  width: 100%;
+}
+
+.skeletonTable th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.skeletonTable td {
+  padding: 0.5rem 1rem;
+  vertical-align: top;
+}
+
+.skeletonTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 400px;
+}
+
+.skeletonTable .thQuestion .skeletonCell {
+  width: 80%;
+}
+
+.skeletonTable .thFactory .skeletonCell {
+  width: 70%;
 }
 
 .error {

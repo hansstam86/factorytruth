@@ -81,23 +81,38 @@ export default function ShortlistPage() {
       )}
 
       {loading ? (
-        <p className={styles.loading}>Loading shortlist…</p>
+        <ul className={styles.factoryList} aria-busy="true" aria-label="Loading shortlist">
+          {[1, 2, 3].map((i) => (
+            <li key={i} className={styles.skeletonCard}>
+              <div className={styles.cardRow}>
+                <div className={styles.skeletonCardInner} style={{ flex: 1 }}>
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineTitle}`} />
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineMeta}`} />
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLineShort}`} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : ids.length === 0 ? (
         <div className={styles.empty}>
-          <p>Your shortlist is empty.</p>
+          <p className={styles.emptyTitle}>Your shortlist is empty</p>
           <p className={styles.emptyHint}>
-            When you browse factories, click <strong>Save</strong> on any card to add it here.
+            Save factories while you browse—click <strong>Save</strong> on any card—then come back here to compare or request access.
           </p>
-          <p className={styles.emptyHint}>
-            <Link href="/entrepreneurs">Browse factories</Link>
-          </p>
+          <Link href="/entrepreneurs" className={styles.emptyAction}>
+            Browse factories
+          </Link>
         </div>
       ) : factories.length === 0 ? (
         <div className={styles.empty}>
-          <p>No factories found for your shortlist.</p>
+          <p className={styles.emptyTitle}>Couldn’t load some factories</p>
           <p className={styles.emptyHint}>
-            Some saved factories may have been removed. <Link href="/entrepreneurs">Browse factories</Link> to add more.
+            Some saved factories may have been removed from the platform. Browse to add more and refresh your shortlist.
           </p>
+          <Link href="/entrepreneurs" className={styles.emptyAction}>
+            Browse factories
+          </Link>
         </div>
       ) : (
         <ul className={styles.factoryList}>

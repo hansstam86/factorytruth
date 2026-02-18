@@ -172,9 +172,28 @@ function ComparePageContent() {
 
   if (loading) {
     return (
-      <div className={styles.wrap}>
+      <div className={styles.wrap} aria-busy="true" aria-label="Loading comparison">
         <h1 className={styles.title}>Compare factories</h1>
-        <p className={styles.loading}>Loading…</p>
+        <div className={styles.tableScroll}>
+          <table className={styles.skeletonTable}>
+            <thead>
+              <tr>
+                <th className={styles.thQuestion}><div className={styles.skeletonCell} /></th>
+                <th className={styles.thFactory}><div className={styles.skeletonCell} /></th>
+                <th className={styles.thFactory}><div className={styles.skeletonCell} /></th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <tr key={i}>
+                  <td className={styles.tdQuestion}><div className={styles.skeletonCell} /></td>
+                  <td><div className={styles.skeletonCell} /></td>
+                  <td><div className={styles.skeletonCell} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

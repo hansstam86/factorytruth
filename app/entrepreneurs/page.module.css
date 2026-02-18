@@ -480,6 +480,67 @@
   color: var(--color-text-muted);
 }
 
+@keyframes skeletonShimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    var(--color-border) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.2s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+.skeletonCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.skeletonCard .skeletonLine {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    var(--color-border) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.2s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.skeletonCard .skeletonLine:last-child {
+  margin-bottom: 0;
+}
+
+.skeletonLineTitle {
+  width: 70%;
+  height: 1.2rem;
+}
+
+.skeletonLineMeta {
+  width: 90%;
+  height: 0.9rem;
+}
+
+.skeletonLineShort {
+  width: 50%;
+  height: 0.9rem;
+}
+
+.skeletonCardInner {
+  padding: 1.25rem 1.5rem;
+}
+
 .shortlistCompareCta {
   display: flex;
   flex-wrap: wrap;
@@ -523,14 +584,52 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   text-align: center;
   color: var(--color-text-muted);
+}
+
+.emptyTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.5rem;
+}
+
+.empty p:first-child {
+  margin-top: 0;
+}
+
+.empty p:last-child {
+  margin-bottom: 0;
 }
 
 .emptyHint {
   margin-top: 0.5rem;
   font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.emptyAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.25rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--color-cta);
+  color: var(--color-bg);
+  border-radius: var(--radius);
+  text-decoration: none;
+  min-height: 44px;
+  line-height: 1.25;
+}
+
+.emptyAction:hover {
+  background: var(--color-cta-hover);
+  color: var(--color-bg);
+  text-decoration: none;
 }
 
 .loadErrorBlock {
@@ -867,12 +966,50 @@
     align-items: stretch;
   }
 
+  .shortlistBtn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 0.5rem;
+  }
+
   .compareBtn {
+    min-height: 44px;
     padding: 1rem;
     align-self: flex-start;
   }
 
   .cardLink {
     padding: 1rem;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .toolbarRow {
+    gap: 0.75rem;
+  }
+
+  .filterChip {
+    min-height: 44px;
+    padding: 0.5rem 0.9rem;
+  }
+
+  .searchInputSingle {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  .retryBtn {
+    min-height: 44px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .empty {
+    padding: 1.5rem 1rem;
+  }
+
+  .emptyHint {
+    margin-top: 0.75rem;
   }
 }

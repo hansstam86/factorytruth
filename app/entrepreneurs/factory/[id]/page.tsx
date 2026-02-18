@@ -218,7 +218,26 @@ export default function FactoryDetailPage() {
   };
 
   if (loading) {
-    return <p className={styles.loading}>Loading…</p>;
+    return (
+      <div className={styles.detailWrap} aria-busy="true" aria-label="Loading factory">
+        <div className={`${styles.skeletonLine} ${styles.skeletonDetailMeta}`} style={{ width: "8rem", marginBottom: "1.5rem" }} />
+        <div className={styles.skeletonBlock}>
+          <div className={`${styles.skeletonLine} ${styles.skeletonDetailTitle}`} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonDetailMeta}`} />
+        </div>
+        <div className={styles.skeletonBlock}>
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockTitle}`} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockRow}`} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockRow}`} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockRow}`} />
+        </div>
+        <div className={styles.skeletonBlock}>
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockTitle}`} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockRow}`} />
+          <div className={`${styles.skeletonLine} ${styles.skeletonBlockRow}`} />
+        </div>
+      </div>
+    );
   }
   if (!factory && loadError) {
     return (
