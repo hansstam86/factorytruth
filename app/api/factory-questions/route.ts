@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { verifySession as verifyEntrepreneurSession, getSessionCookieName as getEntrepreneurSessionCookieName } from "@/lib/entrepreneur-auth";
 import { sendEmail } from "@/lib/email";
+import { translateToChinese } from "@/lib/translate";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -35,26 +36,36 @@ export async function GET(request: Request) {
       where: { submissionId },
       orderBy: { createdAt: "desc" },
     });
-    const list = forSubmission.map((q) => ({
-      id: q.id,
-      submissionId: q.submissionId,
-      entrepreneurEmail: q.entrepreneurEmail,
-      questionText: q.questionText,
-      answer: q.answer ?? undefined,
-      answeredAt: q.answeredAt?.toISOString(),
-      createdAt: q.createdAt.toISOString(),
-    }));
 
     if (factoryToken) {
       const session = await verifySession(factoryToken);
       if (session?.email === sub.userId) {
+        const list = forSubmission.map((q) => ({
+          id: q.id,
+          submissionId: q.submissionId,
+          entrepreneurEmail: q.entrepreneurEmail,
+          questionText: q.questionText,
+          answer: q.answer ?? undefined,
+          answeredAt: q.answeredAt?.toISOString(),
+          createdAt: q.createdAt.toISOString(),
+        }));
         return NextResponse.json(list);
       }
     }
     if (entrepreneurToken) {
       const session = await verifyEntrepreneurSession(entrepreneurToken);
       if (session?.email) {
-        const mine = list.filter((q) => q.entrepreneurEmail === session.email);
+        const mine = forSubmission
+          .filter((q) => q.entrepreneurEmail === session.email)
+          .map((q) => ({
+            id: q.id,
+            submissionId: q.submissionId,
+            entrepreneurEmail: q.entrepreneurEmail,
+            questionText: q.questionText,
+            answer: (q.answerEn ?? q.answer) ?? undefined,
+            answeredAt: q.answeredAt?.toISOString(),
+            createdAt: q.createdAt.toISOString(),
+          }));
         return NextResponse.json(mine);
       }
     }
@@ -104,13 +115,26 @@ export async function POST(request: Request) {
 
     const factoryEmail = sub.userId?.trim();
     if (factoryEmail) {
+      let questionForEmail = questionText;
+      try {
+        const translated = await translateToChinese(questionText);
+        if (translated && translated.trim() !== questionText.trim()) {
+          questionForEmail = translated;
+        }
+      } catch (e) {
+        console.error("Translate question to Chinese failed", e);
+      }
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.factorytruth.com";
       const link = `${appUrl.replace(/\/$/, "")}/factories`;
       const fromLabel = session.name ? `${session.name} (${session.email})` : session.email;
+      const showOriginal = questionForEmail !== questionText;
+      const originalLine = showOriginal
+        ? `<p style="font-size:0.9em;color:#666;">（原文 / Original）${escapeHtml(questionText)}</p>`
+        : "";
       await sendEmail({
         to: factoryEmail,
-        subject: "Factory Truth: New question from an entrepreneur",
-        html: `<p>You have a new question on Factory Truth from ${fromLabel}:</p><blockquote>${escapeHtml(questionText)}</blockquote><p><a href="${link}">Log in to the factory portal</a> to view and reply.</p>`,
+        subject: "Factory Truth: 创业者新提问",
+        html: `<p>您在 Factory Truth 上收到一条来自创业者的新提问（${escapeHtml(fromLabel)}）：</p><blockquote>${escapeHtml(questionForEmail)}</blockquote>${originalLine}<p><a href="${link}">登录工厂端</a>查看并回复。</p>`,
       });
     }
 

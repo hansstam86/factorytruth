@@ -63,7 +63,8 @@ model FactoryQuestion {
   submissionId      String
   entrepreneurEmail String
   questionText      String
-  answer            String?
+  answer            String?   // factory's reply (often Chinese)
+  answerEn          String?   // translation for entrepreneur (Chinese → English)
   createdAt         DateTime
   answeredAt        DateTime?
 }

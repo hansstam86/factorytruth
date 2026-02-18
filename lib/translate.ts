@@ -22,14 +22,18 @@ function quickMap(value: string): string | null {
   return null;
 }
 
-async function translateWithDeepL(text: string): Promise<string> {
+async function translateWithDeepL(
+  text: string,
+  sourceLang: string,
+  targetLang: string
+): Promise<string> {
   if (!DEEPL_AUTH_KEY) return text;
   try {
     const params = new URLSearchParams({
       auth_key: DEEPL_AUTH_KEY,
       text,
-      source_lang: "ZH",
-      target_lang: "EN",
+      source_lang: sourceLang,
+      target_lang: targetLang,
     });
     const res = await fetch(DEEPL_API, {
       method: "POST",
@@ -51,13 +55,23 @@ async function translateWithDeepL(text: string): Promise<string> {
 }
 
 /**
- * Translate a single text. Returns original if no API key or on failure.
+ * Translate a single text (Chinese → English). Returns original if no API key or on failure.
  */
 export async function translateToEnglish(text: string): Promise<string> {
   const mapped = quickMap(text);
   if (mapped !== null) return mapped;
   if (!isTranslatableValue(text)) return text;
-  return translateWithDeepL(text);
+  return translateWithDeepL(text, "ZH", "EN");
+}
+
+/**
+ * Translate text (English → Chinese). Used e.g. for entrepreneur questions sent to factories.
+ * Returns original if no API key or on failure.
+ */
+export async function translateToChinese(text: string): Promise<string> {
+  const trimmed = text.trim();
+  if (!trimmed) return text;
+  return translateWithDeepL(trimmed, "EN", "ZH");
 }
 
 /**

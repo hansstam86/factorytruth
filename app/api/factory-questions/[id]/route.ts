@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
+import { translateToEnglish } from "@/lib/translate";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +35,21 @@ export async function PATCH(
     const answer = typeof body.answer === "string" ? body.answer.trim() : "";
     const now = new Date();
 
+    let answerEn: string | null = null;
+    if (answer) {
+      try {
+        const translated = await translateToEnglish(answer);
+        if (translated && translated.trim() !== answer.trim()) {
+          answerEn = translated;
+        }
+      } catch (e) {
+        console.error("Translate factory answer to English failed", e);
+      }
+    }
+
     await prisma.factoryQuestion.update({
       where: { id },
-      data: { answer, answeredAt: now },
+      data: { answer, answerEn, answeredAt: now },
     });
     return NextResponse.json({ ok: true });
   } catch (e) {

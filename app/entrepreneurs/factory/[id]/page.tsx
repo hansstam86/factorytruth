@@ -416,7 +416,7 @@ export default function FactoryDetailPage() {
                 {requesting ? "Sending…" : "Request access to private answers"}
               </button>
               <p className={styles.requestHint}>
-                The factory will be notified and can approve or deny your request.
+                <strong>What happens next?</strong> The factory gets an email and can approve or deny in their portal. If approved, the private answers will appear here.
               </p>
             </>
           ) : (
@@ -443,6 +443,9 @@ export default function FactoryDetailPage() {
               <button type="submit" className={styles.askBtn} disabled={questionSubmitting}>
                 {questionSubmitting ? "Sending…" : "Send question"}
               </button>
+              <p className={styles.requestHint}>
+                <strong>What happens next?</strong> The factory gets an email and can reply here. You’ll see their answer in this section.
+              </p>
             </form>
             {customQuestions.length > 0 && (
               <div className={styles.yourQuestions}>

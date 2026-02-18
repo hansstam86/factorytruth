@@ -1,7 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import AuthBar from "./auth-bar";
 import ScoreNav from "./score-nav";
 import styles from "./layout.module.css";
+
+export const metadata: Metadata = {
+  title: "Factory portal",
+  description:
+    "Submit your factory audit, manage access requests, and answer questions from entrepreneurs. 工厂端：提交审核、查看访问请求与创业者提问。",
+  openGraph: {
+    title: "Factory portal | Factory Truth",
+    description:
+      "Submit your audit and share what really happens in your factory. 工厂端入口。",
+    url: "/factories",
+  },
+};
 
 export default function FactoriesLayout({
   children,
