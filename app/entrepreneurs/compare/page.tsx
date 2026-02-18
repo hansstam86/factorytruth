@@ -65,6 +65,7 @@ function ComparePageContent() {
   const [error, setError] = useState<string | null>(null);
   const [shortlistIds, setShortlistIds] = useState<string[]>([]);
   const [shareCopied, setShareCopied] = useState(false);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   const idsParam = searchParams.get("ids");
   const ids = useMemo(() => {
@@ -103,7 +104,7 @@ function ComparePageContent() {
       })
       .catch(() => setError("Failed to load factory data."))
       .finally(() => setLoading(false));
-  }, [ids.join(",")]);
+  }, [ids.join(","), retryTrigger]);
 
   useEffect(() => {
     setShortlistIds(getShortlistIds());
@@ -183,6 +184,17 @@ function ComparePageContent() {
       <div className={styles.wrap}>
         <h1 className={styles.title}>Compare factories</h1>
         <p className={styles.error}>{error}</p>
+        <button
+          type="button"
+          className={styles.retryBtn}
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+            setRetryTrigger((t) => t + 1);
+          }}
+        >
+          Try again
+        </button>
         <p className={styles.backWrap}>
           <Link href="/entrepreneurs">← Back to factories</Link>
         </p>

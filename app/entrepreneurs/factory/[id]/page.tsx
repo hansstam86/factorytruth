@@ -110,6 +110,8 @@ export default function FactoryDetailPage() {
   const [compareCount, setCompareCount] = useState(0);
   const [inShortlist, setInShortlist] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   const handleCopyLink = () => {
     if (typeof window === "undefined") return;
@@ -136,15 +138,31 @@ export default function FactoryDetailPage() {
 
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
+    setLoadError(null);
     fetch(`/api/factories/${encodeURIComponent(id)}`, { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((f) => {
-        if (f?.id && f?.name) setLastViewed(f.id, f.name);
-        setFactory(f ?? null);
+      .then((res) => {
+        if (!res.ok) {
+          if (res.status === 404) setFactory(null);
+          else setLoadError("Couldn't load this factory.");
+          setFactory(null);
+          return null;
+        }
+        return res.json();
       })
-      .catch(() => setFactory(null))
+      .then((f) => {
+        if (f?.id && f?.name) {
+          setLastViewed(f.id, f.name);
+          setFactory(f);
+          setLoadError(null);
+        }
+      })
+      .catch(() => {
+        setLoadError("Couldn't load this factory.");
+        setFactory(null);
+      })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, retryTrigger]);
 
   useEffect(() => {
     if (!id || !entrepreneurUser) {
@@ -202,6 +220,27 @@ export default function FactoryDetailPage() {
   if (loading) {
     return <p className={styles.loading}>Loading…</p>;
   }
+  if (!factory && loadError) {
+    return (
+      <div className={styles.notFound}>
+        <p>{loadError}</p>
+        <button
+          type="button"
+          className={styles.retryBtn}
+          onClick={() => {
+            setLoadError(null);
+            setLoading(true);
+            setRetryTrigger((t) => t + 1);
+          }}
+        >
+          Try again
+        </button>
+        <p className={styles.backWrap}>
+          <Link href="/entrepreneurs">← Back to factories</Link>
+        </p>
+      </div>
+    );
+  }
   if (!factory) {
     return (
       <div className={styles.notFound}>
@@ -241,17 +280,6 @@ export default function FactoryDetailPage() {
     return v != null && String(v).trim() !== "";
   }).length;
   const transparencyPct = factory.transparencyScore ?? (totalQuestions ? Math.round((answeredCount / totalQuestions) * 100) : 0);
-
-  const sectionStats = (() => {
-    const bySec = new Map<string, { total: number; answered: number }>();
-    for (const q of questionList) {
-      const cur = bySec.get(q.sectionEn) ?? { total: 0, answered: 0 };
-      cur.total += 1;
-      if (answers[q.id] != null && String(answers[q.id]).trim() !== "") cur.answered += 1;
-      bySec.set(q.sectionEn, cur);
-    }
-    return Array.from(bySec.entries()).map(([sectionEn, { total, answered }]) => ({ sectionEn, total, answered }));
-  })();
 
   const nextStepLine = !inShortlist
     ? "Save to shortlist to compare with others."
@@ -357,21 +385,6 @@ export default function FactoryDetailPage() {
           The more factories share, the easier it is to compare and choose partners you can trust for your production.
         </p>
       </div>
-
-      {sectionStats.length > 0 && (
-        <div className={styles.sectionCompleteness}>
-          <h3 className={styles.sectionCompletenessTitle}>Section completeness</h3>
-          <ul className={styles.sectionCompletenessList}>
-            {sectionStats.map(({ sectionEn, answered, total }) => (
-              <li key={sectionEn}>
-                <span className={answered === total ? styles.sectionComplete : undefined}>
-                  {sectionEn}: {answered}/{total}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       <section className={styles.detailSection}>
         <h2>Audit answers</h2>

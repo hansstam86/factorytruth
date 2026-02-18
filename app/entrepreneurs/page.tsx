@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
@@ -26,6 +26,7 @@ function EntrepreneursBrowseContent() {
   const searchParams = useSearchParams();
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [compareIds, setCompareIdsState] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
   const [sort, setSort] = useState<SortOption>(() => {
@@ -62,15 +63,25 @@ function EntrepreneursBrowseContent() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
+  const fetchFactories = useCallback(() => {
+    setLoading(true);
+    setLoadError(null);
     fetch("/api/factories")
       .then((res) => res.json())
       .then((data) => {
         setFactories(Array.isArray(data) ? data : []);
+        setLoadError(null);
       })
-      .catch(() => setFactories([]))
+      .catch(() => {
+        setFactories([]);
+        setLoadError("Failed to load factories.");
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchFactories();
+  }, [fetchFactories]);
 
   useEffect(() => {
     setCompareIdsState(getCompareIds());
@@ -336,7 +347,14 @@ function EntrepreneursBrowseContent() {
         </div>
       )}
 
-      {loading ? (
+      {loadError && !loading ? (
+        <div className={styles.loadErrorBlock}>
+          <p className={styles.loadErrorText}>{loadError}</p>
+          <button type="button" className={styles.retryBtn} onClick={() => fetchFactories()}>
+            Try again
+          </button>
+        </div>
+      ) : loading ? (
         <p className={styles.loading}>Loading factories…</p>
       ) : factories.length === 0 ? (
         <div className={styles.empty}>

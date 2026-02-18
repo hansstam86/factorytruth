@@ -2,9 +2,18 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySession, getSessionCookieName } from "@/lib/auth";
 import { translateToEnglish } from "@/lib/translate";
+import { sendEmail } from "@/lib/email";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 /** PATCH — Factory answers a question. Body: { answer }. */
 export async function PATCH(
@@ -51,6 +60,22 @@ export async function PATCH(
       where: { id },
       data: { answer, answerEn, answeredAt: now },
     });
+
+    const entrepreneurEmail = q.entrepreneurEmail?.trim();
+    if (entrepreneurEmail && answer) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.factorytruth.com";
+      const factoryPageUrl = `${appUrl.replace(/\/$/, "")}/entrepreneurs/factory/${q.submissionId}`;
+      const answers = (sub.answers as Record<string, string>) ?? {};
+      const factoryName = answers.q1?.trim() || "A factory";
+      const replyText = (answerEn ?? answer).trim().slice(0, 300);
+      const replySnippet = replyText.length < (answerEn ?? answer).trim().length ? `${replyText}…` : replyText;
+      await sendEmail({
+        to: entrepreneurEmail,
+        subject: "Factory Truth: A factory replied to your question",
+        html: `<p>Good news — <strong>${escapeHtml(factoryName)}</strong> has replied to your question on Factory Truth.</p><blockquote>${escapeHtml(replySnippet)}</blockquote><p><a href="${factoryPageUrl}">View the full reply and factory profile</a></p>`,
+      });
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("factory-questions PATCH error", e);
