@@ -5,16 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Factory Truth — China Sourcing Concierge</title>
 <meta name="description" content="Stop burning time on Alibaba. Get a vetted shortlist of trusted Chinese suppliers with warm WeChat introductions — in two weeks.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --black: #0D0D0D;
-    --off-white: #F4F1EB;
+    --bg: #111010;
+    --bg-raised: #1A1917;
+    --bg-card: #1F1E1C;
+    --cream: #F0EBE1;
+    --cream-muted: rgba(240,235,225,0.55);
+    --cream-faint: rgba(240,235,225,0.2);
     --rust: #C94F2C;
-    --muted: #888480;
-    --border: rgba(13,13,13,0.12);
+    --rust-light: #E06040;
+    --border: rgba(240,235,225,0.1);
+    --border-mid: rgba(240,235,225,0.15);
     --mono: 'DM Mono', monospace;
     --display: 'Playfair Display', serif;
     --sans: 'DM Sans', sans-serif;
@@ -24,8 +29,8 @@
 
   body {
     font-family: var(--sans);
-    background: var(--off-white);
-    color: var(--black);
+    background: var(--bg);
+    color: var(--cream);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
@@ -44,7 +49,7 @@
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--black);
+    color: var(--cream);
     text-decoration: none;
   }
 
@@ -54,16 +59,16 @@
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--off-white);
-    background: var(--black);
+    color: var(--bg);
+    background: var(--cream);
     border: none;
     padding: 0.6rem 1.4rem;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s;
   }
 
-  .nav-cta:hover { background: var(--rust); }
+  .nav-cta:hover { background: var(--rust); color: var(--cream); }
 
   .hero {
     padding: 6rem 4rem 5rem;
@@ -96,7 +101,7 @@
     font-weight: 900;
     line-height: 1.0;
     letter-spacing: -0.02em;
-    color: var(--black);
+    color: var(--cream);
     max-width: 820px;
     margin-bottom: 2rem;
   }
@@ -107,11 +112,11 @@
   }
 
   .hero-sub {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 300;
-    color: #444;
+    color: var(--cream-muted);
     max-width: 560px;
-    line-height: 1.7;
+    line-height: 1.75;
     margin-bottom: 3rem;
   }
 
@@ -128,17 +133,17 @@
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--off-white);
-    background: var(--black);
+    color: var(--bg);
+    background: var(--cream);
     border: none;
     padding: 1rem 2.5rem;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s;
   }
 
-  .btn-primary:hover { background: var(--rust); }
+  .btn-primary:hover { background: var(--rust); color: var(--cream); }
 
   .btn-secondary {
     font-family: var(--mono);
@@ -146,9 +151,9 @@
     font-weight: 400;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--cream-muted);
     text-decoration: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-mid);
     padding-bottom: 2px;
     transition: color 0.15s, border-color 0.15s;
   }
@@ -182,7 +187,7 @@
     font-family: var(--display);
     font-size: 2.8rem;
     font-weight: 700;
-    color: var(--black);
+    color: var(--cream);
     line-height: 1;
     margin-bottom: 0.4rem;
   }
@@ -192,7 +197,7 @@
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--cream-muted);
   }
 
   .how-section {
@@ -205,7 +210,7 @@
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--cream-muted);
     margin-bottom: 3rem;
   }
 
@@ -234,15 +239,15 @@
     font-family: var(--display);
     font-size: 1.4rem;
     font-weight: 700;
-    color: var(--black);
+    color: var(--cream);
     margin-bottom: 0.75rem;
     line-height: 1.2;
   }
 
   .step p {
     font-size: 0.95rem;
-    color: #555;
-    line-height: 1.7;
+    color: var(--cream-muted);
+    line-height: 1.75;
     font-weight: 300;
   }
 
@@ -260,20 +265,21 @@
     font-size: clamp(2rem, 3.5vw, 3rem);
     font-weight: 700;
     line-height: 1.15;
-    color: var(--black);
+    color: var(--cream);
     margin-bottom: 1.5rem;
   }
 
   .about-left p {
     font-size: 1rem;
-    color: #555;
-    line-height: 1.8;
+    color: var(--cream-muted);
+    line-height: 1.85;
     font-weight: 300;
     margin-bottom: 1rem;
   }
 
   .about-right {
-    background: var(--black);
+    background: var(--bg-card);
+    border: 1px solid var(--border-mid);
     padding: 2.5rem;
   }
 
@@ -281,7 +287,7 @@
     font-family: var(--display);
     font-size: 1.6rem;
     font-weight: 700;
-    color: var(--off-white);
+    color: var(--cream);
     margin-bottom: 0.25rem;
   }
 
@@ -296,7 +302,7 @@
 
   .about-right p {
     font-size: 0.9rem;
-    color: rgba(244,241,235,0.7);
+    color: var(--cream-muted);
     line-height: 1.8;
     font-weight: 300;
   }
@@ -312,10 +318,10 @@
     font-family: var(--mono);
     font-size: 11px;
     letter-spacing: 0.06em;
-    color: rgba(244,241,235,0.5);
+    color: var(--cream-faint);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   .credential::before {
@@ -336,7 +342,7 @@
     font-family: var(--display);
     font-size: 2.2rem;
     font-weight: 700;
-    color: var(--black);
+    color: var(--cream);
     margin-bottom: 0.5rem;
   }
 
@@ -344,12 +350,13 @@
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: 0.06em;
-    color: var(--muted);
+    color: var(--cream-muted);
     margin-bottom: 3rem;
   }
 
   .pricing-card {
-    background: var(--black);
+    background: var(--bg-card);
+    border: 1px solid var(--border-mid);
     padding: 3rem;
     max-width: 580px;
     display: grid;
@@ -371,7 +378,7 @@
     font-family: var(--display);
     font-size: 3rem;
     font-weight: 700;
-    color: var(--off-white);
+    color: var(--cream);
     line-height: 1;
     margin-bottom: 0.25rem;
   }
@@ -380,7 +387,7 @@
     font-family: var(--mono);
     font-size: 11px;
     letter-spacing: 0.06em;
-    color: rgba(244,241,235,0.4);
+    color: var(--cream-faint);
     margin-bottom: 1.5rem;
   }
 
@@ -388,12 +395,12 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .price-includes li {
     font-size: 0.9rem;
-    color: rgba(244,241,235,0.7);
+    color: var(--cream-muted);
     font-weight: 300;
     display: flex;
     align-items: flex-start;
@@ -418,24 +425,24 @@
     padding-top: 0.5rem;
   }
 
-  .btn-white {
+  .btn-outline {
     font-family: var(--mono);
     font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--black);
-    background: var(--off-white);
-    border: none;
+    color: var(--cream);
+    background: transparent;
+    border: 1px solid var(--border-mid);
     padding: 0.9rem 1.8rem;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
     white-space: nowrap;
-    transition: background 0.15s;
+    transition: background 0.15s, border-color 0.15s;
   }
 
-  .btn-white:hover { background: #fff; }
+  .btn-outline:hover { background: var(--rust); border-color: var(--rust); }
 
   .spots-left {
     font-family: var(--mono);
@@ -455,7 +462,7 @@
     font-family: var(--display);
     font-size: 2.2rem;
     font-weight: 700;
-    color: var(--black);
+    color: var(--cream);
     margin-bottom: 0.5rem;
   }
 
@@ -463,21 +470,21 @@
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: 0.06em;
-    color: var(--muted);
+    color: var(--cream-muted);
     margin-bottom: 3rem;
   }
 
   .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 1.75rem;
     max-width: 720px;
   }
 
   .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.5rem;
   }
 
   .form-group.full { grid-column: 1 / -1; }
@@ -487,25 +494,80 @@
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--cream-muted);
   }
 
-  input, textarea {
+  input, textarea, select {
     font-family: var(--sans);
     font-size: 0.95rem;
     font-weight: 300;
-    color: var(--black);
+    color: var(--cream);
     background: transparent;
     border: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-mid);
     padding: 0.6rem 0;
     outline: none;
     transition: border-color 0.15s;
     width: 100%;
+    -webkit-appearance: none;
+    border-radius: 0;
   }
 
-  input:focus, textarea:focus { border-bottom-color: var(--black); }
+  input::placeholder, textarea::placeholder { color: var(--cream-faint); }
+  input:focus, textarea:focus, select:focus { border-bottom-color: var(--cream); }
   textarea { resize: none; min-height: 80px; }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(240,235,225,0.4)'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 1.5rem;
+  }
+
+  select option { background: #1F1E1C; color: var(--cream); }
+
+  .radio-group {
+    display: flex;
+    gap: 2rem;
+    padding: 0.4rem 0;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .radio-option input[type="radio"] {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: var(--rust);
+  }
+
+  .radio-option span {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--cream-muted);
+  }
+
+  .budget-note {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--cream-faint);
+    line-height: 1.6;
+    grid-column: 1 / -1;
+    max-width: 720px;
+    padding-top: 0.25rem;
+  }
 
   .form-submit {
     margin-top: 2rem;
@@ -518,7 +580,7 @@
   .form-note {
     font-family: var(--mono);
     font-size: 11px;
-    color: var(--muted);
+    color: var(--cream-faint);
     letter-spacing: 0.04em;
   }
 
@@ -536,6 +598,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-top: 1px solid var(--border);
   }
 
   .footer-logo {
@@ -543,22 +606,25 @@
     font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--cream-faint);
   }
 
-  .footer-note {
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .footer-links a {
     font-family: var(--mono);
     font-size: 11px;
-    letter-spacing: 0.04em;
-    color: #bbb;
-  }
-
-  .footer-note a {
-    color: #bbb;
+    letter-spacing: 0.06em;
+    color: var(--cream-faint);
     text-decoration: none;
+    transition: color 0.15s;
   }
 
-  .footer-note a:hover { color: var(--rust); }
+  .footer-links a:hover { color: var(--rust); }
 
   @media (max-width: 768px) {
     nav, .hero, .stats-row, .how-section, .about-section, .pricing-section, .intake-section, footer {
@@ -576,6 +642,7 @@
     .pricing-card { grid-template-columns: 1fr; }
     .price-cta-col { align-items: flex-start; }
     .about-section { gap: 3rem; }
+    .radio-group { gap: 1.5rem; }
   }
 </style>
 </head>
@@ -671,7 +738,7 @@
       </ul>
     </div>
     <div class="price-cta-col">
-      <a class="btn-white" href="#intake">Apply now</a>
+      <a class="btn-outline" href="#intake">Apply now</a>
       <div class="spots-left">2 spots / month</div>
     </div>
   </div>
@@ -682,30 +749,64 @@
   <div class="sub">I'll follow up within 48 hours to confirm fit and next steps.</div>
   <form id="intake-form" action="https://formspree.io/f/xzdjavwd" method="POST">
     <div class="form-grid">
+
       <div class="form-group">
         <label for="name">Your name</label>
         <input type="text" id="name" name="name" placeholder="Jane Smith" required>
       </div>
+
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" placeholder="jane@yourcompany.com" required>
       </div>
+
       <div class="form-group full">
         <label for="product">What are you building?</label>
         <input type="text" id="product" name="product" placeholder="e.g. Smart bike lock for consumer market" required>
       </div>
+
+      <div class="form-group full">
+        <label for="stage">Where is your project right now?</label>
+        <select id="stage" name="project_stage" required>
+          <option value="" disabled selected>Select a stage</option>
+          <option value="idea">Idea stage — no prototype yet</option>
+          <option value="prototype">Prototype exists, not yet sampled</option>
+          <option value="sampled">Sampled with a factory, looking for alternatives</option>
+          <option value="scaling">Currently in production, looking to diversify</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Has your product been sampled by a Chinese factory before?</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="previously_sampled" value="Yes">
+            <span>Yes</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="previously_sampled" value="No">
+            <span>No</span>
+          </label>
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="cost">Target unit cost (USD)</label>
         <input type="text" id="cost" name="target_unit_cost" placeholder="e.g. $25–40">
       </div>
+
       <div class="form-group">
         <label for="moq">First order quantity</label>
         <input type="text" id="moq" name="first_order_quantity" placeholder="e.g. 500 units">
       </div>
+
       <div class="form-group full">
         <label for="notes">Anything else I should know?</label>
         <textarea id="notes" name="notes" placeholder="Certifications needed, timeline, previous suppliers tried..."></textarea>
       </div>
+
+      <p class="budget-note">The engagement fee is €2,000 flat, paid upfront. By submitting you confirm you're aware of and comfortable with this.</p>
+
     </div>
     <div class="form-submit">
       <button class="btn-primary" type="submit">Send my brief →</button>
@@ -717,7 +818,11 @@
 
 <footer>
   <div class="footer-logo">Factory Truth</div>
-  <div class="footer-note"><a href="mailto:hans@factorytruth.com">hans@factorytruth.com</a></div>
+  <div class="footer-links">
+    <a href="mailto:hans@factorytruth.com">hans@factorytruth.com</a>
+    <a href="https://thehardesthardwarelessons.com" target="_blank">The Book</a>
+    <a href="https://www.linkedin.com/in/hansstam/" target="_blank">LinkedIn</a>
+  </div>
 </footer>
 
 <script>
