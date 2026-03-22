@@ -3,1703 +3,858 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Factory Truth — China Sourcing Concierge</title>
-<meta name="description" content="Stop burning time on Alibaba. Get a vetted shortlist of trusted Chinese suppliers with warm WeChat introductions — in two weeks.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>DFM Insights — FMEA, Project Charter & Build Timeline from Your PRD</title>
+<meta name="description" content="Upload your PRD and BOM. We generate a full FMEA report, project charter, and EVT/DVT/PVT timeline — the three documents every hardware program needs. From €499.">
+<link rel="canonical" href="https://www.dfminsights.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.dfminsights.com/">
+<meta property="og:title" content="DFM Insights — FMEA & Project Charter from Your PRD">
+<meta property="og:description" content="Upload your PRD and BOM. Get a full FMEA report, project charter, and build timeline — documents consultants charge €8,000 for. We charge €499.">
+<meta property="og:site_name" content="DFM Insights">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0a0a'/%3E%3Crect x='4' y='4' width='24' height='24' rx='3' fill='none' stroke='%23e8a43b' stroke-width='1.5'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='13' font-weight='700' fill='%23e8a43b' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #111010;
-    --bg-raised: #1A1917;
-    --bg-card: #1F1E1C;
-    --cream: #F0EBE1;
-    --cream-muted: rgba(240,235,225,0.55);
-    --cream-faint: rgba(240,235,225,0.2);
-    --rust: #C94F2C;
-    --rust-light: #E06040;
-    --border: rgba(240,235,225,0.1);
-    --border-mid: rgba(240,235,225,0.15);
-    --mono: 'DM Mono', monospace;
-    --display: 'Playfair Display', serif;
-    --sans: 'DM Sans', sans-serif;
-  }
-
-  html { font-size: 16px; }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--cream);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cream);
-    text-decoration: none;
-  }
-
-  .nav-cta {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--bg);
-    background: var(--cream);
-    border: none;
-    padding: 0.6rem 1.4rem;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .nav-cta:hover { background: var(--rust); color: var(--cream); }
-
-  .hero {
-    padding: 6rem 4rem 5rem;
-    max-width: 1100px;
-  }
-
-  .hero-tag {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .hero-tag::before {
-    content: '';
-    display: block;
-    width: 24px;
-    height: 1px;
-    background: var(--rust);
-  }
-
-  h1 {
-    font-family: var(--display);
-    font-size: clamp(3rem, 6vw, 5.5rem);
-    font-weight: 900;
-    line-height: 1.0;
-    letter-spacing: -0.02em;
-    color: var(--cream);
-    max-width: 820px;
-    margin-bottom: 2rem;
-  }
-
-  h1 em {
-    font-style: italic;
-    color: var(--rust);
-  }
-
-  .hero-sub {
-    font-size: 1.15rem;
-    font-weight: 300;
-    color: var(--cream-muted);
-    max-width: 560px;
-    line-height: 1.75;
-    margin-bottom: 3rem;
-  }
-
-  .cta-row {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .btn-primary {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--bg);
-    background: var(--cream);
-    border: none;
-    padding: 1rem 2.5rem;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .btn-primary:hover { background: var(--rust); color: var(--cream); }
-
-  .btn-secondary {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-    text-decoration: none;
-    border-bottom: 1px solid var(--border-mid);
-    padding-bottom: 2px;
-    transition: color 0.15s, border-color 0.15s;
-  }
-
-  .btn-secondary:hover { color: var(--rust); border-color: var(--rust); }
-
-  .divider {
-    width: calc(100% - 8rem);
-    height: 1px;
-    background: var(--border);
-    margin: 0 4rem;
-  }
-
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    padding: 3rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .stat {
-    padding: 0 2rem 0 0;
-    border-right: 1px solid var(--border);
-  }
-
-  .stat:first-child { padding-left: 0; }
-  .stat:last-child { border-right: none; padding-left: 2rem; }
-  .stat:nth-child(2) { padding-left: 2rem; }
-
-  .stat-number {
-    font-family: var(--display);
-    font-size: 2.8rem;
-    font-weight: 700;
-    color: var(--cream);
-    line-height: 1;
-    margin-bottom: 0.4rem;
-  }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-  }
-
-  .how-section {
-    padding: 5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-tag {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-    margin-bottom: 3rem;
-  }
-
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .step {
-    padding: 0 2.5rem 0 0;
-    border-right: 1px solid var(--border);
-  }
-
-  .step:last-child { border-right: none; padding-right: 0; padding-left: 2.5rem; }
-  .step:nth-child(2) { padding-left: 2.5rem; }
-
-  .step-num {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--rust);
-    margin-bottom: 1rem;
-  }
-
-  .step h3 {
-    font-family: var(--display);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.75rem;
-    line-height: 1.2;
-  }
-
-  .step p {
-    font-size: 0.95rem;
-    color: var(--cream-muted);
-    line-height: 1.75;
-    font-weight: 300;
-  }
-
-  .about-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 5rem 4rem;
-    gap: 6rem;
-    border-bottom: 1px solid var(--border);
-    align-items: center;
-  }
-
-  .about-left h2 {
-    font-family: var(--display);
-    font-size: clamp(2rem, 3.5vw, 3rem);
-    font-weight: 700;
-    line-height: 1.15;
-    color: var(--cream);
-    margin-bottom: 1.5rem;
-  }
-
-  .about-left p {
-    font-size: 1rem;
-    color: var(--cream-muted);
-    line-height: 1.85;
-    font-weight: 300;
-    margin-bottom: 1rem;
-  }
-
-  .about-right {
-    background: var(--bg-card);
-    border: 1px solid var(--border-mid);
-    padding: 2.5rem;
-  }
-
-  .about-right .name {
-    font-family: var(--display);
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.25rem;
-  }
-
-  .about-right .title {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 1.5rem;
-  }
-
-  .about-right p {
-    font-size: 0.9rem;
-    color: var(--cream-muted);
-    line-height: 1.8;
-    font-weight: 300;
-  }
-
-  .credentials {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .credential {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .credential::before {
-    content: '';
-    display: block;
-    width: 16px;
-    height: 1px;
-    background: var(--rust);
-    flex-shrink: 0;
-  }
-
-  .pricing-section {
-    padding: 5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .pricing-section h2 {
-    font-family: var(--display);
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.5rem;
-  }
-
-  .pricing-sub {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    margin-bottom: 3rem;
-  }
-
-  .pricing-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-mid);
-    padding: 3rem;
-    max-width: 580px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2rem;
-    align-items: start;
-  }
-
-  .price-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 0.5rem;
-  }
-
-  .price-amount {
-    font-family: var(--display);
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--cream);
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  .price-desc {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .price-includes {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .price-includes li {
-    font-size: 0.9rem;
-    color: var(--cream-muted);
-    font-weight: 300;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .price-includes li::before {
-    content: '';
-    display: block;
-    width: 12px;
-    height: 1px;
-    background: var(--rust);
-    flex-shrink: 0;
-    margin-top: 0.6em;
-  }
-
-  .price-cta-col {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1rem;
-    padding-top: 0.5rem;
-  }
-
-  .btn-outline {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--cream);
-    background: transparent;
-    border: 1px solid var(--border-mid);
-    padding: 0.9rem 1.8rem;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    white-space: nowrap;
-    transition: background 0.15s, border-color 0.15s;
-  }
-
-  .btn-outline:hover { background: var(--rust); border-color: var(--rust); }
-
-  .spots-left {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--rust);
-    text-align: right;
-  }
-
-  .intake-section {
-    padding: 5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .intake-section h2 {
-    font-family: var(--display);
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.5rem;
-  }
-
-  .intake-section .sub {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    margin-bottom: 3rem;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.75rem;
-    max-width: 720px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-group.full { grid-column: 1 / -1; }
-
-  label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-  }
-
-  input, textarea, select {
-    font-family: var(--sans);
-    font-size: 0.95rem;
-    font-weight: 300;
-    color: var(--cream);
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border-mid);
-    padding: 0.6rem 0;
-    outline: none;
-    transition: border-color 0.15s;
-    width: 100%;
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
-
-  input::placeholder, textarea::placeholder { color: var(--cream-muted); }
-  input:focus, textarea:focus, select:focus { border-bottom-color: var(--cream); }
-  textarea { resize: none; min-height: 80px; }
-
-  select {
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(240,235,225,0.4)'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 4px center;
-    padding-right: 1.5rem;
-  }
-
-  select option { background: #1F1E1C; color: var(--cream); }
-
-  .radio-group {
-    display: flex;
-    gap: 2rem;
-    padding: 0.4rem 0;
-  }
-
-  .radio-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-
-  .radio-option input[type="radio"] {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    flex-shrink: 0;
-    accent-color: var(--rust);
-  }
-
-  .radio-option span {
-    font-family: var(--sans);
-    font-size: 0.95rem;
-    font-weight: 300;
-    color: var(--cream-muted);
-  }
-
-  .budget-note {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    color: var(--cream-muted);
-    line-height: 1.6;
-    grid-column: 1 / -1;
-    max-width: 720px;
-    padding-top: 0.25rem;
-  }
-
-  .form-submit {
-    margin-top: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .form-note {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--cream-muted);
-    letter-spacing: 0.04em;
-  }
-
-  .success-msg {
-    display: none;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.06em;
-    color: var(--rust);
-    margin-top: 1.5rem;
-  }
-
-  footer {
-    padding: 2rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid var(--border);
-  }
-
-  .footer-logo {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-  }
-
-  .footer-links a {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-
-  .footer-links a:hover { color: var(--rust); }
-
-  @media (max-width: 768px) {
-    nav, .hero, .stats-row, .how-section, .about-section, .pricing-section, .intake-section, footer {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-    .divider { margin: 0 1.5rem; width: calc(100% - 3rem); }
-    .stats-row, .steps, .about-section, .form-grid { grid-template-columns: 1fr; }
-    .stat { border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem 0; }
-    .stat:last-child { border-bottom: none; padding-left: 0; }
-    .stat:nth-child(2) { padding-left: 0; }
-    .step { border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem 0; }
-    .step:last-child { border-bottom: none; padding-left: 0; }
-    .step:nth-child(2) { padding-left: 0; }
-    .pricing-card { grid-template-columns: 1fr; }
-    .price-cta-col { align-items: flex-start; }
-    .about-section { gap: 3rem; }
-    .radio-group { gap: 1.5rem; }
-  }
+:root{
+  --ink:#0a0a0a;--ink2:#1a1a1a;--mid:#666;--light:#999;
+  --border:#e0ddd8;--border2:#f0ede8;--cream:#faf8f4;--white:#fff;
+  --amber:#e8a43b;--amber2:#f0b84a;--amber-bg:#fdf6e8;
+  --green:#2d7a4f;--green-bg:#edf7f1;--blue:#1a5fad;
+  --font-serif:'Instrument Serif',Georgia,serif;
+  --font-sans:'DM Sans',system-ui,sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* TICKER */
+.ticker{background:var(--ink);color:var(--amber);font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;padding:8px 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:tick 55s linear infinite}
+.ticker-inner span{margin:0 36px;opacity:.6}
+.ticker-inner span.hi{opacity:1;color:#f0b84a}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;height:64px;gap:28px}
+.nav-logo{font-family:var(--font-serif);font-size:22px;color:var(--ink);text-decoration:none;flex-shrink:0}
+.nav-logo em{font-style:italic;color:var(--amber)}
+.nav-links{display:flex;gap:22px;margin-left:auto;align-items:center}
+.nav-links a{font-size:14px;color:var(--mid);text-decoration:none;font-weight:500;transition:color .15s}
+.nav-links a:hover{color:var(--ink)}
+.btn-nav{background:var(--ink);color:var(--white)!important;padding:9px 20px;border-radius:6px;font-weight:600!important;white-space:nowrap}
+.btn-nav:hover{background:#222!important}
+
+/* HERO */
+.hero{padding:88px 40px 72px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:64px;align-items:start}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--amber-bg);border:1px solid #f0c878;border-radius:20px;padding:5px 14px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:#a06c10;text-transform:uppercase;margin-bottom:16px}
+.tag-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,164,59,.5)}50%{box-shadow:0 0 0 6px rgba(232,164,59,0)}}
+.book-strip{display:inline-flex;align-items:center;gap:9px;background:var(--border2);border:1px solid var(--border);border-radius:8px;padding:7px 13px;margin-bottom:20px;max-width:fit-content}
+.book-strip a{color:var(--ink);font-weight:600;text-decoration:none;font-size:13px;border-bottom:1px solid var(--amber)}
+.book-strip span{font-size:13px;color:var(--mid)}
+h1{font-family:var(--font-serif);font-size:clamp(36px,4.5vw,58px);line-height:1.1;letter-spacing:-.02em;margin-bottom:20px}
+h1 em{font-style:italic;color:var(--amber)}
+.hero-sub{font-size:17px;color:var(--mid);line-height:1.72;margin-bottom:28px;max-width:480px}
+
+/* Deliverables pills in hero */
+.deliv-pills{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
+.deliv-pill{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--cream);border:1px solid var(--border);border-radius:8px;font-size:14px}
+.deliv-pill-icon{font-size:18px;flex-shrink:0}
+.deliv-pill-text strong{display:block;font-weight:600;color:var(--ink);font-size:14px}
+.deliv-pill-text span{font-size:12px;color:var(--mid)}
+
+.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn-a{background:var(--amber);color:var(--ink);padding:14px 26px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:var(--font-sans)}
+.btn-a:hover{background:var(--amber2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,164,59,.35)}
+.btn-b{color:var(--ink);padding:14px 18px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;transition:all .2s;border:1px solid var(--border);display:inline-flex;align-items:center;gap:8px}
+.btn-b:hover{border-color:var(--ink);background:var(--cream)}
+.trust{margin-top:24px;display:flex;flex-wrap:wrap;gap:14px}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mid)}
+.trust-check{color:var(--green);font-weight:700}
+
+/* Pre-launch card */
+.plcard{background:var(--ink);border-radius:16px;padding:32px;color:var(--white);position:relative;overflow:hidden}
+.plcard::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(232,164,59,.15) 0%,transparent 60%);pointer-events:none}
+.pl-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,164,59,.15);border:1px solid rgba(232,164,59,.3);border-radius:20px;padding:4px 12px;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:16px}
+.plcard h3{font-family:var(--font-serif);font-size:24px;line-height:1.2;margin-bottom:10px}
+.plcard p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.65;margin-bottom:20px}
+.counter-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 18px;margin-bottom:20px}
+.counter-lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:8px}
+.track{height:5px;background:rgba(255,255,255,.1);border-radius:3px;margin-bottom:8px;overflow:hidden}
+.fill{height:100%;background:var(--amber);border-radius:3px;transition:width 1s ease}
+.counter-txt{font-size:13px;color:rgba(255,255,255,.6);display:flex;justify-content:space-between}
+.counter-txt strong{color:var(--amber)}
+.price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.price-big{font-family:var(--font-serif);font-size:44px;line-height:1}
+.price-orig{font-size:18px;color:rgba(255,255,255,.25);text-decoration:line-through}
+.price-note{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:8px}
+.price-credit{font-size:12px;color:rgba(232,164,59,.8);margin-bottom:18px;display:flex;align-items:center;gap:6px}
+.stripe-btn{display:block;width:100%;background:var(--amber);color:var(--ink);padding:14px;border-radius:8px;font-size:15px;font-weight:700;text-align:center;text-decoration:none;transition:all .2s}
+.stripe-btn:hover{background:var(--amber2);transform:translateY(-1px);box-shadow:0 8px 20px rgba(232,164,59,.4)}
+.stripe-note{text-align:center;margin-top:10px;font-size:11px;color:rgba(255,255,255,.25)}
+
+/* Sections */
+.sec{padding:80px 40px}
+.sec-inner{max-width:1100px;margin:0 auto}
+.sec-lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--mid);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.sec-lbl::after{content:'';flex:1;max-width:50px;height:1px;background:var(--border)}
+.sec h2{font-family:var(--font-serif);font-size:clamp(28px,3.5vw,42px);line-height:1.15;letter-spacing:-.02em;margin-bottom:14px}
+.sec h2 em{font-style:italic;color:var(--amber)}
+.sec-sub{font-size:16px;color:var(--mid);max-width:540px;line-height:1.72}
+
+/* Deliverables deep-dive */
+.deliv-grid{display:flex;flex-direction:column;gap:2px;margin-top:44px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.deliv-row{display:grid;grid-template-columns:80px 1fr 1fr;gap:0;background:var(--white)}
+.deliv-row.shade{background:var(--cream)}
+.deliv-num{background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:32px 16px}
+.deliv-num-n{font-family:var(--font-serif);font-size:32px;color:var(--amber);line-height:1}
+.deliv-num-icon{font-size:18px}
+.deliv-main{padding:28px 32px;border-right:1px solid var(--border)}
+.deliv-name{font-family:var(--font-serif);font-size:22px;color:var(--ink);margin-bottom:8px}
+.deliv-desc{font-size:14px;color:var(--mid);line-height:1.72;margin-bottom:16px}
+.deliv-tags{display:flex;flex-wrap:wrap;gap:6px}
+.deliv-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:var(--border2);border:1px solid var(--border);color:var(--mid)}
+.deliv-side{padding:28px 32px}
+.deliv-side-lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--light);margin-bottom:12px}
+.deliv-items{list-style:none;display:flex;flex-direction:column;gap:7px}
+.deliv-items li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--mid);line-height:1.55}
+.deliv-items li::before{content:'–';color:var(--amber);font-weight:700;flex-shrink:0}
+
+/* Consultant vs us */
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:44px}
+.vs-cell{padding:28px 32px}
+.vs-cell.dark{background:var(--ink);color:var(--white)}
+.vs-label{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:18px}
+.dark .vs-label{color:rgba(255,255,255,.35)}
+.vs-rows{display:flex;flex-direction:column;gap:12px}
+.vs-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--border);font-size:14px}
+.dark .vs-row{border-bottom-color:rgba(255,255,255,.08)}
+.vs-row:last-child{border-bottom:none;padding-bottom:0}
+.vs-item{color:var(--mid);flex:1}
+.dark .vs-item{color:rgba(255,255,255,.5)}
+.vs-price{font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--red, #b83232);white-space:nowrap}
+.vs-price.good{color:var(--green)}
+
+/* How it works */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:44px}
+.step{background:var(--white);padding:28px 24px}
+.step-n{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--light);margin-bottom:14px}
+.step-icon{font-size:26px;margin-bottom:12px}
+.step h4{font-size:15px;font-weight:600;margin-bottom:8px}
+.step p{font-size:13px;color:var(--mid);line-height:1.65}
+
+/* Pricing */
+.pgridp{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:18px;margin-top:48px;align-items:start}
+.pcard{border:1px solid var(--border);border-radius:14px;padding:30px 26px;position:relative;transition:border-color .2s,transform .2s}
+.pcard:hover{border-color:var(--ink);transform:translateY(-2px)}
+.pcard.feat{border-color:var(--amber);border-width:2px;background:var(--ink);color:var(--white)}
+.feat-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--amber);color:var(--ink);font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 14px;border-radius:20px;white-space:nowrap}
+.p-tier{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:16px}
+.feat .p-tier{color:rgba(255,255,255,.35)}
+.p-price{font-family:var(--font-serif);font-size:44px;line-height:1;margin-bottom:4px}
+.feat .p-price{color:var(--white)}
+.p-period{font-size:13px;color:var(--mid);margin-bottom:16px}
+.feat .p-period{color:rgba(255,255,255,.4)}
+.p-desc{font-size:14px;color:var(--mid);line-height:1.65;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.feat .p-desc{color:rgba(255,255,255,.55);border-bottom-color:rgba(255,255,255,.1)}
+.p-feats{list-style:none;margin-bottom:26px;display:flex;flex-direction:column;gap:9px}
+.p-feats li{display:flex;align-items:flex-start;gap:9px;font-size:13px}
+.feat .p-feats li{color:rgba(255,255,255,.8)}
+.fck{color:var(--green);flex-shrink:0;font-weight:700;margin-top:1px}
+.feat .fck{color:var(--amber)}
+.pcta{display:block;width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:600;text-align:center;text-decoration:none;transition:all .2s;cursor:pointer;border:none;font-family:var(--font-sans)}
+.pcta.out{border:1px solid var(--border);color:var(--ink);background:transparent}
+.pcta.out:hover{border-color:var(--ink);background:var(--cream)}
+.pcta.sol{background:var(--amber);color:var(--ink)}
+.pcta.sol:hover{background:var(--amber2)}
+.pcta.dout{border:1px solid rgba(255,255,255,.2);color:var(--white);background:transparent}
+.pcta.dout:hover{border-color:rgba(255,255,255,.5)}
+
+/* Who it's for */
+.for-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:44px}
+.for-cell{padding:30px 32px;background:var(--white)}
+.for-cell.sh{background:var(--cream)}
+.for-cell.dk{background:var(--ink)}
+.for-icon{font-size:24px;margin-bottom:12px}
+.for-head{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.dk .for-head{color:var(--white)}
+.for-body{font-size:14px;color:var(--mid);line-height:1.7}
+.dk .for-body{color:rgba(255,255,255,.5)}
+
+/* Roadmap */
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:44px}
+.rphase{padding:28px;border-right:1px solid var(--border)}
+.rphase:last-child{border-right:none}
+.rlbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:5px}
+.rname{font-family:var(--font-serif);font-size:19px;margin-bottom:14px}
+.rstatus{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+.s-live{background:#e8f7ee;color:var(--green)}
+.s-soon{background:var(--amber-bg);color:#a06c10}
+.s-future{background:var(--border2);color:var(--mid)}
+.ritems{list-style:none;display:flex;flex-direction:column;gap:7px}
+.ritems li{display:flex;gap:7px;font-size:13px;color:var(--mid);line-height:1.5}
+.ritems li::before{content:'–';color:var(--amber);font-weight:700;flex-shrink:0}
+
+/* Demo section */
+.demo-sec{background:var(--cream);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.demo-frame{border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.07);margin-top:44px}
+.demo-chrome{background:#f0ede8;border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:7px}
+.cd{width:10px;height:10px;border-radius:50%}
+.cu{margin-left:6px;flex:1;background:var(--white);border:1px solid var(--border);border-radius:4px;padding:3px 10px;font-family:var(--font-mono);font-size:12px;color:var(--mid)}
+.demo-wrap{height:480px;position:relative;overflow:hidden}
+.demo-wrap iframe{border:none;width:117%;height:117%;transform:scale(.855);transform-origin:top left;pointer-events:none}
+.demo-ovl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,10,10,.45);backdrop-filter:blur(2px)}
+.demo-btn{background:var(--white);color:var(--ink);padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:9px;transition:all .2s;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.demo-btn:hover{transform:scale(1.03)}
+
+/* CTA banner */
+.cta-banner{background:var(--ink);padding:80px 40px;text-align:center}
+.cta-banner h2{font-family:var(--font-serif);font-size:clamp(26px,4vw,46px);color:var(--white);letter-spacing:-.02em;margin-bottom:12px}
+.cta-banner h2 em{font-style:italic;color:var(--amber)}
+.cta-banner p{font-size:15px;color:rgba(255,255,255,.45);margin-bottom:32px}
+.cta-acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta-note{margin-top:14px;font-size:12px;color:rgba(255,255,255,.2)}
+
+/* Footer */
+footer{border-top:1px solid var(--border);padding:44px 40px 28px}
+.ft-inner{max-width:1100px;margin:0 auto;display:flex;gap:40px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.ft-brand{flex:2;min-width:200px}
+.ft-logo{font-family:var(--font-serif);font-size:19px;color:var(--ink);text-decoration:none;display:block;margin-bottom:8px}
+.ft-logo em{font-style:italic;color:var(--amber)}
+.ft-tag{font-size:13px;color:var(--mid);line-height:1.65;max-width:280px}
+.ft-col{flex:1;min-width:110px}
+.ft-cl{font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:12px}
+.ft-links{list-style:none;display:flex;flex-direction:column;gap:7px}
+.ft-links a{font-size:13px;color:var(--mid);text-decoration:none;transition:color .15s}
+.ft-links a:hover{color:var(--ink)}
+.ft-bot{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ft-copy{font-size:12px;color:var(--light)}
+.ft-badges{display:flex;gap:7px}
+.ft-badge{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:3px;border:1px solid var(--border);color:var(--light)}
+
+/* Responsive */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;gap:44px}
+  .hero-right{order:-1}
+  .deliv-row{grid-template-columns:60px 1fr}
+  .deliv-side{display:none}
+  .vs-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .pgridp{grid-template-columns:1fr}
+  .for-grid{grid-template-columns:1fr}
+  .rgrid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  nav{padding:0 18px}
+  .nav-links .hs{display:none}
+  .sec{padding:56px 18px}
+  .hero{padding:56px 18px 44px}
+  .steps{grid-template-columns:1fr}
+  footer{padding:36px 18px 20px}
+  .ft-inner{flex-direction:column}
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="#">Factory Truth</a>
-  <a class="nav-cta" href="#intake">Apply for a spot</a>
-</nav>
-
-<section class="hero">
-  <div class="hero-tag">China sourcing concierge</div>
-  <h1>Your shortlist of <em>trusted</em> Chinese suppliers. In two weeks.</h1>
-  <p class="hero-sub">Stop burning time on Alibaba and trade show cold outreach. I find the right factory for your product — vetted, introduced over WeChat, and ready to quote.</p>
-  <div class="cta-row">
-    <a class="btn-primary" href="#intake">Tell me what you're building</a>
-    <a class="btn-secondary" href="#how">See how it works</a>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<div class="stats-row">
-  <div class="stat">
-    <div class="stat-number">150+</div>
-    <div class="stat-label">Cities supplied across Europe</div>
-  </div>
-  <div class="stat">
-    <div class="stat-number">18 yrs</div>
-    <div class="stat-label">Hardware sourcing experience</div>
-  </div>
-  <div class="stat">
-    <div class="stat-number">2 wks</div>
-    <div class="stat-label">From brief to warm introduction</div>
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="hi">FMEA · Project Charter · Build Timeline — from your PRD</span><span>BOM Intelligence add-on — EOL flags, lead time risk, single-source alerts</span><span class="hi">AI Package €499 · Expert Package €1,200 · Agency Retainer from €2,500/mo</span><span>DFM Insights · Hardware Engineering Intelligence</span><span>Founded by Hans Stam · Author of The Hardest Hardware Lessons</span><span class="hi">Pre-Launch · Reserve Your Founding Spot for €49</span><span>Consultants charge €8,000. We charge €499.</span><span>DFM Insights · Hardware Engineering Intelligence</span><span class="hi">FMEA · Project Charter · Build Timeline — from your PRD</span><span>BOM Intelligence add-on — EOL flags, lead time risk, single-source alerts</span><span class="hi">AI Package €499 · Expert Package €1,200 · Agency Retainer from €2,500/mo</span><span>DFM Insights · Hardware Engineering Intelligence</span><span>Founded by Hans Stam · Author of The Hardest Hardware Lessons</span><span class="hi">Pre-Launch · Reserve Your Founding Spot for €49</span><span>Consultants charge €8,000. We charge €499.</span><span>DFM Insights · Hardware Engineering Intelligence</span>
   </div>
 </div>
 
-<section class="how-section" id="how">
-  <div class="section-tag">How it works</div>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01 —</div>
-      <h3>You brief me</h3>
-      <p>Tell me what you're building, your target unit cost, MOQ, certifications needed, and timeline. One call or a short intake form.</p>
+<nav>
+  <a class="nav-logo" href="/">DFM<em>·</em>Insights</a>
+  <div class="nav-links">
+    <a href="#deliverables" class="hs">Deliverables</a>
+    <a href="#pricing" class="hs">Pricing</a>
+    <a href="#how-it-works" class="hs">How It Works</a>
+    <a href="#demo" class="hs">Demo</a>
+    <a href="https://buy.stripe.com/00w9AV9ey0681SO2Gtb3q00" class="btn-nav" target="_blank" rel="noopener">Reserve — €49</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag"><div class="tag-dot"></div>Pre-Launch · Founding Member Pricing</div>
+    <div class="book-strip">
+      <span style="font-size:16px">📖</span>
+      <span>From the author of <a href="https://thehardesthardwarelessons.com/" target="_blank" rel="noopener">The Hardest Hardware Lessons</a></span>
     </div>
-    <div class="step">
-      <div class="step-num">02 —</div>
-      <h3>I find your factory</h3>
-      <p>I pull from 18 years of relationships in Guangdong and Jiangsu. I shortlist 3–5 suppliers who actually match your product and production volume.</p>
+    <h1>The three documents<br>every hardware program<br><em>actually needs</em></h1>
+    <p class="hero-sub">Upload your PRD and BOM. We generate a full FMEA report, project charter, and EVT/DVT/PVT timeline — documents consultants charge €8,000 for. We charge €499.</p>
+    <div class="deliv-pills">
+      <div class="deliv-pill">
+        <div class="deliv-pill-icon">⚠️</div>
+        <div class="deliv-pill-text">
+          <strong>FMEA Report</strong>
+          <span>Failure modes by subsystem · severity · RPN scores · mitigations</span>
+        </div>
+      </div>
+      <div class="deliv-pill">
+        <div class="deliv-pill-icon">📋</div>
+        <div class="deliv-pill-text">
+          <strong>Project Charter</strong>
+          <span>Scope · objectives · team · risks · success criteria</span>
+        </div>
+      </div>
+      <div class="deliv-pill">
+        <div class="deliv-pill-icon">📅</div>
+        <div class="deliv-pill-text">
+          <strong>Build Stage Timeline</strong>
+          <span>EVT / DVT / PVT · lead times · regulatory milestones · CM slots</span>
+        </div>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">03 —</div>
-      <h3>You get warm intros</h3>
-      <p>I make direct introductions over WeChat and email. You walk in as a referred contact, not a cold inquiry from a foreign stranger.</p>
+    <div class="actions">
+      <a href="https://buy.stripe.com/00w9AV9ey0681SO2Gtb3q00" class="btn-a" target="_blank" rel="noopener">Reserve Founding Spot — €49 →</a>
+      <a href="#demo" class="btn-b">See Free Demo</a>
+    </div>
+    <div class="trust">
+      <div class="trust-item"><span class="trust-check">✓</span> Full refund if we don't launch</div>
+      <div class="trust-item"><span class="trust-check">✓</span> €49 credited to your first package</div>
+      <div class="trust-item"><span class="trust-check">✓</span> Secured by Stripe</div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="plcard">
+      <div class="pl-badge"><div class="tag-dot" style="width:5px;height:5px"></div>Founding Member Offer</div>
+      <h3>Reserve now,<br>pay the rest on launch</h3>
+      <p>Pay €49 today to secure your founding member spot. Your €49 is credited in full against the AI Package (€499) or Expert Package (€1,200) when we launch. Interested in agency volume? Contact Hans directly on LinkedIn.</p>
+      <div class="counter-box">
+        <div class="counter-lbl">Founding Member Progress</div>
+        <div class="track"><div class="fill" id="fill"></div></div>
+        <div class="counter-txt">
+          <span><strong id="spots">0</strong> of 10 spots taken</span>
+          <span style="color:rgba(255,255,255,.25)">10 needed to launch</span>
+        </div>
+      </div>
+      <div class="price-row">
+        <div class="price-big">€49</div>
+        <div class="price-orig">deposit</div>
+      </div>
+      <div class="price-note">reserve today · credited to AI Package (€499) or Expert Package (€1,200)</div>
+      <div class="price-credit">✦ €49 is fully credited — you only pay the balance on launch</div>
+      <a href="https://buy.stripe.com/00w9AV9ey0681SO2Gtb3q00" class="stripe-btn" target="_blank" rel="noopener">Reserve My Spot — €49 →</a>
+      <div class="stripe-note">🔒 Stripe secured · Full refund if we don't hit 10 members</div>
     </div>
   </div>
 </section>
 
-<section class="about-section">
-  <div class="about-left">
-    <h2>This isn't a directory. It's 18 years of relationships.</h2>
-    <p>Anyone can scrape Alibaba. What you can't buy is knowing which factory actually hits deadlines, which sales rep will disappear after sampling, and who to call when something goes wrong at the line.</p>
-    <p>I've spent 18 years in hardware — and years on the ground in Shenzhen and Guangdong visiting factories, negotiating contracts, managing supplier relationships for one of Europe's largest hardware fleets. I wrote the book on hardware product development. Literally.</p>
-  </div>
-  <div class="about-right">
-    <div class="name">Hans Stam</div>
-    <div class="title">Founder, Factory Truth</div>
-    <p>Category Manager at Voi Technology. Hardware procurement across 150+ European cities. Author of The Hardest Hardware Lessons.</p>
-    <div class="credentials">
-      <div class="credential">Voi Technology — Category Manager</div>
-      <div class="credential">Guangdong &amp; Jiangsu supplier network</div>
-      <div class="credential">Canton Fair — annual participant</div>
-      <div class="credential">WeChat: hans863</div>
+<!-- VS CONSULTANTS -->
+<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 40px;background:var(--cream)">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+    <div style="flex:1;min-width:260px">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:6px">The honest comparison</div>
+      <div style="font-size:15px;font-weight:600;color:var(--ink)">A mid-tier hardware consultancy charges <span style="color:#b83232;text-decoration:line-through">€8,000–€15,000</span> for these same three documents.</div>
+    </div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;flex-shrink:0">
+      <div style="text-align:center;padding:16px 24px;background:var(--white);border:1px solid var(--border);border-radius:10px">
+        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-bottom:4px">Consultancy</div>
+        <div style="font-family:var(--font-serif);font-size:28px;color:#b83232">€8–15k</div>
+      </div>
+      <div style="text-align:center;padding:16px 24px;background:var(--amber-bg);border:1px solid #f0c878;border-radius:10px">
+        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#a06c10;margin-bottom:4px">DFM Insights AI</div>
+        <div style="font-family:var(--font-serif);font-size:28px;color:var(--ink)">€499</div>
+      </div>
+      <div style="text-align:center;padding:16px 24px;background:var(--white);border:1px solid var(--border);border-radius:10px">
+        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-bottom:4px">DFM Insights Expert</div>
+        <div style="font-family:var(--font-serif);font-size:28px;color:var(--ink)">€1,200</div>
+      </div>
     </div>
   </div>
-</section>
+</div>
 
-<section class="pricing-section">
-  <h2>One engagement. One flat fee.</h2>
-  <div class="pricing-sub">No retainers. No commissions. No surprises.</div>
-  <div class="pricing-card">
-    <div>
-      <div class="price-label">Sourcing Engagement</div>
-      <div class="price-amount">€2,000</div>
-      <div class="price-desc">Flat fee — paid upfront</div>
-      <ul class="price-includes">
-        <li>Intake call to understand your product and requirements</li>
-        <li>Shortlist of 3–5 vetted, matched suppliers</li>
-        <li>Personal notes on each — strengths, risks, fit</li>
-        <li>Warm introductions via WeChat and email</li>
-        <li>2 weeks of follow-up support as conversations open</li>
-        <li>No commission arrangement with any factory</li>
-      </ul>
-    </div>
-    <div class="price-cta-col">
-      <a class="btn-outline" href="#intake">Apply now</a>
-      <div class="spots-left">2 spots / month</div>
-    </div>
-  </div>
-</section>
+<!-- DELIVERABLES -->
+<section id="deliverables" class="sec">
+  <div class="sec-inner">
+    <div class="sec-lbl">The Deliverables</div>
+    <h2>Three documents. <em>Everything your program needs.</em></h2>
+    <p class="sec-sub">These aren't summaries or AI chatbot answers. They are structured, formal deliverables — the kind that go into a Design History File, get presented to investors, and satisfy regulatory auditors.</p>
 
-<section class="intake-section" id="intake">
-  <h2>Tell me what you're building.</h2>
-  <div class="sub">I'll follow up within 48 hours to confirm fit and next steps.</div>
-  <form id="intake-form" action="https://formspree.io/f/xzdjavwd" method="POST">
-    <div class="form-grid">
+    <div class="deliv-grid">
 
-      <div class="form-group">
-        <label for="name">Your name</label>
-        <input type="text" id="name" name="name" placeholder="Jane Smith" required>
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="jane@yourcompany.com" required>
-      </div>
-
-      <div class="form-group full">
-        <label for="product">What are you building?</label>
-        <input type="text" id="product" name="product" placeholder="e.g. Smart bike lock for consumer market" required>
-      </div>
-
-      <div class="form-group full">
-        <label for="stage">Where is your project right now?</label>
-        <select id="stage" name="project_stage" required>
-          <option value="" disabled selected>Select a stage</option>
-          <option value="idea">Idea stage — no prototype yet</option>
-          <option value="prototype">Prototype exists, not yet sampled</option>
-          <option value="sampled">Sampled with a factory, looking for alternatives</option>
-          <option value="scaling">Currently in production, looking to diversify</option>
-        </select>
-      </div>
-
-      <div class="form-group full">
-        <label>Has your product been sampled by a Chinese factory before?</label>
-        <div class="radio-group">
-          <label class="radio-option">
-            <input type="radio" name="previously_sampled" value="Yes">
-            <span>Yes</span>
-          </label>
-          <label class="radio-option">
-            <input type="radio" name="previously_sampled" value="No">
-            <span>No</span>
-          </label>
+      <!-- FMEA -->
+      <div class="deliv-row">
+        <div class="deliv-num">
+          <div class="deliv-num-n">1</div>
+          <div class="deliv-num-icon">⚠️</div>
+        </div>
+        <div class="deliv-main">
+          <div class="deliv-name">FMEA Report</div>
+          <div class="deliv-desc">A Failure Mode and Effects Analysis structured by subsystem — Mechanical, Electrical, RF, Software, Battery, Manufacturing. Every failure mode is scored for Severity, Occurrence, and Detectability, producing an RPN (Risk Priority Number) and a recommended mitigation action. This is the document that tells your team exactly what could go wrong and how likely it is.</div>
+          <div class="deliv-tags">
+            <span class="deliv-tag">ISO 14971</span>
+            <span class="deliv-tag">IATF 16949</span>
+            <span class="deliv-tag">FDA DHF compatible</span>
+            <span class="deliv-tag">IEC 60812</span>
+            <span class="deliv-tag">RPN scoring</span>
+          </div>
+        </div>
+        <div class="deliv-side">
+          <div class="deliv-side-lbl">What's included</div>
+          <ul class="deliv-items">
+            <li>Failure modes by subsystem (ME, EE, RF, SW, BAT, MFG)</li>
+            <li>Severity / Occurrence / Detectability ratings</li>
+            <li>RPN scores with threshold flagging</li>
+            <li>Recommended mitigation per failure mode</li>
+            <li>Current vs proposed control comparison</li>
+            <li>Summary table sorted by RPN priority</li>
+          </ul>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="cost">Target unit cost (USD)</label>
-        <input type="text" id="cost" name="target_unit_cost" placeholder="e.g. $25–40">
+      <!-- Project Charter -->
+      <div class="deliv-row shade">
+        <div class="deliv-num">
+          <div class="deliv-num-n">2</div>
+          <div class="deliv-num-icon">📋</div>
+        </div>
+        <div class="deliv-main">
+          <div class="deliv-name">Project Charter</div>
+          <div class="deliv-desc">A formal project charter that defines the scope, objectives, team structure, key constraints, and success criteria for your hardware program. Derived directly from your PRD so every element maps to your actual product — not a generic template. This is the document you present to get internal budget approved, align your team at kickoff, and anchor decisions when scope creep appears.</div>
+          <div class="deliv-tags">
+            <span class="deliv-tag">PMI-aligned</span>
+            <span class="deliv-tag">Team RACI</span>
+            <span class="deliv-tag">Risk register</span>
+            <span class="deliv-tag">Success criteria</span>
+            <span class="deliv-tag">Budget framework</span>
+          </div>
+        </div>
+        <div class="deliv-side">
+          <div class="deliv-side-lbl">What's included</div>
+          <ul class="deliv-items">
+            <li>Product vision and program objectives</li>
+            <li>In-scope / out-of-scope definition</li>
+            <li>Team structure with RACI matrix</li>
+            <li>Key constraints (budget, schedule, regulatory)</li>
+            <li>Top 5 program risks with mitigation</li>
+            <li>Success criteria and exit conditions</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="moq">First order quantity</label>
-        <input type="text" id="moq" name="first_order_quantity" placeholder="e.g. 500 units">
+      <!-- Timeline -->
+      <div class="deliv-row">
+        <div class="deliv-num">
+          <div class="deliv-num-n">3</div>
+          <div class="deliv-num-icon">📅</div>
+        </div>
+        <div class="deliv-main">
+          <div class="deliv-name">Build Stage Timeline</div>
+          <div class="deliv-desc">A realistic EVT / DVT / PVT program timeline built around your product's specific requirements — including regulatory submission lead times, certification windows, CM build slot planning, and key engineering milestones. Not a generic Gantt. A schedule that reflects the actual constraints of your product: if you need FDA 510(k), the clinical study duration is in there. If you need UL listing, the witness test window is in there.</div>
+          <div class="deliv-tags">
+            <span class="deliv-tag">EVT / DVT / PVT</span>
+            <span class="deliv-tag">CM slot planning</span>
+            <span class="deliv-tag">Regulatory milestones</span>
+            <span class="deliv-tag">Lead time buffers</span>
+            <span class="deliv-tag">Gate criteria</span>
+          </div>
+        </div>
+        <div class="deliv-side">
+          <div class="deliv-side-lbl">What's included</div>
+          <ul class="deliv-items">
+            <li>Full EVT / DVT / PVT phase breakdown</li>
+            <li>Critical path identification</li>
+            <li>Long-lead item flags (tooling, cells, ICs)</li>
+            <li>Regulatory submission windows (CE, FCC, FDA)</li>
+            <li>CM slot risk and buffer recommendations</li>
+            <li>Gate criteria per build stage</li>
+          </ul>
+        </div>
       </div>
-
-      <div class="form-group full">
-        <label for="notes">Anything else I should know?</label>
-        <textarea id="notes" name="notes" placeholder="Certifications needed, timeline, previous suppliers tried..."></textarea>
-      </div>
-
-      <p class="budget-note">The engagement fee is €2,000 flat, paid upfront. By submitting you confirm you're aware of and comfortable with this.</p>
 
     </div>
-    <div class="form-submit">
-      <button class="btn-primary" type="submit">Send my brief →</button>
-      <span class="form-note">No spam. I read every submission personally.</span>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="sec" style="background:var(--cream);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="sec-inner">
+    <div class="sec-lbl">How It Works</div>
+    <h2>From PRD to three formal documents <em>in 48 hours</em></h2>
+    <p class="sec-sub">No consultant waitlist. No kickoff call. Upload your documents, we get to work.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-icon">📄</div>
+        <h4>Upload your PRD & BOM</h4>
+        <p>PDF, Word, Excel, CSV — whatever format your documents are in. Add any additional context: target markets, regulatory requirements, CM constraints.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div class="step-icon">🤖</div>
+        <h4>AI engineering team analyses</h4>
+        <p>Nine specialist AI disciplines — Mechanical, Electrical, RF, Battery, Software, Manufacturing and more — read your documents and identify failure modes, risks, and constraints.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-icon">✍️</div>
+        <h4>Documents are generated</h4>
+        <p>Your FMEA, Project Charter, and Build Timeline are generated as structured, formal documents — tailored to your product, not a generic template.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <div class="step-icon">📬</div>
+        <h4>Delivered in 48 hours</h4>
+        <p>AI Package: documents delivered automatically in 48h. Expert Package: AI generates first, Hans reviews every section and applies his experience before sign-off. Delivered with a 60-minute video walkthrough.</p>
+      </div>
     </div>
-    <div class="success-msg" id="success-msg">Got it — I'll be in touch within 48 hours.</div>
-  </form>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="sec">
+  <div class="sec-inner">
+    <div class="sec-lbl">Pricing</div>
+    <h2>Four ways to work <em>with us</em></h2>
+    <p class="sec-sub">From a free demo to a fully managed agency retainer. Every paid tier generates FMEA, project charter, and build timeline from your PRD and BOM.</p>
+
+    <!-- Top row: 3 project-based tiers -->
+    <div class="pgridp">
+
+      <div class="pcard">
+        <div class="p-tier">Free Demo</div>
+        <div class="p-price">€0</div>
+        <div class="p-period">No account needed</div>
+        <div class="p-desc">See 10 example hardware programs with full DFM conversations — so you understand exactly what expert review looks like before you commit.</div>
+        <ul class="p-feats">
+          <li><span class="fck">✓</span>10 example products</li>
+          <li><span class="fck">✓</span>EVT / DVT / PVT conversations</li>
+          <li><span class="fck">✓</span>Stage gate reviews</li>
+          <li><span class="fck">✓</span>Planning sessions</li>
+          <li><span class="fck">✓</span>No signup required</li>
+        </ul>
+        <a href="demo.html" class="pcta out" target="_blank">Explore the Demo →</a>
+      </div>
+
+      <div class="pcard feat">
+        <div class="feat-badge">Most Popular</div>
+        <div class="p-tier">AI Package</div>
+        <div class="p-price">€499</div>
+        <div class="p-period">per project · one-time</div>
+        <div class="p-desc">Upload your PRD and BOM. Our AI engineering team generates your FMEA report, project charter, and build timeline. Formal deliverables, 48h turnaround.</div>
+        <ul class="p-feats">
+          <li><span class="fck">✓</span>FMEA report — all subsystems</li>
+          <li><span class="fck">✓</span>Project charter with RACI</li>
+          <li><span class="fck">✓</span>EVT/DVT/PVT build timeline</li>
+          <li><span class="fck">✓</span>PDF + Word editable formats</li>
+          <li><span class="fck">✓</span>10 refinement questions included</li>
+          <li><span class="fck">✓</span>48h delivery</li>
+          <li><span class="fck">✓</span>€49 founding deposit credited</li>
+        </ul>
+        <a href="https://buy.stripe.com/00w9AV9ey0681SO2Gtb3q00" class="pcta sol" target="_blank" rel="noopener">Reserve Now — €49 deposit →</a>
+      </div>
+
+      <div class="pcard">
+        <div class="p-tier">Expert Package</div>
+        <div class="p-price">€1,200</div>
+        <div class="p-period">per project · Hans + AI</div>
+        <div class="p-desc">AI generates the full FMEA, charter and timeline. Hans then reviews every section, applies his judgment from 20+ hardware programs, and signs off before delivery. You get the speed of AI with the credibility of an expert.</div>
+        <ul class="p-feats">
+          <li><span class="fck">✓</span>Everything in AI Package</li>
+          <li><span class="fck">✓</span>Personal review by Hans Stam</li>
+          <li><span class="fck">✓</span>Video walkthrough call (60 min)</li>
+          <li><span class="fck">✓</span>Formal NDA on request</li>
+          <li><span class="fck">✓</span>3 follow-up questions post-delivery</li>
+          <li><span class="fck">✓</span>€49 founding deposit credited</li>
+        </ul>
+        <a href="https://www.linkedin.com/in/hansstam/" class="pcta out" target="_blank" rel="noopener">Contact Hans on LinkedIn →</a>
+      </div>
+
+    </div>
+
+    <!-- BOM Intelligence add-on strip -->
+    <div style="margin-top:16px;padding:22px 28px;background:var(--amber-bg);border:2px solid #f0c878;border-radius:12px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="font-size:28px;flex-shrink:0">🔍</div>
+      <div style="flex:1;min-width:220px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;flex-wrap:wrap">
+          <div style="font-size:15px;font-weight:600;color:var(--ink)">BOM Intelligence Report</div>
+          <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--amber);color:var(--ink);padding:3px 10px;border-radius:4px;font-weight:700">Add-On</span>
+        </div>
+        <div style="font-size:13px;color:var(--mid);line-height:1.65">EOL and NRND component flags · single-source risk · long lead time alerts · counterfeit risk signals · alternative sourcing recommendations. Add to any paid package.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div style="font-family:var(--font-serif);font-size:28px;color:var(--ink)">€199 <span style="font-size:14px;color:var(--mid);font-family:var(--font-sans)">standalone</span></div>
+        <div style="font-size:13px;color:var(--green);font-weight:600">€599 bundled with AI Package <span style="color:var(--mid);font-weight:400">(save €99)</span></div>
+        <div style="font-size:13px;color:var(--mid)">€1,350 bundled with Expert Package <span style="color:var(--mid)">(save €49)</span></div>
+      </div>
+    </div>
+
+    <!-- Agency retainer — full-width card -->
+    <div style="margin-top:16px;background:var(--ink);border-radius:14px;padding:36px;color:var(--white);position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(232,164,59,.12) 0%,transparent 55%);pointer-events:none"></div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;flex-wrap:wrap">
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+            <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.35)">Agency & Consultancy Retainer</div>
+            <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:rgba(232,164,59,.2);border:1px solid rgba(232,164,59,.4);color:var(--amber);padding:3px 10px;border-radius:4px">Monthly · White-Label Available</span>
+          </div>
+          <div style="font-family:var(--font-serif);font-size:26px;color:var(--white);margin-bottom:10px;line-height:1.2">For NPI consultancies, EMS providers &amp; contract manufacturers running multiple hardware programs</div>
+          <div style="font-size:14px;color:rgba(255,255,255,.55);line-height:1.72;margin-bottom:20px;max-width:580px">If you're running 5–50 hardware programs per year, paying €499 per project adds up fast. The retainer gives you a fixed monthly cost, volume pricing, and the option to white-label all deliverables under your own brand — so your clients see your logo, not ours.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:14px 16px">
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px">Starter</div>
+              <div style="font-family:var(--font-serif);font-size:24px;color:var(--white);margin-bottom:3px">€2,500<span style="font-size:13px;font-family:var(--font-sans);color:rgba(255,255,255,.4)">/mo</span></div>
+              <div style="font-size:12px;color:rgba(255,255,255,.45)">10 projects/month — €250 per project</div>
+            </div>
+            <div style="background:rgba(232,164,59,.12);border:1px solid rgba(232,164,59,.3);border-radius:8px;padding:14px 16px">
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:6px">Growth</div>
+              <div style="font-family:var(--font-serif);font-size:24px;color:var(--white);margin-bottom:3px">€4,500<span style="font-size:13px;font-family:var(--font-sans);color:rgba(255,255,255,.4)">/mo</span></div>
+              <div style="font-size:12px;color:rgba(255,255,255,.45)">25 projects/month — €180 per project + white-label</div>
+            </div>
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:14px 16px">
+              <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px">Enterprise</div>
+              <div style="font-family:var(--font-serif);font-size:24px;color:var(--white);margin-bottom:3px">€8,000<span style="font-size:13px;font-family:var(--font-sans);color:rgba(255,255,255,.4)">/mo</span></div>
+              <div style="font-size:12px;color:rgba(255,255,255,.45)">50 projects/month — €160 per project + white-label</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:16px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)"><span style="color:var(--amber);font-weight:700">✓</span>All deliverables included per project</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)"><span style="color:var(--amber);font-weight:700">✓</span>BOM Intelligence included on Growth &amp; Enterprise</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)"><span style="color:var(--amber);font-weight:700">✓</span>White-label deliverables on Growth &amp; Enterprise</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)"><span style="color:var(--amber);font-weight:700">✓</span>Dedicated account management</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.5)"><span style="color:var(--amber);font-weight:700">✓</span>Volume NDA available</div>
+          </div>
+        </div>
+        <div style="flex-shrink:0;min-width:180px;display:flex;flex-direction:column;gap:10px;align-self:center">
+          <a href="https://www.linkedin.com/in/hansstam/" target="_blank" rel="noopener" style="display:block;background:var(--amber);color:var(--ink);padding:13px 22px;border-radius:8px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;transition:all .2s;white-space:nowrap">Talk to Hans →</a>
+          <div style="font-size:11px;color:rgba(255,255,255,.25);text-align:center;line-height:1.6">Contact via LinkedIn to discuss your volume and requirements. AI generates all deliverables — Hans provides quality oversight and sign-off.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="sec" style="background:var(--cream);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="sec-inner">
+    <div class="sec-lbl">Who It's For</div>
+    <h2>If you're building hardware, <em>you need these documents</em></h2>
+    <div class="for-grid">
+      <div class="for-cell">
+        <div class="for-icon">🚀</div>
+        <div class="for-head">Hardware Startups</div>
+        <div class="for-body">You need an FMEA for your investor deck, a project charter to get internal budget approved, and a realistic timeline that accounts for regulatory lead times. You don't have a DFM consultant on staff. Now you don't need one.</div>
+      </div>
+      <div class="for-cell sh">
+        <div class="for-icon">🏥</div>
+        <div class="for-head">Medical Device Companies</div>
+        <div class="for-body">ISO 14971 risk management requires a formal FMEA in your Design History File. FDA 510(k) and CE marking programs need a documented project timeline. These are regulatory requirements, not optional — and generating them manually takes weeks.</div>
+      </div>
+      <div class="for-cell sh">
+        <div class="for-icon">⚙️</div>
+        <div class="for-head">Hardware Engineering Teams</div>
+        <div class="for-body">You're deep in the design. Writing a formal FMEA is the last thing you want to spend a week on. Upload your PRD and BOM and get a structured first draft in 48 hours — so your team can focus on the engineering, not the documentation.</div>
+      </div>
+      <div class="for-cell dk">
+        <div class="for-icon">🤝</div>
+        <div class="for-head">Agencies & Consultancies</div>
+        <div class="for-body">If you're running NPI programs for clients, DFM Insights accelerates your deliverable production dramatically. Use the AI Package as a first-draft engine and the Expert Review as your sign-off layer. White-label arrangements available — contact Hans directly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo" class="demo-sec">
+  <div class="sec-inner" style="padding:80px 40px">
+    <div class="sec-lbl">Free Demo</div>
+    <h2>See what expert DFM analysis <em>looks like</em></h2>
+    <p class="sec-sub">10 example hardware programs — earbuds, EV chargers, medical patches, gaming handhelds. See the engineering conversations, planning sessions, and stage gate reviews that your FMEA and charter are built from.</p>
+    <div class="demo-frame">
+      <div class="demo-chrome">
+        <div class="cd" style="background:#ff5f57"></div>
+        <div class="cd" style="background:#ffbd2e"></div>
+        <div class="cd" style="background:#28c840"></div>
+        <div class="cu">dfminsights.com/demo</div>
+      </div>
+      <div class="demo-wrap">
+        <iframe src="demo.html" title="DFM Insights Demo" loading="lazy"></iframe>
+        <div class="demo-ovl">
+          <a href="demo.html" class="demo-btn" target="_blank">🚀 Open Full Demo →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="sec" style="border-top:1px solid var(--border)">
+  <div class="sec-inner">
+    <div class="sec-lbl">Roadmap</div>
+    <h2>Where we are and <em>where we're going</em></h2>
+    <div class="rgrid">
+      <div class="rphase">
+        <div class="rlbl">Phase 1</div>
+        <div class="rname">Validation</div>
+        <div class="rstatus s-live">● Live Now</div>
+        <ul class="ritems">
+          <li>Free demo — 10 example programs</li>
+          <li>Pre-launch €49 deposit collection</li>
+          <li>10 founding members target</li>
+          <li>Expert Package — Hans + AI, enquire via LinkedIn</li>
+        </ul>
+      </div>
+      <div class="rphase">
+        <div class="rlbl">Phase 2</div>
+        <div class="rname">AI Package Launch</div>
+        <div class="rstatus s-soon">◐ After 10 Members</div>
+        <ul class="ritems">
+          <li>PRD + BOM upload portal</li>
+          <li>Automated FMEA generation</li>
+          <li>Project charter generation</li>
+          <li>Build timeline generation</li>
+          <li>PDF + Word download</li>
+          <li>10 refinement questions per project</li>
+        </ul>
+      </div>
+      <div class="rphase">
+        <div class="rlbl">Phase 3</div>
+        <div class="rname">Platform Expansion</div>
+        <div class="rstatus s-future">○ Q3 2026</div>
+        <ul class="ritems">
+          <li>AI PRD generator</li>
+          <li>BOM risk and lifecycle analysis</li>
+          <li>Regulatory submission checklists</li>
+          <li>Team collaboration features</li>
+          <li>White-label for agencies</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <h2>Your program needs these<br><em>documents anyway</em></h2>
+  <p>Reserve your founding spot for €49. Credited in full when we launch.</p>
+  <div class="cta-acts">
+    <a href="https://buy.stripe.com/00w9AV9ey0681SO2Gtb3q00" class="btn-a" target="_blank" rel="noopener">Reserve My Spot — €49 →</a>
+    <a href="demo.html" class="btn-b" style="border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.7)" target="_blank">Try Free Demo First</a>
+  </div>
+  <div class="cta-note">🔒 Stripe secured · €49 fully credited at launch · Full refund if we don't launch · <a href="https://www.linkedin.com/in/hansstam/" target="_blank" rel="noopener" style="color:rgba(255,255,255,.3);text-decoration:none">linkedin.com/in/hansstam</a></div>
 </section>
 
 <footer>
-  <div class="footer-logo">Factory Truth</div>
-  <div class="footer-links">
-    <a href="mailto:hans@factorytruth.com">hans@factorytruth.com</a>
-    <a href="https://thehardesthardwarelessons.com" target="_blank">The Book</a>
-    <a href="https://www.linkedin.com/in/hansstam/" target="_blank">LinkedIn</a>
+  <div class="ft-inner">
+    <div class="ft-brand">
+      <a class="ft-logo" href="/">DFM<em>·</em>Insights</a>
+      <p class="ft-tag">FMEA reports, project charters and build timelines — generated from your PRD and BOM. Built on real hardware experience.</p>
+    </div>
+    <div class="ft-col">
+      <div class="ft-cl">Product</div>
+      <ul class="ft-links">
+        <li><a href="#deliverables">Deliverables</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="demo.html" target="_blank">Free Demo</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <div class="ft-cl">Packages</div>
+      <ul class="ft-links">
+        <li><a href="demo.html" target="_blank">Free Demo</a></li>
+        <li><a href="https://buy.stripe.com/00w9AV9ey0681SO2Gtb3q00" target="_blank" rel="noopener">AI Package — €499</a></li>
+        <li><a href="https://www.linkedin.com/in/hansstam/" target="_blank" rel="noopener">Expert Package — €1,200</a></li>
+        <li><a href="https://www.linkedin.com/in/hansstam/" target="_blank" rel="noopener">Agency Retainer — from €2,500/mo</a></li>
+        <li><a href="#pricing">BOM Intelligence — €199 add-on</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <div class="ft-cl">Contact</div>
+      <ul class="ft-links">
+        <li><a href="https://www.linkedin.com/in/hansstam/" target="_blank" rel="noopener">LinkedIn — Hans Stam</a></li>
+        <li><a href="https://github.com/hansstam86/dfminsights.com" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <div class="ft-cl">From the Founder</div>
+      <ul class="ft-links">
+        <li><a href="https://thehardesthardwarelessons.com/" target="_blank" rel="noopener">📖 The Hardest Hardware Lessons</a></li>
+        <li><a href="https://hansstam.eu/" target="_blank" rel="noopener">hansstam.eu</a></li>
+        <li><a href="https://www.linkedin.com/in/hansstam/" target="_blank" rel="noopener">About Hans Stam</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <div class="ft-copy">© <span id="yr"></span> DFM Insights. All rights reserved.</div>
+    <div class="ft-badges">
+      <span class="ft-badge">Stripe Secured</span>
+      <span class="ft-badge">IP Confidential</span>
+      <span class="ft-badge">No Cookies</span>
+    </div>
   </div>
 </footer>
 
 <script>
-  const form = document.getElementById('intake-form');
-  const successMsg = document.getElementById('success-msg');
+document.getElementById('yr').textContent = new Date().getFullYear();
 
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const data = new FormData(form);
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      });
-      if (response.ok) {
-        form.reset();
-        successMsg.style.display = 'block';
-        form.querySelector('.form-submit').style.display = 'none';
-      }
-    } catch (err) {
-      console.error(err);
-    }
+// CHAIRMAN: Update this number when people sign up
+const SPOTS_TAKEN = 0;
+window.addEventListener('load', () => {
+  document.getElementById('spots').textContent = SPOTS_TAKEN;
+  setTimeout(() => {
+    document.getElementById('fill').style.width = (SPOTS_TAKEN / 10 * 100) + '%';
+  }, 500);
+});
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior:'smooth', block:'start' }); }
   });
+});
 </script>
 
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Factory Truth — China Sourcing Concierge</title>
-<meta name="description" content="Stop burning time on Alibaba. Get a vetted shortlist of trusted Chinese suppliers with warm WeChat introductions — in two weeks.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #111010;
-    --bg-raised: #1A1917;
-    --bg-card: #1F1E1C;
-    --cream: #F0EBE1;
-    --cream-muted: rgba(240,235,225,0.55);
-    --cream-faint: rgba(240,235,225,0.2);
-    --rust: #C94F2C;
-    --rust-light: #E06040;
-    --border: rgba(240,235,225,0.1);
-    --border-mid: rgba(240,235,225,0.15);
-    --mono: 'DM Mono', monospace;
-    --display: 'Playfair Display', serif;
-    --sans: 'DM Sans', sans-serif;
-  }
-
-  html { font-size: 16px; }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--cream);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cream);
-    text-decoration: none;
-  }
-
-  .nav-cta {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--bg);
-    background: var(--cream);
-    border: none;
-    padding: 0.6rem 1.4rem;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .nav-cta:hover { background: var(--rust); color: var(--cream); }
-
-  .hero {
-    padding: 6rem 4rem 5rem;
-    max-width: 1100px;
-  }
-
-  .hero-tag {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .hero-tag::before {
-    content: '';
-    display: block;
-    width: 24px;
-    height: 1px;
-    background: var(--rust);
-  }
-
-  h1 {
-    font-family: var(--display);
-    font-size: clamp(3rem, 6vw, 5.5rem);
-    font-weight: 900;
-    line-height: 1.0;
-    letter-spacing: -0.02em;
-    color: var(--cream);
-    max-width: 820px;
-    margin-bottom: 2rem;
-  }
-
-  h1 em {
-    font-style: italic;
-    color: var(--rust);
-  }
-
-  .hero-sub {
-    font-size: 1.15rem;
-    font-weight: 300;
-    color: var(--cream-muted);
-    max-width: 560px;
-    line-height: 1.75;
-    margin-bottom: 3rem;
-  }
-
-  .cta-row {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .btn-primary {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--bg);
-    background: var(--cream);
-    border: none;
-    padding: 1rem 2.5rem;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .btn-primary:hover { background: var(--rust); color: var(--cream); }
-
-  .btn-secondary {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-    text-decoration: none;
-    border-bottom: 1px solid var(--border-mid);
-    padding-bottom: 2px;
-    transition: color 0.15s, border-color 0.15s;
-  }
-
-  .btn-secondary:hover { color: var(--rust); border-color: var(--rust); }
-
-  .divider {
-    width: calc(100% - 8rem);
-    height: 1px;
-    background: var(--border);
-    margin: 0 4rem;
-  }
-
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    padding: 3rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .stat {
-    padding: 0 2rem 0 0;
-    border-right: 1px solid var(--border);
-  }
-
-  .stat:first-child { padding-left: 0; }
-  .stat:last-child { border-right: none; padding-left: 2rem; }
-  .stat:nth-child(2) { padding-left: 2rem; }
-
-  .stat-number {
-    font-family: var(--display);
-    font-size: 2.8rem;
-    font-weight: 700;
-    color: var(--cream);
-    line-height: 1;
-    margin-bottom: 0.4rem;
-  }
-
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-  }
-
-  .how-section {
-    padding: 5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .section-tag {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-    margin-bottom: 3rem;
-  }
-
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .step {
-    padding: 0 2.5rem 0 0;
-    border-right: 1px solid var(--border);
-  }
-
-  .step:last-child { border-right: none; padding-right: 0; padding-left: 2.5rem; }
-  .step:nth-child(2) { padding-left: 2.5rem; }
-
-  .step-num {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--rust);
-    margin-bottom: 1rem;
-  }
-
-  .step h3 {
-    font-family: var(--display);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.75rem;
-    line-height: 1.2;
-  }
-
-  .step p {
-    font-size: 0.95rem;
-    color: var(--cream-muted);
-    line-height: 1.75;
-    font-weight: 300;
-  }
-
-  .about-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 5rem 4rem;
-    gap: 6rem;
-    border-bottom: 1px solid var(--border);
-    align-items: center;
-  }
-
-  .about-left h2 {
-    font-family: var(--display);
-    font-size: clamp(2rem, 3.5vw, 3rem);
-    font-weight: 700;
-    line-height: 1.15;
-    color: var(--cream);
-    margin-bottom: 1.5rem;
-  }
-
-  .about-left p {
-    font-size: 1rem;
-    color: var(--cream-muted);
-    line-height: 1.85;
-    font-weight: 300;
-    margin-bottom: 1rem;
-  }
-
-  .about-right {
-    background: var(--bg-card);
-    border: 1px solid var(--border-mid);
-    padding: 2.5rem;
-  }
-
-  .about-right .name {
-    font-family: var(--display);
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.25rem;
-  }
-
-  .about-right .title {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 1.5rem;
-  }
-
-  .about-right p {
-    font-size: 0.9rem;
-    color: var(--cream-muted);
-    line-height: 1.8;
-    font-weight: 300;
-  }
-
-  .credentials {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .credential {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--cream-faint);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .credential::before {
-    content: '';
-    display: block;
-    width: 16px;
-    height: 1px;
-    background: var(--rust);
-    flex-shrink: 0;
-  }
-
-  .pricing-section {
-    padding: 5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .pricing-section h2 {
-    font-family: var(--display);
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.5rem;
-  }
-
-  .pricing-sub {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    margin-bottom: 3rem;
-  }
-
-  .pricing-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-mid);
-    padding: 3rem;
-    max-width: 580px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2rem;
-    align-items: start;
-  }
-
-  .price-label {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--rust);
-    margin-bottom: 0.5rem;
-  }
-
-  .price-amount {
-    font-family: var(--display);
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--cream);
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  .price-desc {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--cream-faint);
-    margin-bottom: 1.5rem;
-  }
-
-  .price-includes {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .price-includes li {
-    font-size: 0.9rem;
-    color: var(--cream-muted);
-    font-weight: 300;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .price-includes li::before {
-    content: '';
-    display: block;
-    width: 12px;
-    height: 1px;
-    background: var(--rust);
-    flex-shrink: 0;
-    margin-top: 0.6em;
-  }
-
-  .price-cta-col {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1rem;
-    padding-top: 0.5rem;
-  }
-
-  .btn-outline {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--cream);
-    background: transparent;
-    border: 1px solid var(--border-mid);
-    padding: 0.9rem 1.8rem;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    white-space: nowrap;
-    transition: background 0.15s, border-color 0.15s;
-  }
-
-  .btn-outline:hover { background: var(--rust); border-color: var(--rust); }
-
-  .spots-left {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--rust);
-    text-align: right;
-  }
-
-  .intake-section {
-    padding: 5rem 4rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .intake-section h2 {
-    font-family: var(--display);
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 0.5rem;
-  }
-
-  .intake-section .sub {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: var(--cream-muted);
-    margin-bottom: 3rem;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.75rem;
-    max-width: 720px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .form-group.full { grid-column: 1 / -1; }
-
-  label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--cream-muted);
-  }
-
-  input, textarea, select {
-    font-family: var(--sans);
-    font-size: 0.95rem;
-    font-weight: 300;
-    color: var(--cream);
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border-mid);
-    padding: 0.6rem 0;
-    outline: none;
-    transition: border-color 0.15s;
-    width: 100%;
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
-
-  input::placeholder, textarea::placeholder { color: var(--cream-faint); }
-  input:focus, textarea:focus, select:focus { border-bottom-color: var(--cream); }
-  textarea { resize: none; min-height: 80px; }
-
-  select {
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(240,235,225,0.4)'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 4px center;
-    padding-right: 1.5rem;
-  }
-
-  select option { background: #1F1E1C; color: var(--cream); }
-
-  .radio-group {
-    display: flex;
-    gap: 2rem;
-    padding: 0.4rem 0;
-  }
-
-  .radio-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-
-  .radio-option input[type="radio"] {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    flex-shrink: 0;
-    accent-color: var(--rust);
-  }
-
-  .radio-option span {
-    font-family: var(--sans);
-    font-size: 0.95rem;
-    font-weight: 300;
-    color: var(--cream-muted);
-  }
-
-  .budget-note {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    color: var(--cream-faint);
-    line-height: 1.6;
-    grid-column: 1 / -1;
-    max-width: 720px;
-    padding-top: 0.25rem;
-  }
-
-  .form-submit {
-    margin-top: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .form-note {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--cream-faint);
-    letter-spacing: 0.04em;
-  }
-
-  .success-msg {
-    display: none;
-    font-family: var(--mono);
-    font-size: 13px;
-    letter-spacing: 0.06em;
-    color: var(--rust);
-    margin-top: 1.5rem;
-  }
-
-  footer {
-    padding: 2rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid var(--border);
-  }
-
-  .footer-logo {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--cream-faint);
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-  }
-
-  .footer-links a {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--cream-faint);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-
-  .footer-links a:hover { color: var(--rust); }
-
-  @media (max-width: 768px) {
-    nav, .hero, .stats-row, .how-section, .about-section, .pricing-section, .intake-section, footer {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-    .divider { margin: 0 1.5rem; width: calc(100% - 3rem); }
-    .stats-row, .steps, .about-section, .form-grid { grid-template-columns: 1fr; }
-    .stat { border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem 0; }
-    .stat:last-child { border-bottom: none; padding-left: 0; }
-    .stat:nth-child(2) { padding-left: 0; }
-    .step { border-right: none; border-bottom: 1px solid var(--border); padding: 1.5rem 0; }
-    .step:last-child { border-bottom: none; padding-left: 0; }
-    .step:nth-child(2) { padding-left: 0; }
-    .pricing-card { grid-template-columns: 1fr; }
-    .price-cta-col { align-items: flex-start; }
-    .about-section { gap: 3rem; }
-    .radio-group { gap: 1.5rem; }
-  }
-</style>
-</head>
-<body>
-
-<nav>
-  <a class="nav-logo" href="#">Factory Truth</a>
-  <a class="nav-cta" href="#intake">Apply for a spot</a>
-</nav>
-
-<section class="hero">
-  <div class="hero-tag">China sourcing concierge</div>
-  <h1>Your shortlist of <em>trusted</em> Chinese suppliers. In two weeks.</h1>
-  <p class="hero-sub">Stop burning time on Alibaba and trade show cold outreach. I find the right factory for your product — vetted, introduced over WeChat, and ready to quote.</p>
-  <div class="cta-row">
-    <a class="btn-primary" href="#intake">Tell me what you're building</a>
-    <a class="btn-secondary" href="#how">See how it works</a>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<div class="stats-row">
-  <div class="stat">
-    <div class="stat-number">150+</div>
-    <div class="stat-label">Cities supplied across Europe</div>
-  </div>
-  <div class="stat">
-    <div class="stat-number">18 yrs</div>
-    <div class="stat-label">Hardware sourcing experience</div>
-  </div>
-  <div class="stat">
-    <div class="stat-number">2 wks</div>
-    <div class="stat-label">From brief to warm introduction</div>
+<!-- ECOSYSTEM STRIP -->
+<div id="hs-ecosystem" style="background:#0a0a0a;border-top:1px solid #1a1a1a;padding:20px 40px;font-family:'DM Sans',system-ui,sans-serif">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#444;margin-bottom:14px;font-family:monospace">Hans Stam · Hardware Ecosystem</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:stretch">
+
+      <a href="https://thehardesthardwarelessons.com/" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:7px;text-decoration:none;border:1px solid;flex:1;min-width:160px;background:rgba(255,255,255,0.04);color:#ccc;border-color:#222">
+        <span style="font-size:16px;flex-shrink:0">📖</span>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:1px">The Book</div><div style="font-size:11px;opacity:.6;line-height:1.3">The Hardest Hardware Lessons</div></div>
+      </a>
+
+      <div style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:7px;border:1px solid;flex:1;min-width:160px;background:#e8a43b;color:#0a0a0a;border-color:#e8a43b;cursor:default">
+        <span style="font-size:16px;flex-shrink:0">⚠️</span>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:1px">DFM Insights</div><div style="font-size:11px;opacity:.7;line-height:1.3">FMEA · Charter · Timeline</div></div>
+      </div>
+
+      <a href="https://www.factorytruth.com/" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:7px;text-decoration:none;border:1px solid;flex:1;min-width:160px;background:rgba(255,255,255,0.04);color:#ccc;border-color:#222">
+        <span style="font-size:16px;flex-shrink:0">🏭</span>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:1px">Factory Truth</div><div style="font-size:11px;opacity:.6;line-height:1.3">China sourcing · vetted factories</div></div>
+      </a>
+
+      <a href="https://hansstam.eu/" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:7px;text-decoration:none;border:1px solid;flex:1;min-width:160px;background:rgba(255,255,255,0.04);color:#ccc;border-color:#222">
+        <span style="font-size:16px;flex-shrink:0">🔧</span>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:1px">Consulting</div><div style="font-size:11px;opacity:.6;line-height:1.3">Get unstuck · prototype to MP</div></div>
+      </a>
+
+      <a href="https://troublemakershenzhen.com/" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:7px;text-decoration:none;border:1px solid;flex:1;min-width:160px;background:rgba(255,255,255,0.04);color:#ccc;border-color:#222">
+        <span style="font-size:16px;flex-shrink:0">🇨🇳</span>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:1px">TroubleMaker</div><div style="font-size:11px;opacity:.6;line-height:1.3">Hardware hub · Shenzhen</div></div>
+      </a>
+
+      <a href="https://thehardesthardwarelessons.substack.com/" target="_blank" rel="noopener"
+         style="display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:7px;text-decoration:none;border:1px solid;flex:1;min-width:160px;background:rgba(255,255,255,0.04);color:#ccc;border-color:#222">
+        <span style="font-size:16px;flex-shrink:0">✍️</span>
+        <div><div style="font-size:12px;font-weight:600;margin-bottom:1px">Substack</div><div style="font-size:11px;opacity:.6;line-height:1.3">The unpublished version</div></div>
+      </a>
+
+    </div>
   </div>
 </div>
-
-<section class="how-section" id="how">
-  <div class="section-tag">How it works</div>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01 —</div>
-      <h3>You brief me</h3>
-      <p>Tell me what you're building, your target unit cost, MOQ, certifications needed, and timeline. One call or a short intake form.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">02 —</div>
-      <h3>I find your factory</h3>
-      <p>I pull from 18 years of relationships in Guangdong and Jiangsu. I shortlist 3–5 suppliers who actually match your product and production volume.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03 —</div>
-      <h3>You get warm intros</h3>
-      <p>I make direct introductions over WeChat and email. You walk in as a referred contact, not a cold inquiry from a foreign stranger.</p>
-    </div>
-  </div>
-</section>
-
-<section class="about-section">
-  <div class="about-left">
-    <h2>This isn't a directory. It's 18 years of relationships.</h2>
-    <p>Anyone can scrape Alibaba. What you can't buy is knowing which factory actually hits deadlines, which sales rep will disappear after sampling, and who to call when something goes wrong at the line.</p>
-    <p>I've spent 18 years in hardware — and years on the ground in Shenzhen and Guangdong visiting factories, negotiating contracts, managing supplier relationships for one of Europe's largest hardware fleets. I wrote the book on hardware product development. Literally.</p>
-  </div>
-  <div class="about-right">
-    <div class="name">Hans Stam</div>
-    <div class="title">Founder, Factory Truth</div>
-    <p>Category Manager at Voi Technology. Hardware procurement across 150+ European cities. Author of The Hardest Hardware Lessons.</p>
-    <div class="credentials">
-      <div class="credential">Voi Technology — Category Manager</div>
-      <div class="credential">Guangdong &amp; Jiangsu supplier network</div>
-      <div class="credential">Canton Fair — annual participant</div>
-      <div class="credential">WeChat: hans863</div>
-    </div>
-  </div>
-</section>
-
-<section class="pricing-section">
-  <h2>One engagement. One flat fee.</h2>
-  <div class="pricing-sub">No retainers. No commissions. No surprises.</div>
-  <div class="pricing-card">
-    <div>
-      <div class="price-label">Sourcing Engagement</div>
-      <div class="price-amount">€2,000</div>
-      <div class="price-desc">Flat fee — paid upfront</div>
-      <ul class="price-includes">
-        <li>Intake call to understand your product and requirements</li>
-        <li>Shortlist of 3–5 vetted, matched suppliers</li>
-        <li>Personal notes on each — strengths, risks, fit</li>
-        <li>Warm introductions via WeChat and email</li>
-        <li>2 weeks of follow-up support as conversations open</li>
-        <li>No commission arrangement with any factory</li>
-      </ul>
-    </div>
-    <div class="price-cta-col">
-      <a class="btn-outline" href="#intake">Apply now</a>
-      <div class="spots-left">2 spots / month</div>
-    </div>
-  </div>
-</section>
-
-<section class="intake-section" id="intake">
-  <h2>Tell me what you're building.</h2>
-  <div class="sub">I'll follow up within 48 hours to confirm fit and next steps.</div>
-  <form id="intake-form" action="https://formspree.io/f/xzdjavwd" method="POST">
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label for="name">Your name</label>
-        <input type="text" id="name" name="name" placeholder="Jane Smith" required>
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="jane@yourcompany.com" required>
-      </div>
-
-      <div class="form-group full">
-        <label for="product">What are you building?</label>
-        <input type="text" id="product" name="product" placeholder="e.g. Smart bike lock for consumer market" required>
-      </div>
-
-      <div class="form-group full">
-        <label for="stage">Where is your project right now?</label>
-        <select id="stage" name="project_stage" required>
-          <option value="" disabled selected>Select a stage</option>
-          <option value="idea">Idea stage — no prototype yet</option>
-          <option value="prototype">Prototype exists, not yet sampled</option>
-          <option value="sampled">Sampled with a factory, looking for alternatives</option>
-          <option value="scaling">Currently in production, looking to diversify</option>
-        </select>
-      </div>
-
-      <div class="form-group full">
-        <label>Has your product been sampled by a Chinese factory before?</label>
-        <div class="radio-group">
-          <label class="radio-option">
-            <input type="radio" name="previously_sampled" value="Yes">
-            <span>Yes</span>
-          </label>
-          <label class="radio-option">
-            <input type="radio" name="previously_sampled" value="No">
-            <span>No</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="cost">Target unit cost (USD)</label>
-        <input type="text" id="cost" name="target_unit_cost" placeholder="e.g. $25–40">
-      </div>
-
-      <div class="form-group">
-        <label for="moq">First order quantity</label>
-        <input type="text" id="moq" name="first_order_quantity" placeholder="e.g. 500 units">
-      </div>
-
-      <div class="form-group full">
-        <label for="notes">Anything else I should know?</label>
-        <textarea id="notes" name="notes" placeholder="Certifications needed, timeline, previous suppliers tried..."></textarea>
-      </div>
-
-      <p class="budget-note">The engagement fee is €2,000 flat, paid upfront. By submitting you confirm you're aware of and comfortable with this.</p>
-
-    </div>
-    <div class="form-submit">
-      <button class="btn-primary" type="submit">Send my brief →</button>
-      <span class="form-note">No spam. I read every submission personally.</span>
-    </div>
-    <div class="success-msg" id="success-msg">Got it — I'll be in touch within 48 hours.</div>
-  </form>
-</section>
-
-<footer>
-  <div class="footer-logo">Factory Truth</div>
-  <div class="footer-links">
-    <a href="mailto:hans@factorytruth.com">hans@factorytruth.com</a>
-    <a href="https://thehardesthardwarelessons.com" target="_blank">The Book</a>
-    <a href="https://www.linkedin.com/in/hansstam/" target="_blank">LinkedIn</a>
-  </div>
-</footer>
-
-<script>
-  const form = document.getElementById('intake-form');
-  const successMsg = document.getElementById('success-msg');
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const data = new FormData(form);
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: data,
-        headers: { 'Accept': 'application/json' }
-      });
-      if (response.ok) {
-        form.reset();
-        successMsg.style.display = 'block';
-        form.querySelector('.form-submit').style.display = 'none';
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  });
-</script>
-
 </body>
 </html>
